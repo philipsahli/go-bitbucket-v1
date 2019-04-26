@@ -1,4 +1,4 @@
-module github.com/gfleury/go-bitbucket-v1
+module github.com/philipsahli/go-bitbucket-v1
 
 go 1.12
 
