@@ -633,7 +633,7 @@ func (a *DefaultApiService) Create(ctx context.Context) (*APIResponse, error) {
 Creates a branch using the information provided in the {@link RestCreateBranchRequest request}  &lt;p&gt;  The authenticated user must have &lt;strong&gt;REPO_WRITE&lt;/strong&gt; permission for the context repository to call  this resource.
 * @param ctx context.Context for authentication, logging, tracing, etc.
 @return */
-func (a *DefaultApiService) CreateBranch(ctx context.Context) (*APIResponse, error) {
+func (a *DefaultApiService) CreateBranch(projectKey string, repositorySlug string, branchName string, startPoint string) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Post")
 		localVarPostBody   interface{}
@@ -643,6 +643,8 @@ func (a *DefaultApiService) CreateBranch(ctx context.Context) (*APIResponse, err
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/repos/{repositorySlug}/branches"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -665,6 +667,12 @@ func (a *DefaultApiService) CreateBranch(ctx context.Context) (*APIResponse, err
 	if localVarHTTPHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
 	}
+
+	localVarPostBody = map[string]string{
+		"name":       branchName,
+		"startPoint": startPoint,
+	}
+
 	r, err := a.client.prepareRequest(a.client.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return nil, err
@@ -923,8 +931,12 @@ Create a new repository. Requires an existing project in which this repository w
 * @param ctx context.Context for authentication, logging, tracing, etc.
 @param projectKey the parent project key
 @return */
-func (a *DefaultApiService) CreateRepository(projectKey string) (*APIResponse, error) {
-	return a.CreateRepositoryWithOptions(projectKey, nil, []string{})
+func (a *DefaultApiService) CreateRepository(projectKey string, repoSlug string) (*APIResponse, error) {
+	varPostBody := map[string]string{
+		"scmId": "git",
+		"name":  repoSlug,
+	}
+	return a.CreateRepositoryWithOptions(projectKey, varPostBody, []string{})
 }
 
 func (a *DefaultApiService) CreateRepositoryWithOptions(projectKey string, localVarPostBody interface{}, localVarHTTPContentTypes []string) (*APIResponse, error) {
@@ -9177,7 +9189,7 @@ func (a *DefaultApiService) Search(localVarOptionals map[string]interface{}) (*A
 Update the default branch of a repository.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;REPO_ADMIN&lt;/strong&gt; permission for the specified repository to call this  resource.
 * @param ctx context.Context for authentication, logging, tracing, etc.
 @return */
-func (a *DefaultApiService) SetDefaultBranch(ctx context.Context) (*APIResponse, error) {
+func (a *DefaultApiService) SetDefaultBranch(projectKey string, repositorySlug string, branchName string) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Put")
 		localVarPostBody   interface{}
@@ -9187,6 +9199,8 @@ func (a *DefaultApiService) SetDefaultBranch(ctx context.Context) (*APIResponse,
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/repos/{repositorySlug}/branches/default"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -9209,9 +9223,13 @@ func (a *DefaultApiService) SetDefaultBranch(ctx context.Context) (*APIResponse,
 	if localVarHTTPHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
 	}
+
+	localVarPostBody = map[string]string{
+		"id": fmt.Sprintf("refs/heads/%s", branchName),
+	}
 	r, err := a.client.prepareRequest(a.client.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("Error in prepareRequest: %s", err)
 	}
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
@@ -9402,7 +9420,7 @@ func (a *DefaultApiService) SetMergeConfig(scmId string) (*APIResponse, error) {
 	 @param "permission" (string) the permission to grant
 	 @param "name" (string) the names of the groups
  @return */
-func (a *DefaultApiService) SetPermissionForGroup(localVarOptionals map[string]interface{}) (*APIResponse, error) {
+func (a *DefaultApiService) SetPermissionForGroup(projectKey string, repositorySlug string, localVarOptionals map[string]interface{}) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Put")
 		localVarPostBody   interface{}
@@ -9412,6 +9430,9 @@ func (a *DefaultApiService) SetPermissionForGroup(localVarOptionals map[string]i
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/repos/{repositorySlug}/permissions/groups"
+
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
