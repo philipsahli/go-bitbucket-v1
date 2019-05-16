@@ -4513,7 +4513,7 @@ func (a *DefaultApiService) GetGroupsWithAnyPermission_12(localVarOptionals map[
  @param optional (nil or map[string]interface{}) with one or more of:
 	 @param "filter" (string) if specified only group names containing the supplied string will be returned
  @return */
-func (a *DefaultApiService) GetGroupsWithAnyPermission_13(localVarOptionals map[string]interface{}) (*APIResponse, error) {
+func (a *DefaultApiService) GetGroupsWithAnyPermission_13(projectKey string, repositorySlug string, localVarOptionals map[string]interface{}) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Get")
 		localVarPostBody   interface{}
@@ -4523,6 +4523,9 @@ func (a *DefaultApiService) GetGroupsWithAnyPermission_13(localVarOptionals map[
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/repos/{repositorySlug}/permissions/groups"
+
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -7645,7 +7648,7 @@ func (a *DefaultApiService) GetUsersWithAnyPermission(localVarOptionals map[stri
  @param optional (nil or map[string]interface{}) with one or more of:
 	 @param "filter" (string) if specified only group names containing the supplied string will be returned
  @return */
-func (a *DefaultApiService) GetUsersWithAnyPermission_23(localVarOptionals map[string]interface{}) (*APIResponse, error) {
+func (a *DefaultApiService) GetUsersWithAnyPermission_23(projectKey string, localVarOptionals map[string]interface{}) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Get")
 		localVarPostBody   interface{}
@@ -7655,6 +7658,7 @@ func (a *DefaultApiService) GetUsersWithAnyPermission_23(localVarOptionals map[s
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/permissions/users"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -7708,7 +7712,7 @@ func (a *DefaultApiService) GetUsersWithAnyPermission_23(localVarOptionals map[s
  @param optional (nil or map[string]interface{}) with one or more of:
 	 @param "filter" (string) if specified only group names containing the supplied string will be returned
  @return */
-func (a *DefaultApiService) GetUsersWithAnyPermission_24(localVarOptionals map[string]interface{}) (*APIResponse, error) {
+func (a *DefaultApiService) GetUsersWithAnyPermission_24(projectKey string, repositorySlug string, localVarOptionals map[string]interface{}) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Get")
 		localVarPostBody   interface{}
@@ -7718,6 +7722,8 @@ func (a *DefaultApiService) GetUsersWithAnyPermission_24(localVarOptionals map[s
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/repos/{repositorySlug}/permissions/users"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -8862,7 +8868,7 @@ func (a *DefaultApiService) RevokePermissionsForGroup_28(localVarOptionals map[s
  @param optional (nil or map[string]interface{}) with one or more of:
 	 @param "name" (string) the name of the group
  @return */
-func (a *DefaultApiService) RevokePermissionsForGroup_29(localVarOptionals map[string]interface{}) (*APIResponse, error) {
+func (a *DefaultApiService) RevokePermissionsForGroup_29(projectKey string, repositorySlug string, localVarOptionals map[string]interface{}) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Delete")
 		localVarPostBody   interface{}
@@ -8872,6 +8878,8 @@ func (a *DefaultApiService) RevokePermissionsForGroup_29(localVarOptionals map[s
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/repos/{repositorySlug}/permissions/groups"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -9051,7 +9059,7 @@ func (a *DefaultApiService) RevokePermissionsForUser_30(localVarOptionals map[st
  @param optional (nil or map[string]interface{}) with one or more of:
 	 @param "name" (string) the name of the user
  @return */
-func (a *DefaultApiService) RevokePermissionsForUser_31(localVarOptionals map[string]interface{}) (*APIResponse, error) {
+func (a *DefaultApiService) RevokePermissionsForUser_31(projectKey string, repositorySlug string, localVarOptionals map[string]interface{}) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Delete")
 		localVarPostBody   interface{}
@@ -9061,6 +9069,8 @@ func (a *DefaultApiService) RevokePermissionsForUser_31(localVarOptionals map[st
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/repos/{repositorySlug}/permissions/users"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -9222,12 +9232,15 @@ func (a *DefaultApiService) SetDefaultBranch(projectKey string, repositorySlug s
 	localVarHTTPHeaderAccept := selectHeaderAccept(localVarHTTPHeaderAccepts)
 	if localVarHTTPHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
+		localVarHeaderParams["Connection"] = "Close"
 	}
 
 	localVarPostBody = map[string]string{
 		"id": fmt.Sprintf("refs/heads/%s", branchName),
 	}
 	r, err := a.client.prepareRequest(a.client.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	r.Close = true
+	defer r.Body.Close()
 	if err != nil {
 		return nil, fmt.Errorf("Error in prepareRequest: %s", err)
 	}
@@ -9633,7 +9646,7 @@ func (a *DefaultApiService) SetPermissionForGroups_32(localVarOptionals map[stri
 	 @param "name" (string) the names of the users
 	 @param "permission" (string) the permission to grant
  @return */
-func (a *DefaultApiService) SetPermissionForUser(localVarOptionals map[string]interface{}) (*APIResponse, error) {
+func (a *DefaultApiService) SetPermissionForUser(projectKey string, repositorySlug string, localVarOptionals map[string]interface{}) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Put")
 		localVarPostBody   interface{}
@@ -9643,6 +9656,8 @@ func (a *DefaultApiService) SetPermissionForUser(localVarOptionals map[string]in
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/repos/{repositorySlug}/permissions/users"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
