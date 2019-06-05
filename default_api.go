@@ -5475,7 +5475,7 @@ func (a *DefaultApiService) GetPullRequestCount(ctx context.Context) (*APIRespon
 Retrieve the pull request settings for the context repository.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;REPO_READ&lt;/strong&gt; permission for the context repository to call this  resource.  &lt;p&gt;  This resource will call all RestFragments that are registered with the key  &lt;strong&gt;bitbucket.repository.settings.pullRequests&lt;/strong&gt;. If any fragment fails validations by returning a  non-empty Map of errors, then no fragments will execute.  &lt;p&gt;  The property keys for the settings that are bundled with the application are  &lt;ul&gt;      &lt;li&gt;mergeConfig - the merge strategy configuration for pull requests&lt;/li&gt;      &lt;li&gt;requiredApprovers - (Deprecated, please use com.atlassian.bitbucket.server.bundled-hooks.requiredApproversMergeHook instead) the number of approvals required on a pull request for it to be mergeable, or 0 if the merge check is disabled&lt;/li&gt;      &lt;li&gt;com.atlassian.bitbucket.server.bundled-hooks.requiredApproversMergeHook - the merge check configuration for required approvers&lt;/li&gt;      &lt;li&gt;requiredAllApprovers - whether or not all approvers must approve a pull request for it to be mergeable&lt;/li&gt;      &lt;li&gt;requiredAllTasksComplete - whether or not all tasks on a pull request need to be completed for it to be mergeable&lt;/li&gt;      &lt;li&gt;requiredSuccessfulBuilds - (Deprecated, please use com.atlassian.bitbucket.server.bitbucket-build.requiredBuildsMergeCheck instead) the number of successful builds on a pull request for it to be mergeable, or 0 if the merge check is disabled&lt;/li&gt;      &lt;li&gt;com.atlassian.bitbucket.server.bitbucket-build.requiredBuildsMergeCheck - the merge check configuration for required builds&lt;/li&gt;  &lt;/ul&gt;
 * @param ctx context.Context for authentication, logging, tracing, etc.
 @return */
-func (a *DefaultApiService) GetPullRequestSettings(ctx context.Context) (*APIResponse, error) {
+func (a *DefaultApiService) GetPullRequestSettings(projectKey, repositorySlug string) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Get")
 		localVarPostBody   interface{}
@@ -5485,6 +5485,8 @@ func (a *DefaultApiService) GetPullRequestSettings(ctx context.Context) (*APIRes
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/repos/{repositorySlug}/settings/pull-requests"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -11794,23 +11796,32 @@ func (a *DefaultApiService) UpdateProject(ctx context.Context) (*APIResponse, er
 Update the pull request settings for the context repository.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;REPO_ADMIN&lt;/strong&gt; permission for the context repository to call this  resource.  &lt;p&gt;  This resource will call all RestFragments that are registered with the key  &lt;strong&gt;bitbucket.repository.settings.pullRequests&lt;/strong&gt;. If any fragment fails validations by returning a  non-empty Map of errors, then no fragments will execute.  &lt;p&gt;  Only the settings that should be updated need to be included in the request.  &lt;p&gt;  The property keys for the settings that are bundled with the application are  &lt;ul&gt;      &lt;li&gt;mergeConfig - the merge strategy configuration for pull requests&lt;/li&gt;      &lt;li&gt;requiredApprovers - (Deprecated, please use com.atlassian.bitbucket.server.bundled-hooks.requiredApproversMergeHook instead) the number of approvals required on a pull request for it to be mergeable, or 0 to disable the merge check&lt;/li&gt;      &lt;li&gt;com.atlassian.bitbucket.server.bundled-hooks.requiredApproversMergeHook - a json map containing the keys &#39;enabled&#39; (a boolean to enable or disable this merge check) and &#39;count&#39; (an integer to set the number of required approvals)&lt;/li&gt;      &lt;li&gt;requiredAllApprovers - whether or not all approvers must approve a pull request for it to be mergeable&lt;/li&gt;      &lt;li&gt;requiredAllTasksComplete - whether or not all tasks on a pull request need to be completed for it to be mergeable&lt;/li&gt;      &lt;li&gt;requiredSuccessfulBuilds - (Deprecated, please use com.atlassian.bitbucket.server.bitbucket-build.requiredBuildsMergeCheck instead) the number of successful builds on a pull request for it to be mergeable, or 0 to disable the merge check&lt;/li&gt;      &lt;li&gt;com.atlassian.bitbucket.server.bitbucket-build.requiredBuildsMergeCheck - a json map containing the keys &#39;enabled&#39; (a boolean to enable or disable this merge check) and &#39;count&#39; (an integer to set the number of required builds)&lt;/li&gt;  &lt;/ul&gt;  &lt;strong&gt;Merge strategy configuration deletion:&lt;/strong&gt;  &lt;p&gt;  An explicitly set pull request merge strategy configuration can be deleted by POSTing a document with an empty  \&quot;mergeConfig\&quot; attribute. i.e:  &lt;pre&gt;  {      \&quot;mergeConfig\&quot;: {      }  }  &lt;/pre&gt;  Upon completion of this request, the effective configuration will be:  &lt;ul&gt;      &lt;li&gt;The configuration set for this repository&#39;s SCM type as set at the project level, if present, otherwise&lt;/li&gt;      &lt;li&gt;the configuration set for this repository&#39;s SCM type as set at the instance level, if present, otherwise&lt;/li&gt;      &lt;li&gt;the default configuration for this repository&#39;s SCM type&lt;/li&gt;  &lt;ul&gt;
 * @param ctx context.Context for authentication, logging, tracing, etc.
 @return */
-func (a *DefaultApiService) UpdatePullRequestSettings(ctx context.Context) (*APIResponse, error) {
+func (a *DefaultApiService) UpdatePullRequestSettings(projectKey, repositorySlug string, localVarPostBody map[string]interface{}, localVarOptionals map[string]interface{}) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Post")
-		localVarPostBody   interface{}
-		localVarFileName   string
-		localVarFileBytes  []byte
+		// localVarPostBody         interface{}
+		localVarFileName  string
+		localVarFileBytes []byte
 	)
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/repos/{repositorySlug}/settings/pull-requests"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
+	// if err := typeCheckParameter(localVarOptionals["name"], "string", "name"); err != nil {
+	// 	return nil, err
+	// }
+
+	// if localVarTempParam, localVarOk := localVarOptionals["name"].(string); localVarOk {
+	// 	localVarQueryParams.Add("name", parameterToString(localVarTempParam, ""))
+	// }
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -11827,6 +11838,10 @@ func (a *DefaultApiService) UpdatePullRequestSettings(ctx context.Context) (*API
 		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
 	}
 	r, err := a.client.prepareRequest(a.client.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+
+	// r.Header.Set("User-Agent", "Golang_Spider_Bot/3.0")
+	// r.Header.Set("Origin", "https://gitit.post.ch/")
+	// r.Header.Set("X-Atlassian-Token", "no-check")
 	if err != nil {
 		return nil, err
 	}
@@ -12438,6 +12453,7 @@ func (a *DefaultApiService) Update_50(pullRequestID int64) (*APIResponse, error)
 		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
 	}
 	r, err := a.client.prepareRequest(a.client.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+
 	if err != nil {
 		return nil, err
 	}
