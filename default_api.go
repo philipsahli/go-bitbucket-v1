@@ -5,6 +5,7 @@
 package bitbucketv1
 
 import (
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/url"
@@ -63,7 +64,7 @@ func (a *DefaultApiService) AddGroupToUser(ctx context.Context) (*APIResponse, e
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -117,7 +118,7 @@ func (a *DefaultApiService) AddUserToGroup(ctx context.Context) (*APIResponse, e
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -171,7 +172,7 @@ func (a *DefaultApiService) AddUserToGroups(ctx context.Context) (*APIResponse, 
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -225,7 +226,7 @@ func (a *DefaultApiService) AddUsersToGroup(ctx context.Context) (*APIResponse, 
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -281,7 +282,7 @@ func (a *DefaultApiService) Approve(pullRequestID int64) (*APIResponse, error) {
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -337,7 +338,7 @@ func (a *DefaultApiService) AssignParticipantRole(pullRequestID int64) (*APIResp
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -353,7 +354,7 @@ Test whether a pull request can be merged.  &lt;p&gt;  A pull request may not be
 * @param ctx context.Context for authentication, logging, tracing, etc.
 @param pullRequestId the ID of the pull request within the repository
 @return */
-func (a *DefaultApiService) CanMerge(pullRequestID int64) (*APIResponse, error) {
+func (a *DefaultApiService) CanMerge(projectKey, repositorySlug string, pullRequestID int64) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Get")
 		localVarPostBody   interface{}
@@ -363,6 +364,8 @@ func (a *DefaultApiService) CanMerge(pullRequestID int64) (*APIResponse, error) 
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/repos/{repositorySlug}/pull-requests/{pullRequestId}/merge"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
 	localVarPath = strings.Replace(localVarPath, "{"+"pullRequestId"+"}", fmt.Sprintf("%v", pullRequestID), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -393,7 +396,7 @@ func (a *DefaultApiService) CanMerge(pullRequestID int64) (*APIResponse, error) 
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -447,7 +450,7 @@ func (a *DefaultApiService) ClearSenderAddress(ctx context.Context) (*APIRespons
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -510,7 +513,7 @@ func (a *DefaultApiService) ClearUserCaptchaChallenge(localVarOptionals map[stri
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -525,7 +528,7 @@ func (a *DefaultApiService) ClearUserCaptchaChallenge(localVarOptionals map[stri
 Retrieve the total number of {@link TaskState#OPEN open} and  {@link TaskState#RESOLVED resolved} tasks associated with a pull request.
 * @param ctx context.Context for authentication, logging, tracing, etc.
 @return */
-func (a *DefaultApiService) CountPullRequestTasks(ctx context.Context) (*APIResponse, error) {
+func (a *DefaultApiService) CountPullRequestTasks(projectKey, repositorySlug string, pullRequestId int64) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Get")
 		localVarPostBody   interface{}
@@ -535,6 +538,9 @@ func (a *DefaultApiService) CountPullRequestTasks(ctx context.Context) (*APIResp
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/repos/{repositorySlug}/pull-requests/{pullRequestId}/tasks/count"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"pullRequestId"+"}", fmt.Sprintf("%v", pullRequestId), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -564,7 +570,7 @@ func (a *DefaultApiService) CountPullRequestTasks(ctx context.Context) (*APIResp
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -579,7 +585,7 @@ func (a *DefaultApiService) CountPullRequestTasks(ctx context.Context) (*APIResp
 Create a new pull request between two branches. The branches may be in the same repository, or different ones.  When using different repositories, they must still be in the same {@link Repository#getHierarchyId() hierarchy}.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;REPO_READ&lt;/strong&gt; permission for the \&quot;from\&quot; and \&quot;to\&quot;repositories to  call this resource.
 * @param ctx context.Context for authentication, logging, tracing, etc.
 @return */
-func (a *DefaultApiService) Create(ctx context.Context) (*APIResponse, error) {
+func (a *DefaultApiService) Create(projectKey, repositorySlug string, localVarOptionals map[string]interface{}) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Post")
 		localVarPostBody   interface{}
@@ -589,13 +595,20 @@ func (a *DefaultApiService) Create(ctx context.Context) (*APIResponse, error) {
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/repos/{repositorySlug}/pull-requests"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
+	localVarPostBody, err := json.Marshal(localVarOptionals)
+	if err != nil {
+		return nil, err
+	}
+
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -618,7 +631,7 @@ func (a *DefaultApiService) Create(ctx context.Context) (*APIResponse, error) {
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -672,7 +685,7 @@ func (a *DefaultApiService) CreateBranch(ctx context.Context) (*APIResponse, err
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -737,7 +750,7 @@ func (a *DefaultApiService) CreateComment(commitId string, localVarOptionals map
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -790,7 +803,7 @@ func (a *DefaultApiService) CreateComment_1(projectKey, repositorySlug string, p
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -853,7 +866,7 @@ func (a *DefaultApiService) CreateGroup(localVarOptionals map[string]interface{}
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -907,7 +920,7 @@ func (a *DefaultApiService) CreateProject(ctx context.Context) (*APIResponse, er
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -963,7 +976,7 @@ func (a *DefaultApiService) CreateRepositoryWithOptions(projectKey string, local
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -1012,7 +1025,7 @@ func (a *DefaultApiService) CreatePullRequestWithOptions(projectKey, repo string
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -1066,7 +1079,7 @@ func (a *DefaultApiService) CreateTag(ctx context.Context) (*APIResponse, error)
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -1120,7 +1133,7 @@ func (a *DefaultApiService) CreateTask(ctx context.Context) (*APIResponse, error
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -1218,7 +1231,7 @@ func (a *DefaultApiService) CreateUser(localVarOptionals map[string]interface{})
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -1270,7 +1283,7 @@ func (a *DefaultApiService) CreateWebhook(projectKey, repositorySlug string, loc
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -1335,7 +1348,7 @@ func (a *DefaultApiService) Decline(pullRequestID int64, localVarOptionals map[s
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -1391,7 +1404,7 @@ func (a *DefaultApiService) Delete(pullRequestID int64) (*APIResponse, error) {
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -1445,7 +1458,7 @@ func (a *DefaultApiService) DeleteAvatar(ctx context.Context) (*APIResponse, err
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -1514,7 +1527,7 @@ func (a *DefaultApiService) DeleteComment(commitId string, commentId int64, comm
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -1579,7 +1592,7 @@ func (a *DefaultApiService) DeleteComment_2(commentId int64, localVarOptionals m
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -1642,7 +1655,7 @@ func (a *DefaultApiService) DeleteGroup(localVarOptionals map[string]interface{}
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -1696,7 +1709,7 @@ func (a *DefaultApiService) DeleteMailConfig(ctx context.Context) (*APIResponse,
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -1750,7 +1763,7 @@ func (a *DefaultApiService) DeleteProject(ctx context.Context) (*APIResponse, er
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -1809,7 +1822,7 @@ func (a *DefaultApiService) DeleteRepository(projectKey, repositorySlug string) 
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -1865,7 +1878,7 @@ func (a *DefaultApiService) DeleteRepositoryHook(hookKey string) (*APIResponse, 
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -1921,7 +1934,7 @@ func (a *DefaultApiService) DeleteTask(taskId int64) (*APIResponse, error) {
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -1984,7 +1997,7 @@ func (a *DefaultApiService) DeleteUser(localVarOptionals map[string]interface{})
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -2042,7 +2055,7 @@ func (a *DefaultApiService) DeleteWebhook(projectKey, repositorySlug string, web
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -2098,7 +2111,7 @@ func (a *DefaultApiService) DisableHook(hookKey string) (*APIResponse, error) {
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -2154,7 +2167,7 @@ func (a *DefaultApiService) DisableHook_3(hookKey string) (*APIResponse, error) 
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -2210,7 +2223,7 @@ func (a *DefaultApiService) EditFile(path string) (*APIResponse, error) {
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -2275,7 +2288,7 @@ func (a *DefaultApiService) EnableHook(hookKey string, localVarOptionals map[str
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -2340,7 +2353,7 @@ func (a *DefaultApiService) EnableHook_4(hookKey string, localVarOptionals map[s
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -2410,7 +2423,7 @@ func (a *DefaultApiService) FindGroupsForUser(localVarOptionals map[string]inter
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -2480,7 +2493,7 @@ func (a *DefaultApiService) FindOtherGroupsForUser(localVarOptionals map[string]
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -2550,7 +2563,7 @@ func (a *DefaultApiService) FindUsersInGroup(localVarOptionals map[string]interf
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -2620,7 +2633,7 @@ func (a *DefaultApiService) FindUsersNotInGroup(localVarOptionals map[string]int
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -2692,7 +2705,7 @@ func (a *DefaultApiService) FindWebhooks(projectKey, repositorySlug string, loca
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -2749,7 +2762,7 @@ func (a *DefaultApiService) ForkRepository(projectKey, repositorySlug string,
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -2803,7 +2816,7 @@ func (a *DefaultApiService) Get(ctx context.Context) (*APIResponse, error) {
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -2875,7 +2888,7 @@ func (a *DefaultApiService) GetActivities(pullRequestID int64, localVarOptionals
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -2929,7 +2942,7 @@ func (a *DefaultApiService) GetApplicationProperties(ctx context.Context) (*APIR
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -3022,7 +3035,7 @@ func (a *DefaultApiService) GetArchive(project, repository string, localVarOptio
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -3087,7 +3100,7 @@ func (a *DefaultApiService) GetAvatar(hookKey string, localVarOptionals map[stri
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -3173,7 +3186,7 @@ func (a *DefaultApiService) GetBranches(project, repository string, localVarOpti
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -3243,7 +3256,7 @@ func (a *DefaultApiService) GetChanges(localVarOptionals map[string]interface{})
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -3315,7 +3328,7 @@ func (a *DefaultApiService) GetChanges_5(commitId string, localVarOptionals map[
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -3375,7 +3388,7 @@ func (a *DefaultApiService) GetComment(commitId string, commentId int64, commitI
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -3431,7 +3444,7 @@ func (a *DefaultApiService) GetComment_6(commentId int64) (*APIResponse, error) 
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -3503,7 +3516,7 @@ func (a *DefaultApiService) GetComments(commitId string, localVarOptionals map[s
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -3594,7 +3607,7 @@ func (a *DefaultApiService) GetComments_7(localVarOptionals map[string]interface
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -3659,7 +3672,7 @@ func (a *DefaultApiService) GetCommit(commitId string, localVarOptionals map[str
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -3767,7 +3780,7 @@ func (a *DefaultApiService) GetCommits(project, repository string, localVarOptio
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -3832,7 +3845,7 @@ func (a *DefaultApiService) GetCommits_8(pullRequestID int64, localVarOptionals 
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -3929,7 +3942,7 @@ func (a *DefaultApiService) getContentWithPath(projectKey string, repositorySlug
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -4015,7 +4028,7 @@ func (a *DefaultApiService) GetContent_9(path string, localVarOptionals map[stri
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -4099,7 +4112,7 @@ func (a *DefaultApiService) GetContent_10(localVarOptionals map[string]interface
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -4120,7 +4133,7 @@ func (a *DefaultApiService) GetContent_10(localVarOptionals map[string]interface
 	 @param "hardwrap" (bool) (Optional) Whether the markup implementation should convert newlines to breaks.                    If not specified, {@link MarkupService} will use the value of the                    &lt;code&gt;markup.render.hardwrap&lt;/code&gt; property, which is &lt;code&gt;true&lt;/code&gt; by default
 	 @param "htmlEscape" (bool) (Optional) true if HTML should be escaped in the input markup, false otherwise.                    If not specified, {@link MarkupService} will use the value of the                    &lt;code&gt;markup.render.html.escape&lt;/code&gt; property, which is &lt;code&gt;true&lt;/code&gt; by default
  @return */
-func (a *DefaultApiService) GetContent_11(path string, localVarOptionals map[string]interface{}) (*APIResponse, error) {
+func (a *DefaultApiService) GetContent_11(projectKey, repositorySlug, path string, localVarOptionals map[string]interface{}) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Get")
 		localVarPostBody   interface{}
@@ -4131,6 +4144,8 @@ func (a *DefaultApiService) GetContent_11(path string, localVarOptionals map[str
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/repos/{repositorySlug}/raw/{path}"
 	localVarPath = strings.Replace(localVarPath, "{"+"path"+"}", fmt.Sprintf("%v", path), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -4185,7 +4200,7 @@ func (a *DefaultApiService) GetContent_11(path string, localVarOptionals map[str
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -4193,7 +4208,7 @@ func (a *DefaultApiService) GetContent_11(path string, localVarOptionals map[str
 		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
-	return NewBitbucketAPIResponse(localVarHTTPResponse)
+	return NewRawAPIResponse(localVarHTTPResponse)
 }
 
 /* DefaultApiService
@@ -4239,7 +4254,7 @@ func (a *DefaultApiService) GetDefaultBranch(ctx context.Context) (*APIResponse,
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -4295,7 +4310,7 @@ func (a *DefaultApiService) GetForkedRepositories(projectKey string) (*APIRespon
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -4358,7 +4373,7 @@ func (a *DefaultApiService) GetGroups(localVarOptionals map[string]interface{}) 
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -4421,7 +4436,7 @@ func (a *DefaultApiService) GetGroupsWithAnyPermission(localVarOptionals map[str
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -4484,7 +4499,7 @@ func (a *DefaultApiService) GetGroupsWithAnyPermission_12(localVarOptionals map[
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -4547,7 +4562,7 @@ func (a *DefaultApiService) GetGroupsWithAnyPermission_13(localVarOptionals map[
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -4610,7 +4625,7 @@ func (a *DefaultApiService) GetGroupsWithoutAnyPermission(localVarOptionals map[
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -4673,7 +4688,7 @@ func (a *DefaultApiService) GetGroupsWithoutAnyPermission_14(localVarOptionals m
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -4736,7 +4751,7 @@ func (a *DefaultApiService) GetGroupsWithoutAnyPermission_15(localVarOptionals m
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -4799,7 +4814,7 @@ func (a *DefaultApiService) GetGroups_16(localVarOptionals map[string]interface{
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -4853,7 +4868,7 @@ func (a *DefaultApiService) GetInformation(ctx context.Context) (*APIResponse, e
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -4925,7 +4940,7 @@ func (a *DefaultApiService) GetLatestInvocation(webhookId int32, localVarOptiona
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -4981,7 +4996,7 @@ func (a *DefaultApiService) GetLevel(loggerName string) (*APIResponse, error) {
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -5035,7 +5050,7 @@ func (a *DefaultApiService) GetMailConfig(ctx context.Context) (*APIResponse, er
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -5091,7 +5106,7 @@ func (a *DefaultApiService) GetMergeConfig(scmId string) (*APIResponse, error) {
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -5191,7 +5206,7 @@ func (a *DefaultApiService) GetPullRequestsPage(projectKey, repositorySlug strin
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -5206,7 +5221,7 @@ func (a *DefaultApiService) GetPullRequestsPage(projectKey, repositorySlug strin
 Retrieve the project matching the supplied &lt;strong&gt;projectKey&lt;/strong&gt;.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;PROJECT_VIEW&lt;/strong&gt; permission for the specified project to call this  resource.
 * @param ctx context.Context for authentication, logging, tracing, etc.
 @return */
-func (a *DefaultApiService) GetProject(ctx context.Context) (*APIResponse, error) {
+func (a *DefaultApiService) GetProject(ctx context.Context, projectKey string) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Get")
 		localVarPostBody   interface{}
@@ -5216,6 +5231,7 @@ func (a *DefaultApiService) GetProject(ctx context.Context) (*APIResponse, error
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -5245,7 +5261,7 @@ func (a *DefaultApiService) GetProject(ctx context.Context) (*APIResponse, error
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -5308,7 +5324,7 @@ func (a *DefaultApiService) GetProjectAvatar(localVarOptionals map[string]interf
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -5392,7 +5408,7 @@ func (a *DefaultApiService) GetProjects(localVarOptionals map[string]interface{}
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -5445,7 +5461,7 @@ func (a *DefaultApiService) GetPullRequestCount(ctx context.Context) (*APIRespon
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -5499,7 +5515,7 @@ func (a *DefaultApiService) GetPullRequestSettings(ctx context.Context) (*APIRes
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -5555,7 +5571,7 @@ func (a *DefaultApiService) GetPullRequestSettings_17(scmId string) (*APIRespons
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -5625,7 +5641,7 @@ func (a *DefaultApiService) GetPullRequestSuggestions(localVarOptionals map[stri
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -5679,7 +5695,7 @@ func (a *DefaultApiService) GetPullRequestTasks(ctx context.Context) (*APIRespon
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -5770,7 +5786,7 @@ func (a *DefaultApiService) GetPullRequests(localVarOptionals map[string]interfa
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -5846,7 +5862,7 @@ func (a *DefaultApiService) GetPullRequests_18(localVarOptionals map[string]inte
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -5902,7 +5918,7 @@ func (a *DefaultApiService) GetRelatedRepositories(projectKey string) (*APIRespo
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -5976,7 +5992,7 @@ func (a *DefaultApiService) GetRepositoriesWithOptions(projectKey string, localV
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -6039,7 +6055,7 @@ func (a *DefaultApiService) GetRepositoriesRecentlyAccessed(localVarOptionals ma
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -6135,7 +6151,7 @@ func (a *DefaultApiService) GetRepositories_19(localVarOptionals map[string]inte
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -6194,7 +6210,7 @@ func (a *DefaultApiService) GetRepository(projectKey, repositorySlug string) (*A
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -6253,7 +6269,7 @@ func (a *DefaultApiService) GetUserRepository(username, repositorySlug string) (
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -6311,7 +6327,7 @@ func (a *DefaultApiService) GetPullRequest(projectKey, repositorySlug string, pu
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -6369,7 +6385,79 @@ func (a *DefaultApiService) GetPullRequestActivity(projectKey, repositorySlug st
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
+	}
+	defer localVarHTTPResponse.Body.Close()
+	if localVarHTTPResponse.StatusCode >= 300 {
+		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
+		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+	}
+
+	return NewBitbucketAPIResponse(localVarHTTPResponse)
+}
+
+/* DefaultApiService
+Retrieve the repository matching the supplied &lt;strong&gt;projectKey&lt;/strong&gt; and &lt;strong&gt;repositorySlug&lt;/strong&gt;.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;REPO_READ&lt;/strong&gt; permission for the specified repository to call this  resource.
+@param projectKey the parent project key
+@param repositorySlug the repository slug
+@return */
+func (a *DefaultApiService) GetPullRequestActivityWithOptions(projectKey, repositorySlug string, pullRequestID int, localVarOptionals map[string]interface{}) (*APIResponse, error) {
+	var (
+		localVarHTTPMethod = strings.ToUpper("Get")
+		localVarPostBody   interface{}
+		localVarFileName   string
+		localVarFileBytes  []byte
+	)
+
+	// create path and map variables
+	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/repos/{repositorySlug}/pull-requests/{pullRequestID}/activities"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"pullRequestID"+"}", fmt.Sprintf("%v", pullRequestID), -1)
+
+	localVarHeaderParams := make(map[string]string)
+	localVarQueryParams := url.Values{}
+	localVarFormParams := url.Values{}
+
+	if err := typeCheckParameter(localVarOptionals["start"], "int", "start"); err != nil {
+		return nil, err
+	}
+	if err := typeCheckParameter(localVarOptionals["limit"], "int", "limit"); err != nil {
+		return nil, err
+	}
+
+	if localVarTempParam, localVarOk := localVarOptionals["start"].(int); localVarOk {
+		localVarQueryParams.Add("start", parameterToString(localVarTempParam, ""))
+	}
+	if localVarTempParam, localVarOk := localVarOptionals["limit"].(int); localVarOk {
+		localVarQueryParams.Add("limit", parameterToString(localVarTempParam, ""))
+	}
+
+	// to determine the Content-Type header
+	localVarHTTPContentTypes := []string{}
+
+	// set Content-Type header
+	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
+	if localVarHTTPContentType != "" {
+		localVarHeaderParams["Content-Type"] = localVarHTTPContentType
+	}
+
+	// to determine the Accept header
+	localVarHTTPHeaderAccepts := []string{}
+
+	// set Accept header
+	localVarHTTPHeaderAccept := selectHeaderAccept(localVarHTTPHeaderAccepts)
+	if localVarHTTPHeaderAccept != "" {
+		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
+	}
+	r, err := a.client.prepareRequest(a.client.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	if err != nil {
+		return nil, err
+	}
+
+	localVarHTTPResponse, err := a.client.callAPI(r)
+	if err != nil || localVarHTTPResponse == nil {
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -6446,7 +6534,7 @@ func (a *DefaultApiService) GetPullRequestCommitsWithOptions(projectKey, reposit
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -6497,7 +6585,7 @@ func (a *DefaultApiService) GetCommitBuildStatuses(commitSHA string) (*APIRespon
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -6553,7 +6641,7 @@ func (a *DefaultApiService) GetRepositoryHook(hookKey string) (*APIResponse, err
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -6609,7 +6697,7 @@ func (a *DefaultApiService) GetRepositoryHook_20(hookKey string) (*APIResponse, 
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -6672,7 +6760,7 @@ func (a *DefaultApiService) GetRepositoryHooks(localVarOptionals map[string]inte
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -6735,7 +6823,7 @@ func (a *DefaultApiService) GetRepositoryHooks_21(localVarOptionals map[string]i
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -6789,7 +6877,7 @@ func (a *DefaultApiService) GetRootLevel(ctx context.Context) (*APIResponse, err
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -6843,7 +6931,7 @@ func (a *DefaultApiService) GetSenderAddress(ctx context.Context) (*APIResponse,
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -6899,7 +6987,7 @@ func (a *DefaultApiService) GetSettings(hookKey string) (*APIResponse, error) {
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -6955,7 +7043,7 @@ func (a *DefaultApiService) GetSettings_22(hookKey string) (*APIResponse, error)
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -7020,7 +7108,7 @@ func (a *DefaultApiService) GetStatistics(webhookId int32, localVarOptionals map
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -7076,7 +7164,7 @@ func (a *DefaultApiService) GetStatisticsSummary(webhookId int32) (*APIResponse,
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -7132,7 +7220,7 @@ func (a *DefaultApiService) GetTag(name string) (*APIResponse, error) {
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -7204,7 +7292,7 @@ func (a *DefaultApiService) GetTags(project, repository string, localVarOptional
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -7260,7 +7348,7 @@ func (a *DefaultApiService) GetTask(taskId int64) (*APIResponse, error) {
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -7315,7 +7403,7 @@ func (a *DefaultApiService) GetSSHKeys(user string) (*APIResponse, error) {
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -7380,7 +7468,7 @@ func (a *DefaultApiService) CreateSSHKey(localVarOptionals map[string]interface{
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -7436,7 +7524,7 @@ func (a *DefaultApiService) GetUser(username string) (*APIResponse, error) {
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -7490,7 +7578,7 @@ func (a *DefaultApiService) GetUserSettings(ctx context.Context) (*APIResponse, 
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -7553,7 +7641,7 @@ func (a *DefaultApiService) GetUsers(localVarOptionals map[string]interface{}) (
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -7616,7 +7704,7 @@ func (a *DefaultApiService) GetUsersWithAnyPermission(localVarOptionals map[stri
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -7679,7 +7767,7 @@ func (a *DefaultApiService) GetUsersWithAnyPermission_23(localVarOptionals map[s
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -7742,7 +7830,7 @@ func (a *DefaultApiService) GetUsersWithAnyPermission_24(localVarOptionals map[s
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -7805,7 +7893,7 @@ func (a *DefaultApiService) GetUsersWithoutAnyPermission(localVarOptionals map[s
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -7868,7 +7956,7 @@ func (a *DefaultApiService) GetUsersWithoutPermission(localVarOptionals map[stri
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -7931,7 +8019,7 @@ func (a *DefaultApiService) GetUsersWithoutPermission_25(localVarOptionals map[s
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -7985,7 +8073,7 @@ func (a *DefaultApiService) GetUsers_26(ctx context.Context) (*APIResponse, erro
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -8050,7 +8138,7 @@ func (a *DefaultApiService) GetWebhook(webhookId int32, localVarOptionals map[st
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -8106,7 +8194,7 @@ func (a *DefaultApiService) Get_27(pullRequestID int64) (*APIResponse, error) {
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -8162,7 +8250,7 @@ func (a *DefaultApiService) HasAllUserPermission(permission string) (*APIRespons
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -8218,7 +8306,7 @@ func (a *DefaultApiService) ListParticipants(pullRequestID int64) (*APIResponse,
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -8282,7 +8370,7 @@ func (a *DefaultApiService) Merge(projectKey, repositorySlug string, pullRequest
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -8347,7 +8435,7 @@ func (a *DefaultApiService) ModifyAllUserPermission(permission string, localVarO
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -8424,7 +8512,7 @@ func (a *DefaultApiService) Preview(localVarOptionals map[string]interface{}) (*
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -8478,7 +8566,7 @@ func (a *DefaultApiService) RemoveGroupFromUser(ctx context.Context) (*APIRespon
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -8532,7 +8620,7 @@ func (a *DefaultApiService) RemoveUserFromGroup(ctx context.Context) (*APIRespon
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -8586,7 +8674,7 @@ func (a *DefaultApiService) RenameUser(ctx context.Context) (*APIResponse, error
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -8651,7 +8739,7 @@ func (a *DefaultApiService) Reopen(pullRequestID int64, localVarOptionals map[st
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -8707,7 +8795,7 @@ func (a *DefaultApiService) RetryCreateRepository(projectKey string) (*APIRespon
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -8770,7 +8858,7 @@ func (a *DefaultApiService) RevokePermissionsForGroup(localVarOptionals map[stri
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -8833,7 +8921,7 @@ func (a *DefaultApiService) RevokePermissionsForGroup_28(localVarOptionals map[s
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -8896,7 +8984,7 @@ func (a *DefaultApiService) RevokePermissionsForGroup_29(localVarOptionals map[s
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -8959,7 +9047,7 @@ func (a *DefaultApiService) RevokePermissionsForUser(localVarOptionals map[strin
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -9022,7 +9110,7 @@ func (a *DefaultApiService) RevokePermissionsForUser_30(localVarOptionals map[st
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -9085,7 +9173,7 @@ func (a *DefaultApiService) RevokePermissionsForUser_31(localVarOptionals map[st
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -9162,7 +9250,7 @@ func (a *DefaultApiService) Search(localVarOptionals map[string]interface{}) (*A
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -9216,7 +9304,7 @@ func (a *DefaultApiService) SetDefaultBranch(ctx context.Context) (*APIResponse,
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -9274,7 +9362,7 @@ func (a *DefaultApiService) SetLevel(levelName string, loggerName string) (*APIR
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -9328,7 +9416,7 @@ func (a *DefaultApiService) SetMailConfig(ctx context.Context) (*APIResponse, er
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -9384,7 +9472,7 @@ func (a *DefaultApiService) SetMergeConfig(scmId string) (*APIResponse, error) {
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -9402,7 +9490,7 @@ func (a *DefaultApiService) SetMergeConfig(scmId string) (*APIResponse, error) {
 	 @param "permission" (string) the permission to grant
 	 @param "name" (string) the names of the groups
  @return */
-func (a *DefaultApiService) SetPermissionForGroup(localVarOptionals map[string]interface{}) (*APIResponse, error) {
+func (a *DefaultApiService) SetPermissionForGroup(projectKey string, repositorySlug string, localVarOptionals map[string]interface{}) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Put")
 		localVarPostBody   interface{}
@@ -9412,6 +9500,8 @@ func (a *DefaultApiService) SetPermissionForGroup(localVarOptionals map[string]i
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/repos/{repositorySlug}/permissions/groups"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -9454,7 +9544,7 @@ func (a *DefaultApiService) SetPermissionForGroup(localVarOptionals map[string]i
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -9462,7 +9552,8 @@ func (a *DefaultApiService) SetPermissionForGroup(localVarOptionals map[string]i
 		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
-	return NewBitbucketAPIResponse(localVarHTTPResponse)
+	// No body parsing (a successful 204 response has no content)
+	return NewAPIResponse(localVarHTTPResponse), nil
 }
 
 /* DefaultApiService
@@ -9524,7 +9615,7 @@ func (a *DefaultApiService) SetPermissionForGroups(localVarOptionals map[string]
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -9594,7 +9685,7 @@ func (a *DefaultApiService) SetPermissionForGroups_32(localVarOptionals map[stri
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -9664,7 +9755,7 @@ func (a *DefaultApiService) SetPermissionForUser(localVarOptionals map[string]in
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -9734,7 +9825,7 @@ func (a *DefaultApiService) SetPermissionForUsers(localVarOptionals map[string]i
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -9804,7 +9895,7 @@ func (a *DefaultApiService) SetPermissionForUsers_33(localVarOptionals map[strin
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -9860,7 +9951,7 @@ func (a *DefaultApiService) SetRootLevel(levelName string) (*APIResponse, error)
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -9914,7 +10005,7 @@ func (a *DefaultApiService) SetSenderAddress(ctx context.Context) (*APIResponse,
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -9970,7 +10061,7 @@ func (a *DefaultApiService) SetSettings(hookKey string) (*APIResponse, error) {
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -10026,7 +10117,7 @@ func (a *DefaultApiService) SetSettings_34(hookKey string) (*APIResponse, error)
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -10089,7 +10180,7 @@ func (a *DefaultApiService) Stream(localVarOptionals map[string]interface{}) (*A
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -10166,7 +10257,7 @@ func (a *DefaultApiService) StreamChanges(localVarOptionals map[string]interface
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -10250,7 +10341,7 @@ func (a *DefaultApiService) StreamChanges_35(localVarOptionals map[string]interf
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -10327,7 +10418,7 @@ func (a *DefaultApiService) StreamCommits(project, repository string, localVarOp
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -10427,7 +10518,7 @@ func (a *DefaultApiService) StreamDiff(commitId string, localVarOptionals map[st
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -10531,7 +10622,7 @@ func (a *DefaultApiService) StreamDiff_36(commitId string, path string, commitId
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -10630,7 +10721,7 @@ func (a *DefaultApiService) StreamDiff_37(project, repository, path string, loca
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -10721,7 +10812,7 @@ func (a *DefaultApiService) StreamDiff_38(localVarOptionals map[string]interface
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -10814,7 +10905,7 @@ func (a *DefaultApiService) StreamDiff_39(path string, localVarOptionals map[str
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -10837,7 +10928,7 @@ func (a *DefaultApiService) StreamDiff_39(path string, localVarOptionals map[str
 	 @param "whitespace" (string) optional whitespace flag which can be set to &lt;code&gt;ignore-all&lt;/code&gt;
 	 @param "withComments" (bool) &lt;code&gt;true&lt;/code&gt; to embed comments in the diff (the default); otherwise, &lt;code&gt;false&lt;/code&gt;                      to stream the diff without comments
  @return */
-func (a *DefaultApiService) StreamDiff_40(localVarOptionals map[string]interface{}) (*APIResponse, error) {
+func (a *DefaultApiService) GetPullRequestDiff(projectKey, repositorySlug string, pullRequestID int, localVarOptionals map[string]interface{}) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Get")
 		localVarPostBody   interface{}
@@ -10847,6 +10938,9 @@ func (a *DefaultApiService) StreamDiff_40(localVarOptionals map[string]interface
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/repos/{repositorySlug}/pull-requests/{pullRequestId}/diff"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"pullRequestId"+"}", fmt.Sprintf("%v", pullRequestID), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -10919,7 +11013,7 @@ func (a *DefaultApiService) StreamDiff_40(localVarOptionals map[string]interface
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -11026,7 +11120,7 @@ func (a *DefaultApiService) StreamDiff_41(path string, localVarOptionals map[str
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -11089,7 +11183,7 @@ func (a *DefaultApiService) StreamFiles(localVarOptionals map[string]interface{}
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -11154,7 +11248,7 @@ func (a *DefaultApiService) StreamFiles_42(path string, localVarOptionals map[st
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -11219,7 +11313,7 @@ func (a *DefaultApiService) Stream_43(path string, localVarOptionals map[string]
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -11282,7 +11376,7 @@ func (a *DefaultApiService) TestWebhook(localVarOptionals map[string]interface{}
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -11347,7 +11441,7 @@ func (a *DefaultApiService) UnassignParticipantRole(pullRequestID int64, localVa
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -11407,7 +11501,7 @@ func (a *DefaultApiService) UnassignParticipantRole_44(pullRequestID int64, user
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -11463,7 +11557,7 @@ func (a *DefaultApiService) Unwatch(commitId string) (*APIResponse, error) {
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -11519,7 +11613,7 @@ func (a *DefaultApiService) Unwatch_45(pullRequestID int64) (*APIResponse, error
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -11573,7 +11667,7 @@ func (a *DefaultApiService) Update(ctx context.Context) (*APIResponse, error) {
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -11633,7 +11727,7 @@ func (a *DefaultApiService) UpdateComment(commitId string, commentId int64, comm
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -11689,7 +11783,7 @@ func (a *DefaultApiService) UpdateComment_46(commentId int64) (*APIResponse, err
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -11743,7 +11837,7 @@ func (a *DefaultApiService) UpdateProject(ctx context.Context) (*APIResponse, er
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -11797,7 +11891,7 @@ func (a *DefaultApiService) UpdatePullRequestSettings(ctx context.Context) (*API
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -11853,7 +11947,7 @@ func (a *DefaultApiService) UpdatePullRequestSettings_47(scmId string) (*APIResp
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -11912,7 +12006,7 @@ func (a *DefaultApiService) UpdateRepositoryWithOptions(projectKey, repositorySl
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -11966,7 +12060,7 @@ func (a *DefaultApiService) UpdateSettings(ctx context.Context) (*APIResponse, e
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -12026,7 +12120,7 @@ func (a *DefaultApiService) UpdateStatus(pullRequestID int64, userSlug string, p
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -12082,7 +12176,7 @@ func (a *DefaultApiService) UpdateTask(taskId int64) (*APIResponse, error) {
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -12136,7 +12230,7 @@ func (a *DefaultApiService) UpdateUserDetails(ctx context.Context) (*APIResponse
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -12190,7 +12284,7 @@ func (a *DefaultApiService) UpdateUserDetails_48(ctx context.Context) (*APIRespo
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -12244,7 +12338,7 @@ func (a *DefaultApiService) UpdateUserPassword(ctx context.Context) (*APIRespons
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -12298,7 +12392,7 @@ func (a *DefaultApiService) UpdateUserPassword_49(ctx context.Context) (*APIResp
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -12352,7 +12446,7 @@ func (a *DefaultApiService) UpdateWebhook(projectKey, repositorySlug string, web
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -12408,7 +12502,7 @@ func (a *DefaultApiService) Update_50(pullRequestID int64) (*APIResponse, error)
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -12462,7 +12556,7 @@ func (a *DefaultApiService) UploadAvatar(ctx context.Context) (*APIResponse, err
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -12516,7 +12610,7 @@ func (a *DefaultApiService) UploadAvatar_51(ctx context.Context) (*APIResponse, 
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -12572,7 +12666,7 @@ func (a *DefaultApiService) Watch(commitId string) (*APIResponse, error) {
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -12628,7 +12722,7 @@ func (a *DefaultApiService) Watch_52(pullRequestID int64) (*APIResponse, error) 
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
@@ -12684,7 +12778,7 @@ func (a *DefaultApiService) WithdrawApproval(pullRequestID int64) (*APIResponse,
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewBitbucketAPIResponse(localVarHTTPResponse)
+		return NewAPIResponseWithError(localVarHTTPResponse, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
