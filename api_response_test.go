@@ -233,10 +233,10 @@ func TestGetWebhooksResponse(t *testing.T) {
 			name: "Empty list",
 			args: args{
 				r: &APIResponse{
-					Values: map[string]interface{}{ "values": []interface{}{} },
+					Values: map[string]interface{}{"values": []interface{}{}},
 				},
 			},
-			want: []Webhook{},
+			want:    []Webhook{},
 			wantErr: false,
 		},
 		{
@@ -245,11 +245,11 @@ func TestGetWebhooksResponse(t *testing.T) {
 				r: &APIResponse{
 					Values: map[string]interface{}{
 						"values": []interface{}{map[string]interface{}{
-							"id": 1,
-							"name": "foo",
-							"url": "http://bitbucket.localhost/hook",
+							"id":     1,
+							"name":   "foo",
+							"url":    "http://bitbucket.localhost/hook",
 							"active": false,
-							"events": []string{ "repo:modified" },
+							"events": []string{"repo:modified"},
 							"configuration": map[string]interface{}{
 								"secret": "password",
 							},
@@ -259,11 +259,11 @@ func TestGetWebhooksResponse(t *testing.T) {
 			},
 			want: []Webhook{
 				Webhook{
-					ID: 1,
-					Name: "foo",
-					Url: "http://bitbucket.localhost/hook",
+					ID:     1,
+					Name:   "foo",
+					Url:    "http://bitbucket.localhost/hook",
 					Active: false,
-					Events: []string{ "repo:modified" },
+					Events: []string{"repo:modified"},
 					Configuration: WebhookConfiguration{
 						Secret: "password",
 					},
@@ -275,10 +275,10 @@ func TestGetWebhooksResponse(t *testing.T) {
 			name: "Bad response",
 			args: args{
 				r: &APIResponse{
-					Values: map[string]interface{}{ "values": "not an array" },
+					Values: map[string]interface{}{"values": "not an array"},
 				},
 			},
-			want: nil,
+			want:    nil,
 			wantErr: true,
 		},
 	}
