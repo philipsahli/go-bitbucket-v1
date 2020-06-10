@@ -5,8 +5,9 @@
 package bitbucketv1
 
 import (
-	"io/ioutil"
 	"encoding/json"
+	"fmt"
+	"io/ioutil"
 	"net/http"
 	"strings"
 
@@ -225,7 +226,7 @@ type Diff struct {
 	WhiteSpace   string  `json:"whiteSpace"`
 }
 
-// Tag contaings git Tag information
+// Tag contains git Tag information
 type Tag struct {
 	ID              string `json:"id"`
 	DisplayID       string `json:"displayId"`
@@ -233,6 +234,11 @@ type Tag struct {
 	LatestCommit    string `json:"latestCommit"`
 	LatestChangeset string `json:"latestChangeset"`
 	Hash            string `json:"hash"`
+}
+
+// FileContent contains file informations
+type FileContent struct {
+	Text string `json:"text"`
 }
 
 // Branch contains git Branch information
@@ -275,16 +281,16 @@ type Content struct {
 }
 
 type WebhookConfiguration struct {
-  Secret          string     `json:"secret"`
+	Secret string `json:"secret"`
 }
 
 type Webhook struct {
-	ID              int        `json:"id"`
-	Name            string     `json:"name"`
-	Events          []string   `json:"events"`
-	Url             string     `json:"url"`
-	Active          bool       `json:"active"`
-	Configuration   WebhookConfiguration     `json:"configuration"`
+	ID            int                  `json:"id"`
+	Name          string               `json:"name"`
+	Events        []string             `json:"events"`
+	Url           string               `json:"url"`
+	Active        bool                 `json:"active"`
+	Configuration WebhookConfiguration `json:"configuration"`
 }
 
 func (k *SSHKey) String() string {
@@ -305,6 +311,33 @@ func GetTagsResponse(r *APIResponse) ([]Tag, error) {
 	var m []Tag
 	err := mapstructure.Decode(r.Values["values"], &m)
 	return m, err
+}
+
+// GetFileContentResponse cast FileContent into structure
+func GetFileContentResponse(r *APIResponse) (string, error) {
+	var m []FileContent
+	err := mapstructure.Decode(r.Values["lines"], &m)
+	// return m, err
+	var content string
+	for _, line := range m {
+		content += fmt.Sprintf("%v", line)
+
+	}
+
+	return content, err
+}
+
+// GetFilesResponse cast Files into string slice
+func GetFilesResponse(r *APIResponse) []string {
+	var fileSlice []string
+	if t, ok := r.Values["values"].([]interface{}); ok {
+		for _, file := range t {
+			if f, ok := file.(string); ok {
+				fileSlice = append(fileSlice, f)
+			}
+		}
+	}
+	return fileSlice
 }
 
 // GetBranchesResponse cast Tags into structure
