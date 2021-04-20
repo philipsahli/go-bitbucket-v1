@@ -11,21 +11,16 @@ import (
 	"net/url"
 	"strings"
 
-	"golang.org/x/net/context"
-)
-
-// Linger please
-var (
-	_ context.Context
+	"github.com/mitchellh/mapstructure"
 )
 
 // DefaultAPIService default service
 type DefaultApiService service
 
 /*AddGroupToUser &lt;strong&gt;Deprecated since 2.10&lt;/strong&gt;. Use /rest/users/add-groups instead.  &lt;p&gt;  Add a user to a group. This is very similar to &lt;code&gt;groups/add-user&lt;/code&gt;, but with the &lt;em&gt;context&lt;/em&gt; and  &lt;em&gt;itemName&lt;/em&gt; attributes of the supplied request entity reversed. On the face of it this may appear  redundant, but it facilitates a specific UI component in Stash.  &lt;p&gt;  In the request entity, the &lt;em&gt;context&lt;/em&gt; attribute is the user and the &lt;em&gt;itemName&lt;/em&gt; is the group.  &lt;p&gt;  The authenticated user must have the &lt;strong&gt;ADMIN&lt;/strong&gt; permission to call this resource.
- * @param ctx context.Context for authentication, logging, tracing, etc.
- @return */
-func (a *DefaultApiService) AddGroupToUser(ctx context.Context) (*APIResponse, error) {
+
+@return */
+func (a *DefaultApiService) AddGroupToUser() (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Post")
 		localVarPostBody   interface{}
@@ -41,7 +36,7 @@ func (a *DefaultApiService) AddGroupToUser(ctx context.Context) (*APIResponse, e
 	localVarFormParams := url.Values{}
 
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -64,12 +59,12 @@ func (a *DefaultApiService) AddGroupToUser(ctx context.Context) (*APIResponse, e
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -77,9 +72,9 @@ func (a *DefaultApiService) AddGroupToUser(ctx context.Context) (*APIResponse, e
 
 /* AddUserToGroup
 &lt;strong&gt;Deprecated since 2.10&lt;/strong&gt;. Use /rest/users/add-groups instead.  &lt;p&gt;  Add a user to a group.  &lt;p&gt;  In the request entity, the &lt;em&gt;context&lt;/em&gt; attribute is the group and the &lt;em&gt;itemName&lt;/em&gt; is the user.  &lt;p&gt;  The authenticated user must have the &lt;strong&gt;ADMIN&lt;/strong&gt; permission to call this resource.
-* @param ctx context.Context for authentication, logging, tracing, etc.
+
 @return */
-func (a *DefaultApiService) AddUserToGroup(ctx context.Context) (*APIResponse, error) {
+func (a *DefaultApiService) AddUserToGroup() (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Post")
 		localVarPostBody   interface{}
@@ -95,7 +90,7 @@ func (a *DefaultApiService) AddUserToGroup(ctx context.Context) (*APIResponse, e
 	localVarFormParams := url.Values{}
 
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -118,12 +113,12 @@ func (a *DefaultApiService) AddUserToGroup(ctx context.Context) (*APIResponse, e
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -131,15 +126,20 @@ func (a *DefaultApiService) AddUserToGroup(ctx context.Context) (*APIResponse, e
 
 /* AddUserToGroups
 Add a user to one or more groups.  &lt;p&gt;  The authenticated user must have the &lt;strong&gt;ADMIN&lt;/strong&gt; permission to call this resource.
-* @param ctx context.Context for authentication, logging, tracing, etc.
+
 @return */
-func (a *DefaultApiService) AddUserToGroups(ctx context.Context) (*APIResponse, error) {
+func (a *DefaultApiService) AddUserToGroups(name string, groups []string) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Post")
 		localVarPostBody   interface{}
 		localVarFileName   string
 		localVarFileBytes  []byte
 	)
+
+	localVarPostBody = map[string]interface{}{
+		"user": name,
+		"groups": groups,
+	}
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/admin/users/add-groups"
@@ -149,7 +149,7 @@ func (a *DefaultApiService) AddUserToGroups(ctx context.Context) (*APIResponse, 
 	localVarFormParams := url.Values{}
 
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -172,22 +172,22 @@ func (a *DefaultApiService) AddUserToGroups(ctx context.Context) (*APIResponse, 
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
-	return NewBitbucketAPIResponse(localVarHTTPResponse)
+	return NewAPIResponse(localVarHTTPResponse), nil
 }
 
 /* DefaultApiService
 Add multiple users to a group.  &lt;p&gt;  The authenticated user must have the &lt;strong&gt;ADMIN&lt;/strong&gt; permission to call this resource.
-* @param ctx context.Context for authentication, logging, tracing, etc.
+
 @return */
-func (a *DefaultApiService) AddUsersToGroup(ctx context.Context) (*APIResponse, error) {
+func (a *DefaultApiService) AddUsersToGroup() (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Post")
 		localVarPostBody   interface{}
@@ -203,7 +203,7 @@ func (a *DefaultApiService) AddUsersToGroup(ctx context.Context) (*APIResponse, 
 	localVarFormParams := url.Values{}
 
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -226,12 +226,12 @@ func (a *DefaultApiService) AddUsersToGroup(ctx context.Context) (*APIResponse, 
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -239,10 +239,10 @@ func (a *DefaultApiService) AddUsersToGroup(ctx context.Context) (*APIResponse, 
 
 /* DefaultApiService
 Approve a pull request as the current user. Implicitly adds the user as a participant if they are not already.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;REPO_READ&lt;/strong&gt; permission for the repository that this pull request  targets to call this resource.  &lt;p&gt;  &lt;strong&gt;Deprecated since 4.2&lt;/strong&gt;. Use  /rest/api/1.0/projects/{projectKey}/repos/{repositorySlug}/pull-requests/{pullRequestId}/participants/{userSlug} instead
-* @param ctx context.Context for authentication, logging, tracing, etc.
+
 @param pullRequestId the id of the pull request within the repository
 @return */
-func (a *DefaultApiService) Approve(pullRequestID int64) (*APIResponse, error) {
+func (a *DefaultApiService) Approve(projectKey, repositorySlug string, pullRequestID int64) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Post")
 		localVarPostBody   interface{}
@@ -252,6 +252,8 @@ func (a *DefaultApiService) Approve(pullRequestID int64) (*APIResponse, error) {
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/repos/{repositorySlug}/pull-requests/{pullRequestId}/approve"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
 	localVarPath = strings.Replace(localVarPath, "{"+"pullRequestId"+"}", fmt.Sprintf("%v", pullRequestID), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -259,7 +261,7 @@ func (a *DefaultApiService) Approve(pullRequestID int64) (*APIResponse, error) {
 	localVarFormParams := url.Values{}
 
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -282,12 +284,12 @@ func (a *DefaultApiService) Approve(pullRequestID int64) (*APIResponse, error) {
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -295,10 +297,10 @@ func (a *DefaultApiService) Approve(pullRequestID int64) (*APIResponse, error) {
 
 /* DefaultApiService
 Assigns a participant to an explicit role in pull request. Currently only the REVIEWER role may be assigned.  &lt;p&gt;  If the user is not yet a participant in the pull request, they are made one and assigned the supplied role.  &lt;p&gt;  If the user is already a participant in the pull request, their previous role is replaced with the supplied role  unless they are already assigned the AUTHOR role which cannot be changed and will result in a Bad Request (400)  response code.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;REPO_WRITE&lt;/strong&gt; permission for the repository that this pull request  targets to call this resource.
-* @param ctx context.Context for authentication, logging, tracing, etc.
+
 @param pullRequestId the id of the pull request within the repository
 @return */
-func (a *DefaultApiService) AssignParticipantRole(pullRequestID int64) (*APIResponse, error) {
+func (a *DefaultApiService) AssignParticipantRole(projectKey, repositorySlug string, pullRequestID int64) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Post")
 		localVarPostBody   interface{}
@@ -308,6 +310,8 @@ func (a *DefaultApiService) AssignParticipantRole(pullRequestID int64) (*APIResp
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/repos/{repositorySlug}/pull-requests/{pullRequestId}/participants"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
 	localVarPath = strings.Replace(localVarPath, "{"+"pullRequestId"+"}", fmt.Sprintf("%v", pullRequestID), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -315,7 +319,7 @@ func (a *DefaultApiService) AssignParticipantRole(pullRequestID int64) (*APIResp
 	localVarFormParams := url.Values{}
 
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -338,12 +342,12 @@ func (a *DefaultApiService) AssignParticipantRole(pullRequestID int64) (*APIResp
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -351,7 +355,7 @@ func (a *DefaultApiService) AssignParticipantRole(pullRequestID int64) (*APIResp
 
 /* DefaultApiService
 Test whether a pull request can be merged.  &lt;p&gt;  A pull request may not be merged if:  &lt;ul&gt;      &lt;li&gt;there are conflicts that need to be manually resolved before merging; and/or&lt;/li&gt;      &lt;li&gt;one or more merge checks have vetoed the merge.&lt;/li&gt;  &lt;/ul&gt;  &lt;p&gt;  The authenticated user must have &lt;strong&gt;REPO_READ&lt;/strong&gt; permission for the repository that this pull request  targets to call this resource.
-* @param ctx context.Context for authentication, logging, tracing, etc.
+
 @param pullRequestId the ID of the pull request within the repository
 @return */
 func (a *DefaultApiService) CanMerge(projectKey, repositorySlug string, pullRequestID int64) (*APIResponse, error) {
@@ -373,7 +377,7 @@ func (a *DefaultApiService) CanMerge(projectKey, repositorySlug string, pullRequ
 	localVarFormParams := url.Values{}
 
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -396,12 +400,12 @@ func (a *DefaultApiService) CanMerge(projectKey, repositorySlug string, pullRequ
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -409,9 +413,9 @@ func (a *DefaultApiService) CanMerge(projectKey, repositorySlug string, pullRequ
 
 /* DefaultApiService
 Clears the server email address.  &lt;p&gt;  The authenticated user must have the &lt;strong&gt;ADMIN&lt;/strong&gt; permission to call this resource.
-* @param ctx context.Context for authentication, logging, tracing, etc.
+
 @return */
-func (a *DefaultApiService) ClearSenderAddress(ctx context.Context) (*APIResponse, error) {
+func (a *DefaultApiService) ClearSenderAddress() (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Delete")
 		localVarPostBody   interface{}
@@ -427,7 +431,7 @@ func (a *DefaultApiService) ClearSenderAddress(ctx context.Context) (*APIRespons
 	localVarFormParams := url.Values{}
 
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -450,12 +454,12 @@ func (a *DefaultApiService) ClearSenderAddress(ctx context.Context) (*APIRespons
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -463,7 +467,7 @@ func (a *DefaultApiService) ClearSenderAddress(ctx context.Context) (*APIRespons
 
 /* DefaultApiService
  Clears any CAPTCHA challenge that may constrain the user with the supplied username when they authenticate.  Additionally any counter or metric that contributed towards the user being issued the CAPTCHA challenge  (for instance too many consecutive failed logins) will also be reset.  &lt;p&gt;  The authenticated user must have the &lt;strong&gt;ADMIN&lt;/strong&gt; permission to call this resource, and may not clear  the CAPTCHA of a user with greater permissions than themselves.
- * @param ctx context.Context for authentication, logging, tracing, etc.
+
  @param optional (nil or map[string]interface{}) with one or more of:
 	 @param "name" (string)
  @return */
@@ -490,7 +494,7 @@ func (a *DefaultApiService) ClearUserCaptchaChallenge(localVarOptionals map[stri
 		localVarQueryParams.Add("name", parameterToString(localVarTempParam, ""))
 	}
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -513,12 +517,12 @@ func (a *DefaultApiService) ClearUserCaptchaChallenge(localVarOptionals map[stri
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -526,7 +530,7 @@ func (a *DefaultApiService) ClearUserCaptchaChallenge(localVarOptionals map[stri
 
 /* DefaultApiService
 Retrieve the total number of {@link TaskState#OPEN open} and  {@link TaskState#RESOLVED resolved} tasks associated with a pull request.
-* @param ctx context.Context for authentication, logging, tracing, etc.
+
 @return */
 func (a *DefaultApiService) CountPullRequestTasks(projectKey, repositorySlug string, pullRequestId int64) (*APIResponse, error) {
 	var (
@@ -547,7 +551,7 @@ func (a *DefaultApiService) CountPullRequestTasks(projectKey, repositorySlug str
 	localVarFormParams := url.Values{}
 
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -570,12 +574,12 @@ func (a *DefaultApiService) CountPullRequestTasks(projectKey, repositorySlug str
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -583,9 +587,24 @@ func (a *DefaultApiService) CountPullRequestTasks(projectKey, repositorySlug str
 
 /* DefaultApiService
 Create a new pull request between two branches. The branches may be in the same repository, or different ones.  When using different repositories, they must still be in the same {@link Repository#getHierarchyId() hierarchy}.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;REPO_READ&lt;/strong&gt; permission for the \&quot;from\&quot; and \&quot;to\&quot;repositories to  call this resource.
-* @param ctx context.Context for authentication, logging, tracing, etc.
+
 @return */
 func (a *DefaultApiService) Create(projectKey, repositorySlug string, localVarOptionals map[string]interface{}) (*APIResponse, error) {
+	var pullRequest PullRequest
+
+	err := mapstructure.Decode(localVarOptionals, &pullRequest)
+	if err != nil {
+		return nil, err
+	}
+
+	return a.CreatePullRequest(projectKey, repositorySlug, pullRequest)
+}
+
+/* DefaultApiService
+CreatePullRequest a new pull request between two branches. The branches may be in the same repository, or different ones.  When using different repositories, they must still be in the same {@link Repository#getHierarchyId() hierarchy}.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;REPO_READ&lt;/strong&gt; permission for the \&quot;from\&quot; and \&quot;to\&quot;repositories to  call this resource.
+
+@return */
+func (a *DefaultApiService) CreatePullRequest(projectKey, repositorySlug string, pullRequest PullRequest) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Post")
 		localVarPostBody   interface{}
@@ -602,7 +621,7 @@ func (a *DefaultApiService) Create(projectKey, repositorySlug string, localVarOp
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	localVarPostBody, err := json.Marshal(localVarOptionals)
+	localVarPostBody, err := json.Marshal(pullRequest)
 	if err != nil {
 		return nil, err
 	}
@@ -631,12 +650,12 @@ func (a *DefaultApiService) Create(projectKey, repositorySlug string, localVarOp
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -644,9 +663,9 @@ func (a *DefaultApiService) Create(projectKey, repositorySlug string, localVarOp
 
 /* DefaultApiService
 Creates a branch using the information provided in the {@link RestCreateBranchRequest request}  &lt;p&gt;  The authenticated user must have &lt;strong&gt;REPO_WRITE&lt;/strong&gt; permission for the context repository to call  this resource.
-* @param ctx context.Context for authentication, logging, tracing, etc.
+
 @return */
-func (a *DefaultApiService) CreateBranch(ctx context.Context) (*APIResponse, error) {
+func (a *DefaultApiService) CreateBranch(projectKey, repositorySlug string) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Post")
 		localVarPostBody   interface{}
@@ -656,13 +675,15 @@ func (a *DefaultApiService) CreateBranch(ctx context.Context) (*APIResponse, err
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/repos/{repositorySlug}/branches"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -685,12 +706,12 @@ func (a *DefaultApiService) CreateBranch(ctx context.Context) (*APIResponse, err
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -698,12 +719,16 @@ func (a *DefaultApiService) CreateBranch(ctx context.Context) (*APIResponse, err
 
 /* DefaultApiService
  Add a new comment.  &lt;p&gt;  Comments can be added in a few places by setting different attributes:  &lt;p&gt;  General commit comment:   &lt;pre&gt;      {          \&quot;text\&quot;: \&quot;An insightful general comment on a commit.\&quot;      }      &lt;/pre&gt;   Reply to a comment:   &lt;pre&gt;      {          \&quot;text\&quot;: \&quot;A measured reply.\&quot;,          \&quot;parent\&quot;: {              \&quot;id\&quot;: 1          }      }      &lt;/pre&gt;   General file comment:   &lt;pre&gt;      {          \&quot;text\&quot;: \&quot;An insightful general comment on a file.\&quot;,          \&quot;anchor\&quot;: {              \&quot;diffType\&quot;: \&quot;COMMIT\&quot;,              \&quot;fromHash\&quot;: \&quot;6df3858eeb9a53a911cd17e66a9174d44ffb02cd\&quot;,              \&quot;path\&quot;: \&quot;path/to/file\&quot;,              \&quot;srcPath\&quot;: \&quot;path/to/file\&quot;,              \&quot;toHash\&quot;: \&quot;04c7c5c931b9418ca7b66f51fe934d0bd9b2ba4b\&quot;          }      }      &lt;/pre&gt;   File line comment:   &lt;pre&gt;      {          \&quot;text\&quot;: \&quot;A pithy comment on a particular line within a file.\&quot;,          \&quot;anchor\&quot;: {              \&quot;diffType\&quot;: \&quot;COMMIT\&quot;,              \&quot;line\&quot;: 1,              \&quot;lineType\&quot;: \&quot;CONTEXT\&quot;,              \&quot;fileType\&quot;: \&quot;FROM\&quot;,              \&quot;fromHash\&quot;: \&quot;6df3858eeb9a53a911cd17e66a9174d44ffb02cd\&quot;,              \&quot;path\&quot;: \&quot;path/to/file\&quot;,              \&quot;srcPath\&quot;: \&quot;path/to/file\&quot;,              \&quot;toHash\&quot;: \&quot;04c7c5c931b9418ca7b66f51fe934d0bd9b2ba4b\&quot;      }      }      &lt;/pre&gt;  &lt;strong&gt;Note: general file comments are an experimental feature and may change in the near future!&lt;/strong&gt;  &lt;p&gt;  For file and line comments, &#39;path&#39; refers to the path of the file to which the comment should be applied and  &#39;srcPath&#39; refers to the path the that file used to have (only required for copies and moves). Also,  fromHash and toHash refer to the sinceId / untilId (respectively) used to produce the diff on which the comment  was added. Finally diffType refers to the type of diff the comment was added on.  &lt;p&gt;  For line comments, &#39;line&#39; refers to the line in the diff that the comment should apply to. &#39;lineType&#39; refers to  the type of diff hunk, which can be:  &lt;ul&gt;      &lt;li&gt;&#39;ADDED&#39; - for an added line;&lt;/li&gt;      &lt;li&gt;&#39;REMOVED&#39; - for a removed line; or&lt;/li&gt;      &lt;li&gt;&#39;CONTEXT&#39; - for a line that was unmodified but is in the vicinity of the diff.&lt;/li&gt;  &lt;/ul&gt;  &#39;fileType&#39; refers to the file of the diff to which the anchor should be attached - which is of relevance when  displaying the diff in a side-by-side way. Currently the supported values are:  &lt;ul&gt;      &lt;li&gt;&#39;FROM&#39; - the source file of the diff&lt;/li&gt;      &lt;li&gt;&#39;TO&#39; - the destination file of the diff&lt;/li&gt;  &lt;/ul&gt;  If the current user is not a participant the user is added as one and updated to watch the commit.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;REPO_READ&lt;/strong&gt; permission for the repository that the commit  is in to call this resource.
- * @param ctx context.Context for authentication, logging, tracing, etc.
+
  @param commitId the commit to which the comments must be anchored
  @param optional (nil or map[string]interface{}) with one or more of:
 	 @param "since" (string) For a merge commit, a parent can be provided to specify which diff the comments should be on. For                  a commit range, a {@code sinceId} can be provided to specify where the comments should be                  anchored from.
  @return */
-func (a *DefaultApiService) CreateComment(commitId string, localVarOptionals map[string]interface{}) (*APIResponse, error) {
+func (a *DefaultApiService) CreateComment(projectKey, repositorySlug string, commitId string, localVarOptionals map[string]interface{}) (*APIResponse, error) {
+	return a.CreateCommentWithComment(projectKey, repositorySlug, commitId, Comment{}, localVarOptionals)
+}
+
+func (a *DefaultApiService) CreateCommentWithComment(projectKey, repositorySlug string, commitId string, comment Comment, localVarOptionals map[string]interface{}) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Post")
 		localVarPostBody   interface{}
@@ -711,8 +736,16 @@ func (a *DefaultApiService) CreateComment(commitId string, localVarOptionals map
 		localVarFileBytes  []byte
 	)
 
+	var err error
+	localVarPostBody, err = json.Marshal(comment)
+	if err != nil {
+		return nil, err
+	}
+
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/repos/{repositorySlug}/commits/{commitId}/comments"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
 	localVarPath = strings.Replace(localVarPath, "{"+"commitId"+"}", fmt.Sprintf("%v", commitId), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -727,7 +760,7 @@ func (a *DefaultApiService) CreateComment(commitId string, localVarOptionals map
 		localVarQueryParams.Add("since", parameterToString(localVarTempParam, ""))
 	}
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -750,12 +783,12 @@ func (a *DefaultApiService) CreateComment(commitId string, localVarOptionals map
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -763,14 +796,19 @@ func (a *DefaultApiService) CreateComment(commitId string, localVarOptionals map
 
 /* DefaultApiService
 Add a new comment.  &lt;p&gt;  Comments can be added in a few places by setting different attributes:  &lt;p&gt;  General pull request comment:   &lt;pre&gt;      {          \&quot;text\&quot;: \&quot;An insightful general comment on a pull request.\&quot;      }      &lt;/pre&gt;   Reply to a comment:   &lt;pre&gt;      {          \&quot;text\&quot;: \&quot;A measured reply.\&quot;,          \&quot;parent\&quot;: {              \&quot;id\&quot;: 1          }      }      &lt;/pre&gt;   General file comment:   &lt;pre&gt;      {          \&quot;text\&quot;: \&quot;An insightful general comment on a file.\&quot;,          \&quot;anchor\&quot;: {              \&quot;diffType\&quot;: \&quot;RANGE\&quot;,              \&quot;fromHash\&quot;: \&quot;6df3858eeb9a53a911cd17e66a9174d44ffb02cd\&quot;,              \&quot;path\&quot;: \&quot;path/to/file\&quot;,              \&quot;srcPath\&quot;: \&quot;path/to/file\&quot;,              \&quot;toHash\&quot;: \&quot;04c7c5c931b9418ca7b66f51fe934d0bd9b2ba4b\&quot;          }      }      &lt;/pre&gt;   File line comment:   &lt;pre&gt;      {          \&quot;text\&quot;: \&quot;A pithy comment on a particular line within a file.\&quot;,          \&quot;anchor\&quot;: {              \&quot;diffType\&quot;: \&quot;COMMIT\&quot;,              \&quot;line\&quot;: 1,              \&quot;lineType\&quot;: \&quot;CONTEXT\&quot;,              \&quot;fileType\&quot;: \&quot;FROM\&quot;,              \&quot;fromHash\&quot;: \&quot;6df3858eeb9a53a911cd17e66a9174d44ffb02cd\&quot;,              \&quot;path\&quot;: \&quot;path/to/file\&quot;,              \&quot;srcPath\&quot;: \&quot;path/to/file\&quot;,              \&quot;toHash\&quot;: \&quot;04c7c5c931b9418ca7b66f51fe934d0bd9b2ba4b\&quot;          }      }      &lt;/pre&gt;  &lt;p&gt;  For file and line comments, &#39;path&#39; refers to the path of the file to which the comment should be applied and  &#39;srcPath&#39; refers to the path the that file used to have (only required for copies and moves). Also,  fromHash and toHash refer to the sinceId / untilId (respectively) used to produce the diff on which the comment  was added. Finally diffType refers to the type of diff the comment was added on. For backwards compatibility  purposes if no diffType is provided and no fromHash/toHash pair is provided the diffType will be resolved to  &#39;EFFECTIVE&#39;. In any other cases the diffType is REQUIRED.  &lt;p&gt;  For line comments, &#39;line&#39; refers to the line in the diff that the comment should apply to. &#39;lineType&#39; refers to  the type of diff hunk, which can be:  &lt;ul&gt;      &lt;li&gt;&#39;ADDED&#39; - for an added line;&lt;/li&gt;      &lt;li&gt;&#39;REMOVED&#39; - for a removed line; or&lt;/li&gt;      &lt;li&gt;&#39;CONTEXT&#39; - for a line that was unmodified but is in the vicinity of the diff.&lt;/li&gt;  &lt;/ul&gt;  &#39;fileType&#39; refers to the file of the diff to which the anchor should be attached - which is of relevance when  displaying the diff in a side-by-side way. Currently the supported values are:  &lt;ul&gt;      &lt;li&gt;&#39;FROM&#39; - the source file of the diff&lt;/li&gt;      &lt;li&gt;&#39;TO&#39; - the destination file of the diff&lt;/li&gt;  &lt;/ul&gt;  If the current user is not a participant the user is added as a watcher of the pull request.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;REPO_READ&lt;/strong&gt; permission for the repository that this pull request  targets to call this resource.
-* @param ctx context.Context for authentication, logging, tracing, etc.
+
 @return */
-func (a *DefaultApiService) CreateComment_1(projectKey, repositorySlug string, pullRequestID int, localVarPostBody interface{}, localVarHTTPContentTypes []string) (*APIResponse, error) {
+func (a *DefaultApiService) CreatePullRequestComment(projectKey, repositorySlug string, pullRequestID int, comment Comment, localVarHTTPContentTypes []string) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Post")
 		localVarFileName   string
 		localVarFileBytes  []byte
 	)
+
+	localVarPostBody, err := json.Marshal(comment)
+	if err != nil {
+		return nil, err
+	}
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/repos/{repositorySlug}/pull-requests/{pullRequestId}/comments"
@@ -803,12 +841,12 @@ func (a *DefaultApiService) CreateComment_1(projectKey, repositorySlug string, p
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -816,7 +854,7 @@ func (a *DefaultApiService) CreateComment_1(projectKey, repositorySlug string, p
 
 /* DefaultApiService
  Create a new group.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;ADMIN&lt;/strong&gt; permission or higher to call this resource.
- * @param ctx context.Context for authentication, logging, tracing, etc.
+
  @param optional (nil or map[string]interface{}) with one or more of:
 	 @param "name" (string) Name of the group.
  @return */
@@ -843,7 +881,7 @@ func (a *DefaultApiService) CreateGroup(localVarOptionals map[string]interface{}
 		localVarQueryParams.Add("name", parameterToString(localVarTempParam, ""))
 	}
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -866,12 +904,12 @@ func (a *DefaultApiService) CreateGroup(localVarOptionals map[string]interface{}
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -879,12 +917,11 @@ func (a *DefaultApiService) CreateGroup(localVarOptionals map[string]interface{}
 
 /* DefaultApiService
 Create a new project.  &lt;p&gt;  To include a custom avatar for the project, the project definition should contain an additional attribute with  the key &lt;code&gt;avatar&lt;/code&gt; and the value a data URI containing Base64-encoded image data. The URI should be in  the following format:  &lt;pre&gt;      data:(content type, e.g. image/png);base64,(data)  &lt;/pre&gt;  If the data is not Base64-encoded, or if a character set is defined in the URI, or the URI is otherwise invalid,  &lt;em&gt;project creation will fail&lt;/em&gt;.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;PROJECT_CREATE&lt;/strong&gt; permission to call this resource.
-* @param ctx context.Context for authentication, logging, tracing, etc.
+
 @return */
-func (a *DefaultApiService) CreateProject(ctx context.Context) (*APIResponse, error) {
+func (a *DefaultApiService) CreateProject(localVarPostBody Project) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Post")
-		localVarPostBody   interface{}
 		localVarFileName   string
 		localVarFileBytes  []byte
 	)
@@ -897,7 +934,7 @@ func (a *DefaultApiService) CreateProject(ctx context.Context) (*APIResponse, er
 	localVarFormParams := url.Values{}
 
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -920,12 +957,12 @@ func (a *DefaultApiService) CreateProject(ctx context.Context) (*APIResponse, er
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -933,11 +970,17 @@ func (a *DefaultApiService) CreateProject(ctx context.Context) (*APIResponse, er
 
 /* DefaultApiService
 Create a new repository. Requires an existing project in which this repository will be created.  The only parameters which will be used are name and scmId.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;PROJECT_ADMIN&lt;/strong&gt; permission for the context project to call this  resource.
-* @param ctx context.Context for authentication, logging, tracing, etc.
+
 @param projectKey the parent project key
 @return */
-func (a *DefaultApiService) CreateRepository(projectKey string) (*APIResponse, error) {
-	return a.CreateRepositoryWithOptions(projectKey, nil, []string{})
+func (a *DefaultApiService) CreateRepository(projectKey string, repository Repository) (*APIResponse, error) {
+
+	localVarPostBody, err := json.Marshal(repository)
+	if err != nil {
+		return nil, err
+	}
+
+	return a.CreateRepositoryWithOptions(projectKey, localVarPostBody, []string{"application/json"})
 }
 
 func (a *DefaultApiService) CreateRepositoryWithOptions(projectKey string, localVarPostBody interface{}, localVarHTTPContentTypes []string) (*APIResponse, error) {
@@ -976,12 +1019,12 @@ func (a *DefaultApiService) CreateRepositoryWithOptions(projectKey string, local
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -1025,12 +1068,12 @@ func (a *DefaultApiService) CreatePullRequestWithOptions(projectKey, repo string
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -1038,9 +1081,9 @@ func (a *DefaultApiService) CreatePullRequestWithOptions(projectKey, repo string
 
 /* DefaultApiService
 Creates a tag using the information provided in the {@link RestCreateTagRequest request}  &lt;p&gt;  The authenticated user must have &lt;strong&gt;REPO_WRITE&lt;/strong&gt; permission for the context repository to call this  resource.
-* @param ctx context.Context for authentication, logging, tracing, etc.
+
 @return */
-func (a *DefaultApiService) CreateTag(ctx context.Context) (*APIResponse, error) {
+func (a *DefaultApiService) CreateTag(projectKey, repositorySlug string) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Post")
 		localVarPostBody   interface{}
@@ -1050,13 +1093,15 @@ func (a *DefaultApiService) CreateTag(ctx context.Context) (*APIResponse, error)
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/repos/{repositorySlug}/tags"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -1079,12 +1124,12 @@ func (a *DefaultApiService) CreateTag(ctx context.Context) (*APIResponse, error)
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -1092,9 +1137,9 @@ func (a *DefaultApiService) CreateTag(ctx context.Context) (*APIResponse, error)
 
 /* DefaultApiService
 Create a new task.
-* @param ctx context.Context for authentication, logging, tracing, etc.
+
 @return */
-func (a *DefaultApiService) CreateTask(ctx context.Context) (*APIResponse, error) {
+func (a *DefaultApiService) CreateTask() (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Post")
 		localVarPostBody   interface{}
@@ -1110,7 +1155,7 @@ func (a *DefaultApiService) CreateTask(ctx context.Context) (*APIResponse, error
 	localVarFormParams := url.Values{}
 
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -1133,12 +1178,12 @@ func (a *DefaultApiService) CreateTask(ctx context.Context) (*APIResponse, error
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -1146,7 +1191,7 @@ func (a *DefaultApiService) CreateTask(ctx context.Context) (*APIResponse, error
 
 /* DefaultApiService
  Creates a new user from the assembled query parameters.  &lt;p&gt;  The default group can be used to control initial permissions for new users, such as granting users the ability  to login or providing read access to certain projects or repositories. If the user is not added to the default  group, they may not be able to login after their account is created until explicit permissions are configured.  &lt;p&gt;  The authenticated user must have the &lt;strong&gt;ADMIN&lt;/strong&gt; permission to call this resource.
- * @param ctx context.Context for authentication, logging, tracing, etc.
+
  @param optional (nil or map[string]interface{}) with one or more of:
 	 @param "name" (string) the username for the new user
 	 @param "password" (string) the password for the new user
@@ -1208,7 +1253,7 @@ func (a *DefaultApiService) CreateUser(localVarOptionals map[string]interface{})
 		localVarQueryParams.Add("notify", parameterToString(localVarTempParam, ""))
 	}
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -1231,20 +1276,21 @@ func (a *DefaultApiService) CreateUser(localVarOptionals map[string]interface{})
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
-	return NewBitbucketAPIResponse(localVarHTTPResponse)
+	// No body parsing (a successful 204 response has no content)
+	return NewAPIResponse(localVarHTTPResponse), nil
 }
 
 /* DefaultApiService
 Create a webhook for the repository specified via the URL.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;REPO_ADMIN&lt;/strong&gt; permission for the specified repository to call this  resource.
-* @param ctx context.Context for authentication, logging, tracing, etc.
+
 @return */
 func (a *DefaultApiService) CreateWebhook(projectKey, repositorySlug string, localVarPostBody interface{}, localVarHTTPContentTypes []string) (*APIResponse, error) {
 	var (
@@ -1283,12 +1329,12 @@ func (a *DefaultApiService) CreateWebhook(projectKey, repositorySlug string, loc
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -1296,12 +1342,12 @@ func (a *DefaultApiService) CreateWebhook(projectKey, repositorySlug string, loc
 
 /* DefaultApiService
  Decline a pull request.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;REPO_READ&lt;/strong&gt; permission for the repository that this pull request  targets to call this resource.
- * @param ctx context.Context for authentication, logging, tracing, etc.
+
  @param pullRequestId
  @param optional (nil or map[string]interface{}) with one or more of:
 	 @param "version" (int32) the current version of the pull request. If the server&#39;s version isn&#39;t the same as the specified                 version the operation will fail. To determine the current version of the pull request it should be                 fetched from the server prior to this operation. Look for the &#39;version&#39; attribute in the returned                 JSON structure.
  @return */
-func (a *DefaultApiService) Decline(pullRequestID int64, localVarOptionals map[string]interface{}) (*APIResponse, error) {
+func (a *DefaultApiService) Decline(projectKey, repositorySlug string, pullRequestID int64, localVarOptionals map[string]interface{}) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Post")
 		localVarPostBody   interface{}
@@ -1311,6 +1357,8 @@ func (a *DefaultApiService) Decline(pullRequestID int64, localVarOptionals map[s
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/repos/{repositorySlug}/pull-requests/{pullRequestId}/decline"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
 	localVarPath = strings.Replace(localVarPath, "{"+"pullRequestId"+"}", fmt.Sprintf("%v", pullRequestID), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -1325,7 +1373,7 @@ func (a *DefaultApiService) Decline(pullRequestID int64, localVarOptionals map[s
 		localVarQueryParams.Add("version", parameterToString(localVarTempParam, ""))
 	}
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -1348,12 +1396,12 @@ func (a *DefaultApiService) Decline(pullRequestID int64, localVarOptionals map[s
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -1361,10 +1409,28 @@ func (a *DefaultApiService) Decline(pullRequestID int64, localVarOptionals map[s
 
 /* DefaultApiService
 Deletes a pull request.  &lt;p&gt;  To call this resource, users must be authenticated and have permission to view the pull request.  Additionally, they must:  &lt;ul&gt;      &lt;li&gt;          be the pull request author, if the system is configured to allow authors to delete their own          pull requests (this is the default) OR      &lt;/li&gt;      &lt;li&gt;have repository administrator permission for the repository the pull request is targeting&lt;/li&gt;  &lt;/ul&gt;   A body containing the version of the pull request must be provided with this request.   &lt;pre&gt;&lt;code&gt;{ \&quot;version\&quot;: 1 }&lt;/code&gt;&lt;/pre&gt;
-* @param ctx context.Context for authentication, logging, tracing, etc.
+
 @param pullRequestId the ID of the pull request within the repository
 @return */
-func (a *DefaultApiService) Delete(pullRequestID int64) (*APIResponse, error) {
+func (a *DefaultApiService) DeletePullRequest(projectKey, repositorySlug string, pullRequestID int64) (*APIResponse, error) {
+	return a.Delete(projectKey, repositorySlug, pullRequestID)
+}
+
+/* DefaultApiService
+Deletes a pull request.  &lt;p&gt;  To call this resource, users must be authenticated and have permission to view the pull request.  Additionally, they must:  &lt;ul&gt;      &lt;li&gt;          be the pull request author, if the system is configured to allow authors to delete their own          pull requests (this is the default) OR      &lt;/li&gt;      &lt;li&gt;have repository administrator permission for the repository the pull request is targeting&lt;/li&gt;  &lt;/ul&gt;   A body containing the version of the pull request must be provided with this request.   &lt;pre&gt;&lt;code&gt;{ \&quot;version\&quot;: 1 }&lt;/code&gt;&lt;/pre&gt;
+
+@param pullRequestId the ID of the pull request within the repository
+@return */
+func (a *DefaultApiService) Delete(projectKey, repositorySlug string, pullRequestID int64) (*APIResponse, error) {
+	return a.DeleteWithVersion(projectKey, repositorySlug, pullRequestID, 0)
+}
+
+/* DefaultApiService
+Deletes a pull request.  &lt;p&gt;  To call this resource, users must be authenticated and have permission to view the pull request.  Additionally, they must:  &lt;ul&gt;      &lt;li&gt;          be the pull request author, if the system is configured to allow authors to delete their own          pull requests (this is the default) OR      &lt;/li&gt;      &lt;li&gt;have repository administrator permission for the repository the pull request is targeting&lt;/li&gt;  &lt;/ul&gt;   A body containing the version of the pull request must be provided with this request.   &lt;pre&gt;&lt;code&gt;{ \&quot;version\&quot;: 1 }&lt;/code&gt;&lt;/pre&gt;
+
+@param pullRequestId the ID of the pull request within the repository
+@return */
+func (a *DefaultApiService) DeleteWithVersion(projectKey, repositorySlug string, pullRequestID, version int64) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Delete")
 		localVarPostBody   interface{}
@@ -1372,8 +1438,14 @@ func (a *DefaultApiService) Delete(pullRequestID int64) (*APIResponse, error) {
 		localVarFileBytes  []byte
 	)
 
+	localVarPostBody = map[string]interface{}{
+		"version": version,
+	}
+
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/repos/{repositorySlug}/pull-requests/{pullRequestId}"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
 	localVarPath = strings.Replace(localVarPath, "{"+"pullRequestId"+"}", fmt.Sprintf("%v", pullRequestID), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -1381,7 +1453,7 @@ func (a *DefaultApiService) Delete(pullRequestID int64) (*APIResponse, error) {
 	localVarFormParams := url.Values{}
 
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -1404,22 +1476,22 @@ func (a *DefaultApiService) Delete(pullRequestID int64) (*APIResponse, error) {
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
-	return NewBitbucketAPIResponse(localVarHTTPResponse)
+	return NewAPIResponse(localVarHTTPResponse), nil
 }
 
 /* DefaultApiService
 Delete the avatar associated to a user.  &lt;p&gt;  Users are always allowed to delete their own avatar. To delete someone else&#39;s avatar the authenticated user must  have global &lt;strong&gt;ADMIN&lt;/strong&gt; permission, or global &lt;strong&gt;SYS_ADMIN&lt;/strong&gt; permission to update a  &lt;strong&gt;SYS_ADMIN&lt;/strong&gt; user&#39;s avatar.
-* @param ctx context.Context for authentication, logging, tracing, etc.
+
 @return */
-func (a *DefaultApiService) DeleteAvatar(ctx context.Context) (*APIResponse, error) {
+func (a *DefaultApiService) DeleteAvatar(userSlug string) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Delete")
 		localVarPostBody   interface{}
@@ -1429,13 +1501,14 @@ func (a *DefaultApiService) DeleteAvatar(ctx context.Context) (*APIResponse, err
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/users/{userSlug}/avatar.png"
+	localVarPath = strings.Replace(localVarPath, "{"+"userSlug"+"}", fmt.Sprintf("%v", userSlug), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -1458,12 +1531,12 @@ func (a *DefaultApiService) DeleteAvatar(ctx context.Context) (*APIResponse, err
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -1471,14 +1544,14 @@ func (a *DefaultApiService) DeleteAvatar(ctx context.Context) (*APIResponse, err
 
 /* DefaultApiService
  Delete a commit comment. Anyone can delete their own comment. Only users with &lt;strong&gt;REPO_ADMIN&lt;/strong&gt;  and above may delete comments created by other users. Comments which have replies &lt;i&gt;may not be deleted&lt;/i&gt;,  regardless of the user&#39;s granted permissions.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;REPO_READ&lt;/strong&gt; permission for the repository that the commit  is in to call this resource.
- * @param ctx context.Context for authentication, logging, tracing, etc.
+
  @param commitId the commit to which the comments must be anchored
  @param commentId the ID of the comment to retrieve
  @param commitId2 the &lt;i&gt;full {@link Commit#getId() ID}&lt;/i&gt; of the commit within the repository
  @param optional (nil or map[string]interface{}) with one or more of:
 	 @param "version" (int32) The expected version of the comment. This must match the server&#39;s version of the comment or                   the delete will fail. To determine the current version of the comment, the comment should be                   fetched from the server prior to the delete. Look for the &#39;version&#39; attribute in the returned                   JSON structure.
  @return */
-func (a *DefaultApiService) DeleteComment(commitId string, commentId int64, commitId2 string, localVarOptionals map[string]interface{}) (*APIResponse, error) {
+func (a *DefaultApiService) DeleteComment(projectKey, repositorySlug string, commitId string, commentId int64, localVarOptionals map[string]interface{}) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Delete")
 		localVarPostBody   interface{}
@@ -1488,9 +1561,10 @@ func (a *DefaultApiService) DeleteComment(commitId string, commentId int64, comm
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/repos/{repositorySlug}/commits/{commitId}/comments/{commentId}"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
 	localVarPath = strings.Replace(localVarPath, "{"+"commitId"+"}", fmt.Sprintf("%v", commitId), -1)
 	localVarPath = strings.Replace(localVarPath, "{"+"commentId"+"}", fmt.Sprintf("%v", commentId), -1)
-	localVarPath = strings.Replace(localVarPath, "{"+"commitId"+"}", fmt.Sprintf("%v", commitId2), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -1504,7 +1578,7 @@ func (a *DefaultApiService) DeleteComment(commitId string, commentId int64, comm
 		localVarQueryParams.Add("version", parameterToString(localVarTempParam, ""))
 	}
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -1527,12 +1601,12 @@ func (a *DefaultApiService) DeleteComment(commitId string, commentId int64, comm
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -1540,12 +1614,12 @@ func (a *DefaultApiService) DeleteComment(commitId string, commentId int64, comm
 
 /* DefaultApiService
  Delete a pull request comment. Anyone can delete their own comment. Only users with &lt;strong&gt;REPO_ADMIN&lt;/strong&gt;  and above may delete comments created by other users.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;REPO_READ&lt;/strong&gt; permission for the repository that this pull request  targets to call this resource.
- * @param ctx context.Context for authentication, logging, tracing, etc.
+
  @param commentId the id of the comment to retrieve
  @param optional (nil or map[string]interface{}) with one or more of:
 	 @param "version" (int32) The expected version of the comment. This must match the server&#39;s version of the comment or                     the delete will fail. To determine the current version of the comment, the comment should be                     fetched from the server prior to the delete. Look for the &#39;version&#39; attribute in the                     returned JSON structure.
  @return */
-func (a *DefaultApiService) DeleteComment_2(commentId int64, localVarOptionals map[string]interface{}) (*APIResponse, error) {
+func (a *DefaultApiService) DeleteComment_2(projectKey, repositorySlug string, pullRequestId, commentId int64, localVarOptionals map[string]interface{}) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Delete")
 		localVarPostBody   interface{}
@@ -1555,6 +1629,9 @@ func (a *DefaultApiService) DeleteComment_2(commentId int64, localVarOptionals m
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/repos/{repositorySlug}/pull-requests/{pullRequestId}/comments/{commentId}"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"pullRequestId"+"}", fmt.Sprintf("%v", pullRequestId), -1)
 	localVarPath = strings.Replace(localVarPath, "{"+"commentId"+"}", fmt.Sprintf("%v", commentId), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -1569,7 +1646,7 @@ func (a *DefaultApiService) DeleteComment_2(commentId int64, localVarOptionals m
 		localVarQueryParams.Add("version", parameterToString(localVarTempParam, ""))
 	}
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -1592,12 +1669,12 @@ func (a *DefaultApiService) DeleteComment_2(commentId int64, localVarOptionals m
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -1605,7 +1682,7 @@ func (a *DefaultApiService) DeleteComment_2(commentId int64, localVarOptionals m
 
 /* DefaultApiService
  Deletes the specified group, removing them from the system. This also removes any permissions that may have been  granted to the group.  &lt;p&gt;  A user may not delete the last group that is granting them administrative permissions, or a group with greater  permissions than themselves.  &lt;p&gt;  The authenticated user must have the &lt;strong&gt;ADMIN&lt;/strong&gt; permission to call this resource.
- * @param ctx context.Context for authentication, logging, tracing, etc.
+
  @param optional (nil or map[string]interface{}) with one or more of:
 	 @param "name" (string) the name identifying the group to delete
  @return */
@@ -1632,7 +1709,7 @@ func (a *DefaultApiService) DeleteGroup(localVarOptionals map[string]interface{}
 		localVarQueryParams.Add("name", parameterToString(localVarTempParam, ""))
 	}
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -1655,12 +1732,12 @@ func (a *DefaultApiService) DeleteGroup(localVarOptionals map[string]interface{}
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -1668,9 +1745,9 @@ func (a *DefaultApiService) DeleteGroup(localVarOptionals map[string]interface{}
 
 /* DefaultApiService
 Deletes the current mail configuration.  &lt;p&gt;  The authenticated user must have the &lt;strong&gt;SYS_ADMIN&lt;/strong&gt; permission to call this resource.
-* @param ctx context.Context for authentication, logging, tracing, etc.
+
 @return */
-func (a *DefaultApiService) DeleteMailConfig(ctx context.Context) (*APIResponse, error) {
+func (a *DefaultApiService) DeleteMailConfig() (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Delete")
 		localVarPostBody   interface{}
@@ -1686,7 +1763,7 @@ func (a *DefaultApiService) DeleteMailConfig(ctx context.Context) (*APIResponse,
 	localVarFormParams := url.Values{}
 
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -1709,12 +1786,12 @@ func (a *DefaultApiService) DeleteMailConfig(ctx context.Context) (*APIResponse,
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -1722,9 +1799,9 @@ func (a *DefaultApiService) DeleteMailConfig(ctx context.Context) (*APIResponse,
 
 /* DefaultApiService
 Delete the project matching the supplied &lt;strong&gt;projectKey&lt;/strong&gt;.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;PROJECT_ADMIN&lt;/strong&gt; permission for the specified project to call this  resource.
-* @param ctx context.Context for authentication, logging, tracing, etc.
+
 @return */
-func (a *DefaultApiService) DeleteProject(ctx context.Context) (*APIResponse, error) {
+func (a *DefaultApiService) DeleteProject(projectKey string) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Delete")
 		localVarPostBody   interface{}
@@ -1734,13 +1811,14 @@ func (a *DefaultApiService) DeleteProject(ctx context.Context) (*APIResponse, er
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -1763,12 +1841,12 @@ func (a *DefaultApiService) DeleteProject(ctx context.Context) (*APIResponse, er
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -1776,7 +1854,7 @@ func (a *DefaultApiService) DeleteProject(ctx context.Context) (*APIResponse, er
 
 /* DefaultApiService
 Schedule the repository matching the supplied &lt;strong&gt;projectKey&lt;/strong&gt; and &lt;strong&gt;repositorySlug&lt;/strong&gt; to  be deleted. If the request repository is not present  &lt;p&gt;  The authenticated user must have &lt;strong&gt;REPO_ADMIN&lt;/strong&gt; permission for the specified repository to call this  resource.
-* @param ctx context.Context for authentication, logging, tracing, etc.
+
 @param projectKey the parent project key
 @param projectKey2 the parent project key
 @param repositorySlug the repository slug
@@ -1799,7 +1877,7 @@ func (a *DefaultApiService) DeleteRepository(projectKey, repositorySlug string) 
 	localVarFormParams := url.Values{}
 
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -1822,12 +1900,12 @@ func (a *DefaultApiService) DeleteRepository(projectKey, repositorySlug string) 
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -1835,10 +1913,10 @@ func (a *DefaultApiService) DeleteRepository(projectKey, repositorySlug string) 
 
 /* DefaultApiService
 Delete repository hook configuration for the supplied &lt;strong&gt;hookKey&lt;/strong&gt; and &lt;strong&gt;repositorySlug&lt;/strong&gt;  &lt;p&gt;  The authenticated user must have &lt;strong&gt;REPO_ADMIN&lt;/strong&gt; permission for the specified repository to call this  resource.
-* @param ctx context.Context for authentication, logging, tracing, etc.
+
 @param hookKey
 @return */
-func (a *DefaultApiService) DeleteRepositoryHook(hookKey string) (*APIResponse, error) {
+func (a *DefaultApiService) DeleteRepositoryHook(projectKey, repositorySlug string, hookKey string) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Delete")
 		localVarPostBody   interface{}
@@ -1848,6 +1926,8 @@ func (a *DefaultApiService) DeleteRepositoryHook(hookKey string) (*APIResponse, 
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/repos/{repositorySlug}/settings/hooks/{hookKey}"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
 	localVarPath = strings.Replace(localVarPath, "{"+"hookKey"+"}", fmt.Sprintf("%v", hookKey), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -1855,7 +1935,7 @@ func (a *DefaultApiService) DeleteRepositoryHook(hookKey string) (*APIResponse, 
 	localVarFormParams := url.Values{}
 
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -1878,12 +1958,12 @@ func (a *DefaultApiService) DeleteRepositoryHook(hookKey string) (*APIResponse, 
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -1891,7 +1971,7 @@ func (a *DefaultApiService) DeleteRepositoryHook(hookKey string) (*APIResponse, 
 
 /* DefaultApiService
 Delete a task.  &lt;p&gt;  Note that only the task&#39;s creator, the context&#39;s author or an admin of the context&#39;s repository can delete a  task. (For a pull request task, those are the task&#39;s creator, the pull request&#39;s author or an admin on the  repository containing the pull request). Additionally a task cannot be deleted if it has already been resolved.
-* @param ctx context.Context for authentication, logging, tracing, etc.
+
 @param taskId the id identifying the task to delete
 @return */
 func (a *DefaultApiService) DeleteTask(taskId int64) (*APIResponse, error) {
@@ -1911,7 +1991,7 @@ func (a *DefaultApiService) DeleteTask(taskId int64) (*APIResponse, error) {
 	localVarFormParams := url.Values{}
 
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -1934,12 +2014,12 @@ func (a *DefaultApiService) DeleteTask(taskId int64) (*APIResponse, error) {
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -1947,7 +2027,7 @@ func (a *DefaultApiService) DeleteTask(taskId int64) (*APIResponse, error) {
 
 /* DefaultApiService
  Deletes the specified user, removing them from the system. This also removes any permissions that may have been  granted to the user.  &lt;p&gt;  A user may not delete themselves, and a user with &lt;strong&gt;ADMIN&lt;/strong&gt; permissions may not delete a user with  &lt;strong&gt;SYS_ADMIN&lt;/strong&gt;permissions.  &lt;p&gt;  The authenticated user must have the &lt;strong&gt;ADMIN&lt;/strong&gt; permission to call this resource.
- * @param ctx context.Context for authentication, logging, tracing, etc.
+
  @param optional (nil or map[string]interface{}) with one or more of:
 	 @param "name" (string) the username identifying the user to delete
  @return */
@@ -1974,7 +2054,7 @@ func (a *DefaultApiService) DeleteUser(localVarOptionals map[string]interface{})
 		localVarQueryParams.Add("name", parameterToString(localVarTempParam, ""))
 	}
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -1997,12 +2077,12 @@ func (a *DefaultApiService) DeleteUser(localVarOptionals map[string]interface{})
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -2010,7 +2090,7 @@ func (a *DefaultApiService) DeleteUser(localVarOptionals map[string]interface{})
 
 /* DefaultApiService
 Delete a webhook for the repository specified via the URL.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;REPO_ADMIN&lt;/strong&gt; permission for the specified repository to call this  resource.
-* @param ctx context.Context for authentication, logging, tracing, etc.
+
 @param webhookId the existing webhook id
 @return */
 func (a *DefaultApiService) DeleteWebhook(projectKey, repositorySlug string, webhookId int32) (*APIResponse, error) {
@@ -2032,7 +2112,7 @@ func (a *DefaultApiService) DeleteWebhook(projectKey, repositorySlug string, web
 	localVarFormParams := url.Values{}
 
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -2055,23 +2135,23 @@ func (a *DefaultApiService) DeleteWebhook(projectKey, repositorySlug string, web
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
-	return NewBitbucketAPIResponse(localVarHTTPResponse)
+	return NewAPIResponse(localVarHTTPResponse), nil
 }
 
 /* DefaultApiService
 Disable a repository hook for this repository.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;REPO_ADMIN&lt;/strong&gt; permission for the specified repository to call this  resource.
-* @param ctx context.Context for authentication, logging, tracing, etc.
+
 @param hookKey
 @return */
-func (a *DefaultApiService) DisableHook(hookKey string) (*APIResponse, error) {
+func (a *DefaultApiService) DisableHook(projectKey, repositorySlug string, hookKey string) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Delete")
 		localVarPostBody   interface{}
@@ -2081,6 +2161,8 @@ func (a *DefaultApiService) DisableHook(hookKey string) (*APIResponse, error) {
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/repos/{repositorySlug}/settings/hooks/{hookKey}/enabled"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
 	localVarPath = strings.Replace(localVarPath, "{"+"hookKey"+"}", fmt.Sprintf("%v", hookKey), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -2088,7 +2170,7 @@ func (a *DefaultApiService) DisableHook(hookKey string) (*APIResponse, error) {
 	localVarFormParams := url.Values{}
 
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -2111,12 +2193,12 @@ func (a *DefaultApiService) DisableHook(hookKey string) (*APIResponse, error) {
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -2124,10 +2206,10 @@ func (a *DefaultApiService) DisableHook(hookKey string) (*APIResponse, error) {
 
 /* DefaultApiService
 Disable a repository hook for this project.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;PROJECT_ADMIN&lt;/strong&gt; permission for the specified project to call this  resource.
-* @param ctx context.Context for authentication, logging, tracing, etc.
+
 @param hookKey
 @return */
-func (a *DefaultApiService) DisableHook_3(hookKey string) (*APIResponse, error) {
+func (a *DefaultApiService) DisableHook_3(projectKey, hookKey string) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Delete")
 		localVarPostBody   interface{}
@@ -2137,6 +2219,7 @@ func (a *DefaultApiService) DisableHook_3(hookKey string) (*APIResponse, error) 
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/settings/hooks/{hookKey}/enabled"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
 	localVarPath = strings.Replace(localVarPath, "{"+"hookKey"+"}", fmt.Sprintf("%v", hookKey), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -2144,7 +2227,7 @@ func (a *DefaultApiService) DisableHook_3(hookKey string) (*APIResponse, error) 
 	localVarFormParams := url.Values{}
 
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -2167,12 +2250,12 @@ func (a *DefaultApiService) DisableHook_3(hookKey string) (*APIResponse, error) 
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -2180,10 +2263,10 @@ func (a *DefaultApiService) DisableHook_3(hookKey string) (*APIResponse, error) 
 
 /* DefaultApiService
 Update the content of &lt;code&gt;path&lt;/code&gt;, on the given &lt;code&gt;repository&lt;/code&gt; and &lt;code&gt;branch&lt;/code&gt;.  &lt;p&gt;  This resource accepts PUT multipart form data, containing the file in a form-field named &lt;code&gt;content&lt;/code&gt;.  &lt;p&gt;  An example &lt;a href&#x3D;\&quot;http://curl.haxx.se/\&quot;&gt;curl&lt;/a&gt; request to update &#39;README.md&#39; would be:  &lt;pre&gt;  curl -X PUT -u username:password -F content&#x3D;@README.md  -F &#39;message&#x3D;Updated using file-edit REST API&#39;  -F branch&#x3D;master -F  sourceCommitId&#x3D;5636641a50b   http://example.com/rest/api/latest/projects/PROJECT_1/repos/repo_1/browse/README.md  &lt;/pre&gt;  &lt;p&gt;  &lt;ui&gt;  &lt;li&gt;branch:  the branch on which the &lt;code&gt;path&lt;/code&gt; should be modified or created&lt;/li&gt;  &lt;li&gt;content: the full content of the file at &lt;code&gt;path&lt;/code&gt; &lt;/li&gt;  &lt;li&gt;message: the message associated with this change, to be used as the commit message.  Or null if the default message should be used.&lt;/li&gt;  &lt;li&gt;sourceCommitId: the commit ID of the file before it was edited, used to identify if  content has changed. Or null if this is a new file&lt;/li&gt;  &lt;/ui&gt;  &lt;p&gt;  The file can be updated or created on a new branch. In this case, the &lt;code&gt;sourceBranch&lt;/code&gt; parameter should  be provided to identify the starting point for the new branch and the &lt;code&gt;branch&lt;/code&gt; parameter identifies  the branch to create the new commit on.
-* @param ctx context.Context for authentication, logging, tracing, etc.
+
 @param path the file path to retrieve content from
 @return */
-func (a *DefaultApiService) EditFile(path string) (*APIResponse, error) {
+func (a *DefaultApiService) EditFile(projectKey, repositorySlug, path string) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Put")
 		localVarPostBody   interface{}
@@ -2193,6 +2276,8 @@ func (a *DefaultApiService) EditFile(path string) (*APIResponse, error) {
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/repos/{repositorySlug}/browse/{path}"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
 	localVarPath = strings.Replace(localVarPath, "{"+"path"+"}", fmt.Sprintf("%v", path), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -2200,7 +2285,7 @@ func (a *DefaultApiService) EditFile(path string) (*APIResponse, error) {
 	localVarFormParams := url.Values{}
 
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -2223,12 +2308,12 @@ func (a *DefaultApiService) EditFile(path string) (*APIResponse, error) {
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -2236,12 +2321,12 @@ func (a *DefaultApiService) EditFile(path string) (*APIResponse, error) {
 
 /* DefaultApiService
  Enable a repository hook for this repository and optionally apply new configuration.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;REPO_ADMIN&lt;/strong&gt; permission for the specified repository to call this  resource.  &lt;p&gt;  A JSON document may be provided to use as the settings for the hook. These structure and validity of  the document is decided by the plugin providing the hook.
- * @param ctx context.Context for authentication, logging, tracing, etc.
+
  @param hookKey
  @param optional (nil or map[string]interface{}) with one or more of:
 	 @param "contentLength" (int32)
  @return */
-func (a *DefaultApiService) EnableHook(hookKey string, localVarOptionals map[string]interface{}) (*APIResponse, error) {
+func (a *DefaultApiService) EnableHook(projectKey, repositorySlug, hookKey string, localVarOptionals map[string]interface{}) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Put")
 		localVarPostBody   interface{}
@@ -2251,6 +2336,8 @@ func (a *DefaultApiService) EnableHook(hookKey string, localVarOptionals map[str
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/repos/{repositorySlug}/settings/hooks/{hookKey}/enabled"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
 	localVarPath = strings.Replace(localVarPath, "{"+"hookKey"+"}", fmt.Sprintf("%v", hookKey), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -2262,7 +2349,7 @@ func (a *DefaultApiService) EnableHook(hookKey string, localVarOptionals map[str
 	}
 
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -2288,12 +2375,12 @@ func (a *DefaultApiService) EnableHook(hookKey string, localVarOptionals map[str
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -2301,12 +2388,12 @@ func (a *DefaultApiService) EnableHook(hookKey string, localVarOptionals map[str
 
 /* DefaultApiService
  Enable a repository hook for this project and optionally apply new configuration.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;PROJECT_ADMIN&lt;/strong&gt; permission for the specified project to call this  resource.  &lt;p&gt;  A JSON document may be provided to use as the settings for the hook. These structure and validity of  the document is decided by the plugin providing the hook.
- * @param ctx context.Context for authentication, logging, tracing, etc.
+
  @param hookKey
  @param optional (nil or map[string]interface{}) with one or more of:
 	 @param "contentLength" (int32)
  @return */
-func (a *DefaultApiService) EnableHook_4(hookKey string, localVarOptionals map[string]interface{}) (*APIResponse, error) {
+func (a *DefaultApiService) EnableHook_4(projectKey, repositorySlug, hookKey string, localVarOptionals map[string]interface{}) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Put")
 		localVarPostBody   interface{}
@@ -2316,6 +2403,8 @@ func (a *DefaultApiService) EnableHook_4(hookKey string, localVarOptionals map[s
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/settings/hooks/{hookKey}/enabled"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
 	localVarPath = strings.Replace(localVarPath, "{"+"hookKey"+"}", fmt.Sprintf("%v", hookKey), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -2327,7 +2416,7 @@ func (a *DefaultApiService) EnableHook_4(hookKey string, localVarOptionals map[s
 	}
 
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -2353,12 +2442,12 @@ func (a *DefaultApiService) EnableHook_4(hookKey string, localVarOptionals map[s
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -2366,7 +2455,7 @@ func (a *DefaultApiService) EnableHook_4(hookKey string, localVarOptionals map[s
 
 /* DefaultApiService
  Retrieves a list of groups the specified user is a member of.  &lt;p&gt;  The authenticated user must have the &lt;strong&gt;LICENSED_USER&lt;/strong&gt; permission to call this resource.
- * @param ctx context.Context for authentication, logging, tracing, etc.
+
  @param optional (nil or map[string]interface{}) with one or more of:
 	 @param "context" (string) the user which should be used to locate groups
 	 @param "filter" (string) if specified only groups with names containing the supplied string will be returned
@@ -2400,7 +2489,7 @@ func (a *DefaultApiService) FindGroupsForUser(localVarOptionals map[string]inter
 		localVarQueryParams.Add("filter", parameterToString(localVarTempParam, ""))
 	}
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -2423,12 +2512,12 @@ func (a *DefaultApiService) FindGroupsForUser(localVarOptionals map[string]inter
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -2436,7 +2525,7 @@ func (a *DefaultApiService) FindGroupsForUser(localVarOptionals map[string]inter
 
 /* DefaultApiService
  Retrieves a list of groups the specified user is &lt;em&gt;not&lt;/em&gt; a member of.  &lt;p&gt;  The authenticated user must have the &lt;strong&gt;LICENSED_USER&lt;/strong&gt; permission to call this resource.
- * @param ctx context.Context for authentication, logging, tracing, etc.
+
  @param optional (nil or map[string]interface{}) with one or more of:
 	 @param "context" (string) the user which should be used to locate groups
 	 @param "filter" (string) if specified only groups with names containing the supplied string will be returned
@@ -2470,7 +2559,7 @@ func (a *DefaultApiService) FindOtherGroupsForUser(localVarOptionals map[string]
 		localVarQueryParams.Add("filter", parameterToString(localVarTempParam, ""))
 	}
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -2493,12 +2582,12 @@ func (a *DefaultApiService) FindOtherGroupsForUser(localVarOptionals map[string]
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -2506,7 +2595,7 @@ func (a *DefaultApiService) FindOtherGroupsForUser(localVarOptionals map[string]
 
 /* DefaultApiService
  Retrieves a list of users that are members of a specified group.  &lt;p&gt;  The authenticated user must have the &lt;strong&gt;LICENSED_USER&lt;/strong&gt; permission to call this resource.
- * @param ctx context.Context for authentication, logging, tracing, etc.
+
  @param optional (nil or map[string]interface{}) with one or more of:
 	 @param "context" (string) the group which should be used to locate members
 	 @param "filter" (string) if specified only users with usernames, display names or email addresses containing the                   supplied string will be returned
@@ -2540,7 +2629,7 @@ func (a *DefaultApiService) FindUsersInGroup(localVarOptionals map[string]interf
 		localVarQueryParams.Add("filter", parameterToString(localVarTempParam, ""))
 	}
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -2563,12 +2652,12 @@ func (a *DefaultApiService) FindUsersInGroup(localVarOptionals map[string]interf
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -2576,7 +2665,7 @@ func (a *DefaultApiService) FindUsersInGroup(localVarOptionals map[string]interf
 
 /* DefaultApiService
  Retrieves a list of users that are &lt;em&gt;not&lt;/em&gt; members of a specified group.  &lt;p&gt;  The authenticated user must have the &lt;strong&gt;LICENSED_USER&lt;/strong&gt; permission to call this resource.
- * @param ctx context.Context for authentication, logging, tracing, etc.
+
  @param optional (nil or map[string]interface{}) with one or more of:
 	 @param "context" (string) the group which should be used to locate non-members
 	 @param "filter" (string) if specified only users with usernames, display names or email addresses containing the                   supplied string will be returned
@@ -2610,7 +2699,7 @@ func (a *DefaultApiService) FindUsersNotInGroup(localVarOptionals map[string]int
 		localVarQueryParams.Add("filter", parameterToString(localVarTempParam, ""))
 	}
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -2633,12 +2722,12 @@ func (a *DefaultApiService) FindUsersNotInGroup(localVarOptionals map[string]int
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -2646,7 +2735,7 @@ func (a *DefaultApiService) FindUsersNotInGroup(localVarOptionals map[string]int
 
 /* DefaultApiService
  Find webhooks in this repository.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;REPO_ADMIN&lt;/strong&gt; permission for the specified repository to call this  resource.
- * @param ctx context.Context for authentication, logging, tracing, etc.
+
  @param optional (nil or map[string]interface{}) with one or more of:
 	 @param "event" (string) list of {@link com.atlassian.webhooks.WebhookEvent} ids to filter for
 	 @param "statistics" (bool) {@code true} if statistics should be provided for all found webhooks
@@ -2682,7 +2771,7 @@ func (a *DefaultApiService) FindWebhooks(projectKey, repositorySlug string, loca
 		localVarQueryParams.Add("statistics", parameterToString(localVarTempParam, ""))
 	}
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -2705,12 +2794,12 @@ func (a *DefaultApiService) FindWebhooks(projectKey, repositorySlug string, loca
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -2718,7 +2807,7 @@ func (a *DefaultApiService) FindWebhooks(projectKey, repositorySlug string, loca
 
 /* DefaultApiService
 Create a new repository forked from an existing repository.  &lt;p&gt;  The JSON body for this {@code POST} is not required to contain &lt;i&gt;any&lt;/i&gt; properties. Even the name may be  omitted. The following properties will be used, if provided:  &lt;ul&gt;      &lt;li&gt;{@code \&quot;name\&quot;:\&quot;Fork name\&quot;} - Specifies the forked repository&#39;s name      &lt;ul&gt;          &lt;li&gt;Defaults to the name of the origin repository if not specified&lt;/li&gt;      &lt;/ul&gt;      &lt;/li&gt;      &lt;li&gt;{@code \&quot;project\&quot;:{\&quot;key\&quot;:\&quot;TARGET_KEY\&quot;}} - Specifies the forked repository&#39;s target project by key      &lt;ul&gt;          &lt;li&gt;Defaults to the current user&#39;s personal project if not specified&lt;/li&gt;      &lt;/ul&gt;      &lt;/li&gt;  &lt;/ul&gt;  &lt;p&gt;  The authenticated user must have &lt;strong&gt;REPO_READ&lt;/strong&gt; permission for the specified repository and  &lt;strong&gt;PROJECT_ADMIN&lt;/strong&gt; on the target project to call this resource. Note that users &lt;i&gt;always&lt;/i&gt;  have &lt;b&gt;PROJECT_ADMIN&lt;/b&gt; permission on their personal projects.
-* @param ctx context.Context for authentication, logging, tracing, etc.
+
 @param projectKey the parent project key
 @param repositorySlug the repository slug
 @return */
@@ -2762,12 +2851,12 @@ func (a *DefaultApiService) ForkRepository(projectKey, repositorySlug string,
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -2775,9 +2864,9 @@ func (a *DefaultApiService) ForkRepository(projectKey, repositorySlug string,
 
 /* DefaultApiService
 Retrieves details about the current license, as well as the current status of the system with regards to the  installed license. The status includes the current number of users applied toward the license limit, as well  as any status messages about the license (warnings about expiry or user counts exceeding license limits).  &lt;p&gt;  The authenticated user must have &lt;b&gt;ADMIN&lt;/b&gt; permission. Unauthenticated users, and non-administrators, are  not permitted to access license details.
-* @param ctx context.Context for authentication, logging, tracing, etc.
+
 @return */
-func (a *DefaultApiService) Get(ctx context.Context) (*APIResponse, error) {
+func (a *DefaultApiService) GetLicense() (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Get")
 		localVarPostBody   interface{}
@@ -2793,7 +2882,7 @@ func (a *DefaultApiService) Get(ctx context.Context) (*APIResponse, error) {
 	localVarFormParams := url.Values{}
 
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -2816,12 +2905,12 @@ func (a *DefaultApiService) Get(ctx context.Context) (*APIResponse, error) {
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -2829,13 +2918,13 @@ func (a *DefaultApiService) Get(ctx context.Context) (*APIResponse, error) {
 
 /* DefaultApiService
  Retrieve a page of activity associated with a pull request.  &lt;p&gt;  Activity items include comments, approvals, rescopes (i.e. adding and removing of commits), merges and more.  &lt;p&gt;  Different types of activity items may be introduced in newer versions of Stash or by user installed plugins, so  clients should be flexible enough to handle unexpected entity shapes in the returned page.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;REPO_READ&lt;/strong&gt; permission for the repository that this pull request  targets to call this resource.
- * @param ctx context.Context for authentication, logging, tracing, etc.
+
  @param pullRequestId the id of the pull request within the repository
  @param optional (nil or map[string]interface{}) with one or more of:
 	 @param "fromId" (int64) (optional) the id of the activity item to use as the first item in the returned page
 	 @param "fromType" (string) (required if &lt;strong&gt;fromId&lt;/strong&gt; is present) the type of the activity item specified by                  &lt;strong&gt;fromId&lt;/strong&gt; (either &lt;strong&gt;COMMENT&lt;/strong&gt; or &lt;strong&gt;ACTIVITY&lt;/strong&gt;)
  @return */
-func (a *DefaultApiService) GetActivities(pullRequestID int64, localVarOptionals map[string]interface{}) (*APIResponse, error) {
+func (a *DefaultApiService) GetActivities(projectKey, repositorySlug string, pullRequestID int64, localVarOptionals map[string]interface{}) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Get")
 		localVarPostBody   interface{}
@@ -2845,6 +2934,8 @@ func (a *DefaultApiService) GetActivities(pullRequestID int64, localVarOptionals
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/repos/{repositorySlug}/pull-requests/{pullRequestId}/activities"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
 	localVarPath = strings.Replace(localVarPath, "{"+"pullRequestId"+"}", fmt.Sprintf("%v", pullRequestID), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -2857,7 +2948,19 @@ func (a *DefaultApiService) GetActivities(pullRequestID int64, localVarOptionals
 	if err := typeCheckParameter(localVarOptionals["fromType"], "string", "fromType"); err != nil {
 		return nil, err
 	}
+	if err := typeCheckParameter(localVarOptionals["limit"], "int", "limit"); err != nil {
+		return nil, err
+	}
+	if err := typeCheckParameter(localVarOptionals["start"], "int", "start"); err != nil {
+		return nil, err
+	}
 
+	if localVarTempParam, localVarOk := localVarOptionals["limit"].(int); localVarOk {
+		localVarQueryParams.Add("limit", parameterToString(localVarTempParam, ""))
+	}
+	if localVarTempParam, localVarOk := localVarOptionals["start"].(int); localVarOk {
+		localVarQueryParams.Add("start", parameterToString(localVarTempParam, ""))
+	}
 	if localVarTempParam, localVarOk := localVarOptionals["fromId"].(int64); localVarOk {
 		localVarQueryParams.Add("fromId", parameterToString(localVarTempParam, ""))
 	}
@@ -2865,7 +2968,7 @@ func (a *DefaultApiService) GetActivities(pullRequestID int64, localVarOptionals
 		localVarQueryParams.Add("fromType", parameterToString(localVarTempParam, ""))
 	}
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -2888,22 +2991,22 @@ func (a *DefaultApiService) GetActivities(pullRequestID int64, localVarOptionals
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
-	return NewBitbucketAPIResponse(localVarHTTPResponse)
+	return NewRawAPIResponse(localVarHTTPResponse)
 }
 
 /* DefaultApiService
 Retrieve version information and other application properties.  &lt;p&gt;  No authentication is required to call this resource.
-* @param ctx context.Context for authentication, logging, tracing, etc.
+
 @return */
-func (a *DefaultApiService) GetApplicationProperties(ctx context.Context) (*APIResponse, error) {
+func (a *DefaultApiService) GetApplicationProperties() (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Get")
 		localVarPostBody   interface{}
@@ -2919,7 +3022,7 @@ func (a *DefaultApiService) GetApplicationProperties(ctx context.Context) (*APIR
 	localVarFormParams := url.Values{}
 
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -2942,12 +3045,12 @@ func (a *DefaultApiService) GetApplicationProperties(ctx context.Context) (*APIR
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -2955,7 +3058,7 @@ func (a *DefaultApiService) GetApplicationProperties(ctx context.Context) (*APIR
 
 /* DefaultApiService
  Streams an archive of the repository&#39;s contents at the requested commit. If no &lt;code&gt;at&#x3D;&lt;/code&gt; commit is  requested, an archive of the default branch is streamed.  &lt;p&gt;  The &lt;code&gt;filename&#x3D;&lt;/code&gt; query parameter may be used to specify the exact filename to include in the  &lt;code&gt;\&quot;Content-Disposition\&quot;&lt;/code&gt; header. If an explicit filename is not provided, one will be automatically  generated based on what is being archived. Its format depends on the &lt;code&gt;at&#x3D;&lt;/code&gt; value:  &lt;ul&gt;      &lt;li&gt;No &lt;code&gt;at&#x3D;&lt;/code&gt; commit:      &lt;code&gt;&amp;lt;slug&amp;gt;-&amp;lt;default-branch-name&amp;gt;@&amp;lt;commit&amp;gt;.&amp;lt;format&amp;gt;&lt;/code&gt;;      e.g. example-master@43c2f8a0fe8.zip&lt;/li&gt;      &lt;li&gt;&lt;code&gt;at&#x3D;sha&lt;/code&gt;: &lt;code&gt;&amp;lt;slug&amp;gt;-&amp;lt;at&amp;gt;.&amp;lt;format&amp;gt;&lt;/code&gt;; e.g.      example-09bcbb00100cfbb5310fb6834a1d5ce6cac253e9.tar.gz&lt;/li&gt;      &lt;li&gt;&lt;code&gt;at&#x3D;branchOrTag&lt;/code&gt;: &lt;code&gt;&amp;lt;slug&amp;gt;-&amp;lt;branchOrTag&amp;gt;@&amp;lt;commit&amp;gt;.&amp;lt;format&amp;gt;&lt;/code&gt;;      e.g. example-feature@bbb225f16e1.tar      &lt;ul&gt;          &lt;li&gt;If the branch or tag is qualified (e.g. &lt;code&gt;refs/heads/master&lt;/code&gt;, the short name          (&lt;code&gt;master&lt;/code&gt;) will be included in the filename&lt;/li&gt;          &lt;li&gt;If the branch or tag&#39;s &lt;i&gt;short name&lt;/i&gt; includes slashes (e.g. &lt;code&gt;release/4.6&lt;/code&gt;),          they will be converted to hyphens in the filename (&lt;code&gt;release-4.5&lt;/code&gt;)&lt;/li&gt;      &lt;/ul&gt;      &lt;/li&gt;  &lt;/ul&gt;  &lt;p&gt;  Archives may be requested in the following formats by adding the &lt;code&gt;format&#x3D;&lt;/code&gt; query parameter:  &lt;ul&gt;      &lt;li&gt;&lt;code&gt;zip&lt;/code&gt;: A zip file using standard compression (Default)&lt;/li&gt;      &lt;li&gt;&lt;code&gt;tar&lt;/code&gt;: An uncompressed tarball&lt;/li&gt;      &lt;li&gt;&lt;code&gt;tar.gz&lt;/code&gt; or &lt;code&gt;tgz&lt;/code&gt;: A GZip-compressed tarball&lt;/li&gt;  &lt;/ul&gt;  The contents of the archive may be filtered by using the &lt;code&gt;path&#x3D;&lt;/code&gt; query parameter to specify paths to  include. &lt;code&gt;path&#x3D;&lt;/code&gt; may be specified multiple times to include multiple paths.  &lt;p&gt;  The &lt;code&gt;prefix&#x3D;&lt;/code&gt; query parameter may be used to define a directory (or multiple directories) where  the archive&#39;s contents should be placed. If the prefix does not end with &lt;code&gt;/&lt;/code&gt;, one will be added  automatically. The prefix is &lt;i&gt;always&lt;/i&gt; treated as a directory; it is not possible to use it to prepend  characters to the entries in the archive.  &lt;p&gt;  Archives of public repositories may be streamed by any authenticated or anonymous user. Streaming archives for  non-public repositories requires an &lt;i&gt;authenticated user&lt;/i&gt; with at least &lt;b&gt;REPO_READ&lt;/b&gt; permission.
- * @param ctx context.Context for authentication, logging, tracing, etc.
+
  @param optional (nil or map[string]interface{}) with one or more of:
 	 @param "at" (string) the commit to stream an archive of; if not supplied, an archive of the default branch is streamed
 	 @param "filename" (string) a filename to include the \&quot;Content-Disposition\&quot; header
@@ -3012,7 +3115,7 @@ func (a *DefaultApiService) GetArchive(project, repository string, localVarOptio
 		localVarQueryParams.Add("prefix", parameterToString(localVarTempParam, ""))
 	}
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -3035,12 +3138,12 @@ func (a *DefaultApiService) GetArchive(project, repository string, localVarOptio
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -3048,7 +3151,7 @@ func (a *DefaultApiService) GetArchive(project, repository string, localVarOptio
 
 /* DefaultApiService
  Retrieve the avatar for the project matching the supplied &lt;strong&gt;moduleKey&lt;/strong&gt;.
- * @param ctx context.Context for authentication, logging, tracing, etc.
+
  @param hookKey the complete module key of the hook module
  @param optional (nil or map[string]interface{}) with one or more of:
 	 @param "version" (string) optional version used for HTTP caching only - any non-blank version will result in a large max-age Cache-Control header.                 Note that this does not affect the Last-Modified header.
@@ -3077,7 +3180,7 @@ func (a *DefaultApiService) GetAvatar(hookKey string, localVarOptionals map[stri
 		localVarQueryParams.Add("version", parameterToString(localVarTempParam, ""))
 	}
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -3100,12 +3203,12 @@ func (a *DefaultApiService) GetAvatar(hookKey string, localVarOptionals map[stri
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -3113,7 +3216,7 @@ func (a *DefaultApiService) GetAvatar(hookKey string, localVarOptionals map[stri
 
 /* DefaultApiService
  Retrieve the branches matching the supplied &lt;strong&gt;filterText&lt;/strong&gt; param.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;REPO_READ&lt;/strong&gt; permission for the specified repository to call this  resource.
- * @param ctx context.Context for authentication, logging, tracing, etc.
+
  @param optional (nil or map[string]interface{}) with one or more of:
 	 @param "base" (string) base branch or tag to compare each branch to (for the metadata providers that uses that information)
 	 @param "details" (bool) whether to retrieve plugin-provided metadata about each branch
@@ -3163,7 +3266,7 @@ func (a *DefaultApiService) GetBranches(project, repository string, localVarOpti
 		localVarQueryParams.Add("orderBy", parameterToString(localVarTempParam, ""))
 	}
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -3186,12 +3289,12 @@ func (a *DefaultApiService) GetBranches(project, repository string, localVarOpti
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -3199,12 +3302,12 @@ func (a *DefaultApiService) GetBranches(project, repository string, localVarOpti
 
 /* DefaultApiService
  Retrieve a page of changes made in a specified commit.  &lt;p&gt;  &lt;strong&gt;Note:&lt;/strong&gt; The implementation will apply a hard cap ({@code page.max.changes}) and it is not  possible to request subsequent content when that cap is exceeded.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;REPO_READ&lt;/strong&gt; permission for the specified repository to call this  resource.
- * @param ctx context.Context for authentication, logging, tracing, etc.
+
  @param optional (nil or map[string]interface{}) with one or more of:
 	 @param "since" (string) the commit to which &lt;code&gt;until&lt;/code&gt; should be compared to produce a page of changes.                      If not specified the commit&#39;s first parent is assumed (if one exists)
 	 @param "until" (string) the commit to retrieve changes for
  @return */
-func (a *DefaultApiService) GetChanges(localVarOptionals map[string]interface{}) (*APIResponse, error) {
+func (a *DefaultApiService) GetChanges(projectKey, repositorySlug string, localVarOptionals map[string]interface{}) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Get")
 		localVarPostBody   interface{}
@@ -3214,6 +3317,8 @@ func (a *DefaultApiService) GetChanges(localVarOptionals map[string]interface{})
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/repos/{repositorySlug}/changes"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -3225,7 +3330,19 @@ func (a *DefaultApiService) GetChanges(localVarOptionals map[string]interface{})
 	if err := typeCheckParameter(localVarOptionals["until"], "string", "until"); err != nil {
 		return nil, err
 	}
+	if err := typeCheckParameter(localVarOptionals["limit"], "int", "limit"); err != nil {
+		return nil, err
+	}
+	if err := typeCheckParameter(localVarOptionals["start"], "int", "start"); err != nil {
+		return nil, err
+	}
 
+	if localVarTempParam, localVarOk := localVarOptionals["limit"].(int); localVarOk {
+		localVarQueryParams.Add("limit", parameterToString(localVarTempParam, ""))
+	}
+	if localVarTempParam, localVarOk := localVarOptionals["start"].(int); localVarOk {
+		localVarQueryParams.Add("start", parameterToString(localVarTempParam, ""))
+	}
 	if localVarTempParam, localVarOk := localVarOptionals["since"].(string); localVarOk {
 		localVarQueryParams.Add("since", parameterToString(localVarTempParam, ""))
 	}
@@ -3233,7 +3350,7 @@ func (a *DefaultApiService) GetChanges(localVarOptionals map[string]interface{})
 		localVarQueryParams.Add("until", parameterToString(localVarTempParam, ""))
 	}
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -3256,12 +3373,12 @@ func (a *DefaultApiService) GetChanges(localVarOptionals map[string]interface{})
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -3269,13 +3386,13 @@ func (a *DefaultApiService) GetChanges(localVarOptionals map[string]interface{})
 
 /* DefaultApiService
  Retrieve a page of changes made in a specified commit.  &lt;p&gt;  &lt;strong&gt;Note:&lt;/strong&gt; The implementation will apply a hard cap ({@code page.max.changes}) and it is not  possible to request subsequent content when that cap is exceeded.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;REPO_READ&lt;/strong&gt; permission for the specified repository to call this  resource.
- * @param ctx context.Context for authentication, logging, tracing, etc.
+
  @param commitId the commit to retrieve changes for
  @param optional (nil or map[string]interface{}) with one or more of:
 	 @param "since" (string) the commit to which &lt;code&gt;until&lt;/code&gt; should be compared to produce a page of changes.                       If not specified the commit&#39;s first parent is assumed (if one exists)
 	 @param "withComments" (bool) {@code true} to apply comment counts in the changes (the default); otherwise, {@code false}                       to stream changes without comment counts
  @return */
-func (a *DefaultApiService) GetChanges_5(commitId string, localVarOptionals map[string]interface{}) (*APIResponse, error) {
+func (a *DefaultApiService) GetChanges_5(projectKey, repositorySlug, commitId string, localVarOptionals map[string]interface{}) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Get")
 		localVarPostBody   interface{}
@@ -3285,6 +3402,8 @@ func (a *DefaultApiService) GetChanges_5(commitId string, localVarOptionals map[
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/repos/{repositorySlug}/commits/{commitId}/changes"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
 	localVarPath = strings.Replace(localVarPath, "{"+"commitId"+"}", fmt.Sprintf("%v", commitId), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -3297,7 +3416,19 @@ func (a *DefaultApiService) GetChanges_5(commitId string, localVarOptionals map[
 	if err := typeCheckParameter(localVarOptionals["withComments"], "bool", "withComments"); err != nil {
 		return nil, err
 	}
+	if err := typeCheckParameter(localVarOptionals["limit"], "int", "limit"); err != nil {
+		return nil, err
+	}
+	if err := typeCheckParameter(localVarOptionals["start"], "int", "start"); err != nil {
+		return nil, err
+	}
 
+	if localVarTempParam, localVarOk := localVarOptionals["limit"].(int); localVarOk {
+		localVarQueryParams.Add("limit", parameterToString(localVarTempParam, ""))
+	}
+	if localVarTempParam, localVarOk := localVarOptionals["start"].(int); localVarOk {
+		localVarQueryParams.Add("start", parameterToString(localVarTempParam, ""))
+	}
 	if localVarTempParam, localVarOk := localVarOptionals["since"].(string); localVarOk {
 		localVarQueryParams.Add("since", parameterToString(localVarTempParam, ""))
 	}
@@ -3305,7 +3436,7 @@ func (a *DefaultApiService) GetChanges_5(commitId string, localVarOptionals map[
 		localVarQueryParams.Add("withComments", parameterToString(localVarTempParam, ""))
 	}
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -3328,12 +3459,12 @@ func (a *DefaultApiService) GetChanges_5(commitId string, localVarOptionals map[
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -3341,12 +3472,12 @@ func (a *DefaultApiService) GetChanges_5(commitId string, localVarOptionals map[
 
 /* DefaultApiService
 Retrieves a commit discussion comment.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;REPO_READ&lt;/strong&gt; permission for the repository that the commit  is in to call this resource.
-* @param ctx context.Context for authentication, logging, tracing, etc.
+
 @param commitId the commit to which the comments must be anchored
 @param commentId the ID of the comment to retrieve
 @param commitId2 the &lt;i&gt;full {@link Commit#getId() ID}&lt;/i&gt; of the commit within the repository
 @return */
-func (a *DefaultApiService) GetComment(commitId string, commentId int64, commitId2 string) (*APIResponse, error) {
+func (a *DefaultApiService) GetComment(projectKey, repositorySlug, commitId string, commentId int64) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Get")
 		localVarPostBody   interface{}
@@ -3356,16 +3487,17 @@ func (a *DefaultApiService) GetComment(commitId string, commentId int64, commitI
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/repos/{repositorySlug}/commits/{commitId}/comments/{commentId}"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
 	localVarPath = strings.Replace(localVarPath, "{"+"commitId"+"}", fmt.Sprintf("%v", commitId), -1)
 	localVarPath = strings.Replace(localVarPath, "{"+"commentId"+"}", fmt.Sprintf("%v", commentId), -1)
-	localVarPath = strings.Replace(localVarPath, "{"+"commitId"+"}", fmt.Sprintf("%v", commitId2), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -3388,12 +3520,12 @@ func (a *DefaultApiService) GetComment(commitId string, commentId int64, commitI
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -3401,10 +3533,10 @@ func (a *DefaultApiService) GetComment(commitId string, commentId int64, commitI
 
 /* DefaultApiService
 Retrieves a pull request comment.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;REPO_READ&lt;/strong&gt; permission for the repository that this pull request  targets to call this resource.
-* @param ctx context.Context for authentication, logging, tracing, etc.
+
 @param commentId the id of the comment to retrieve
 @return */
-func (a *DefaultApiService) GetComment_6(commentId int64) (*APIResponse, error) {
+func (a *DefaultApiService) GetComment_6(projectKey, repositorySlug string, pullRequestId, commentId int64) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Get")
 		localVarPostBody   interface{}
@@ -3414,6 +3546,9 @@ func (a *DefaultApiService) GetComment_6(commentId int64) (*APIResponse, error) 
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/repos/{repositorySlug}/pull-requests/{pullRequestId}/comments/{commentId}"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"pullRequestId"+"}", fmt.Sprintf("%v", pullRequestId), -1)
 	localVarPath = strings.Replace(localVarPath, "{"+"commentId"+"}", fmt.Sprintf("%v", commentId), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -3421,7 +3556,7 @@ func (a *DefaultApiService) GetComment_6(commentId int64) (*APIResponse, error) 
 	localVarFormParams := url.Values{}
 
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -3444,12 +3579,12 @@ func (a *DefaultApiService) GetComment_6(commentId int64) (*APIResponse, error) 
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -3457,13 +3592,13 @@ func (a *DefaultApiService) GetComment_6(commentId int64) (*APIResponse, error) 
 
 /* DefaultApiService
  Retrieves the commit discussion comments that match the specified search criteria.  &lt;p&gt;  It is possible to retrieve commit discussion comments that are anchored to a range of commits by providing the  {@code sinceId} that the comments anchored from.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;REPO_READ&lt;/strong&gt; permission for the repository that the commit  is in to call this resource.
- * @param ctx context.Context for authentication, logging, tracing, etc.
+
  @param commitId the commit to which the comments must be anchored
  @param optional (nil or map[string]interface{}) with one or more of:
 	 @param "path" (string) the path to the file on which comments were made
 	 @param "since" (string) For a merge commit, a parent can be provided to specify which diff the comments are on. For                       a commit range, a {@code sinceId} can be provided to specify where the comments are anchored                       from.
  @return */
-func (a *DefaultApiService) GetComments(commitId string, localVarOptionals map[string]interface{}) (*APIResponse, error) {
+func (a *DefaultApiService) GetComments(projectKey, repositorySlug, commitId string, localVarOptionals map[string]interface{}) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Get")
 		localVarPostBody   interface{}
@@ -3473,6 +3608,8 @@ func (a *DefaultApiService) GetComments(commitId string, localVarOptionals map[s
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/repos/{repositorySlug}/commits/{commitId}/comments"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
 	localVarPath = strings.Replace(localVarPath, "{"+"commitId"+"}", fmt.Sprintf("%v", commitId), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -3493,7 +3630,7 @@ func (a *DefaultApiService) GetComments(commitId string, localVarOptionals map[s
 		localVarQueryParams.Add("since", parameterToString(localVarTempParam, ""))
 	}
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -3516,12 +3653,12 @@ func (a *DefaultApiService) GetComments(commitId string, localVarOptionals map[s
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -3529,7 +3666,7 @@ func (a *DefaultApiService) GetComments(commitId string, localVarOptionals map[s
 
 /* DefaultApiService
  Gets comments for the specified PullRequest.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;REPO_READ&lt;/strong&gt; permission for the repository that this pull request  targets to call this resource.
- * @param ctx context.Context for authentication, logging, tracing, etc.
+
  @param optional (nil or map[string]interface{}) with one or more of:
 	 @param "anchorState" (string) {@code ACTIVE} to stream the active comments;                     {@code ORPHANED} to stream the orphaned comments;                     {@code ALL} to stream both the active and the orphaned comments;
 	 @param "diffType" (string) {@code EFFECTIVE} to stream the comments related to the effective diff of the pull request;                     {@code RANGE} to stream comments related to a commit range between two arbitrary commits                                   (requires {@code fromHash} and {@code toHash});                     {@code COMMIT} to stream comments related to a commit between two arbitrary commits (requires                         {@code fromHash} and {@code toHash})
@@ -3537,7 +3674,7 @@ func (a *DefaultApiService) GetComments(commitId string, localVarOptionals map[s
 	 @param "path" (string) the path to stream comments for a given path
 	 @param "toHash" (string) the to commit hash to stream comments for a {@code RANGE} or {@code COMMIT} arbitrary change scope
  @return */
-func (a *DefaultApiService) GetComments_7(localVarOptionals map[string]interface{}) (*APIResponse, error) {
+func (a *DefaultApiService) GetComments_7(projectKey, repositorySlug string, pullRequestId int64, localVarOptionals map[string]interface{}) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Get")
 		localVarPostBody   interface{}
@@ -3547,6 +3684,9 @@ func (a *DefaultApiService) GetComments_7(localVarOptionals map[string]interface
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/repos/{repositorySlug}/pull-requests/{pullRequestId}/comments"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"pullRequestId"+"}", fmt.Sprintf("%v", pullRequestId), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -3584,7 +3724,7 @@ func (a *DefaultApiService) GetComments_7(localVarOptionals map[string]interface
 		localVarQueryParams.Add("toHash", parameterToString(localVarTempParam, ""))
 	}
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -3607,12 +3747,12 @@ func (a *DefaultApiService) GetComments_7(localVarOptionals map[string]interface
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -3620,12 +3760,12 @@ func (a *DefaultApiService) GetComments_7(localVarOptionals map[string]interface
 
 /* DefaultApiService
  Retrieve a single commit &lt;i&gt;identified by its ID&lt;/i&gt;&gt;. In general, that ID is a SHA1. &lt;u&gt;From 2.11, ref names  like \&quot;refs/heads/master\&quot; are no longer accepted by this resource.&lt;/u&gt;  &lt;p&gt;  The authenticated user must have &lt;strong&gt;REPO_READ&lt;/strong&gt; permission for the specified repository to call this  resource.
- * @param ctx context.Context for authentication, logging, tracing, etc.
+
  @param commitId the commit ID to retrieve
  @param optional (nil or map[string]interface{}) with one or more of:
 	 @param "path" (string) an optional path to filter the commit by. If supplied the details returned &lt;i&gt;may not&lt;/i&gt;              be for the specified commit. Instead, starting from the specified commit, they will be the              details for the first commit affecting the specified path.
  @return */
-func (a *DefaultApiService) GetCommit(commitId string, localVarOptionals map[string]interface{}) (*APIResponse, error) {
+func (a *DefaultApiService) GetCommit(projectKey, repositorySlug, commitId string, localVarOptionals map[string]interface{}) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Get")
 		localVarPostBody   interface{}
@@ -3635,6 +3775,8 @@ func (a *DefaultApiService) GetCommit(commitId string, localVarOptionals map[str
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/repos/{repositorySlug}/commits/{commitId}"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
 	localVarPath = strings.Replace(localVarPath, "{"+"commitId"+"}", fmt.Sprintf("%v", commitId), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -3649,7 +3791,7 @@ func (a *DefaultApiService) GetCommit(commitId string, localVarOptionals map[str
 		localVarQueryParams.Add("path", parameterToString(localVarTempParam, ""))
 	}
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -3672,12 +3814,12 @@ func (a *DefaultApiService) GetCommit(commitId string, localVarOptionals map[str
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -3685,7 +3827,7 @@ func (a *DefaultApiService) GetCommit(commitId string, localVarOptionals map[str
 
 /* DefaultApiService
  Retrieve a page of commits from a given starting commit or \&quot;between\&quot; two commits. If no explicit commit is  specified, the tip of the repository&#39;s default branch is assumed. commits may be identified by branch or tag  name or by ID. A path may be supplied to restrict the returned commits to only those which affect that path.  &lt;p&gt;  The authenticated user must have &lt;b&gt;REPO_READ&lt;/b&gt; permission for the specified repository to call this  resource.
- * @param ctx context.Context for authentication, logging, tracing, etc.
+
  @param optional (nil or map[string]interface{}) with one or more of:
 	 @param "followRenames" (bool) if &lt;code&gt;true&lt;/code&gt;, the commit history of the specified file will be followed past renames.                       Only valid for a path to a single file.
 	 @param "ignoreMissing" (bool) &lt;code&gt;true&lt;/code&gt; to ignore missing commits, &lt;code&gt;false&lt;/code&gt; otherwise
@@ -3731,7 +3873,19 @@ func (a *DefaultApiService) GetCommits(project, repository string, localVarOptio
 	if err := typeCheckParameter(localVarOptionals["withCounts"], "bool", "withCounts"); err != nil {
 		return nil, err
 	}
+	if err := typeCheckParameter(localVarOptionals["limit"], "int", "limit"); err != nil {
+		return nil, err
+	}
+	if err := typeCheckParameter(localVarOptionals["start"], "int", "start"); err != nil {
+		return nil, err
+	}
 
+	if localVarTempParam, localVarOk := localVarOptionals["limit"].(int); localVarOk {
+		localVarQueryParams.Add("limit", parameterToString(localVarTempParam, ""))
+	}
+	if localVarTempParam, localVarOk := localVarOptionals["start"].(int); localVarOk {
+		localVarQueryParams.Add("start", parameterToString(localVarTempParam, ""))
+	}
 	if localVarTempParam, localVarOk := localVarOptionals["followRenames"].(bool); localVarOk {
 		localVarQueryParams.Add("followRenames", parameterToString(localVarTempParam, ""))
 	}
@@ -3757,7 +3911,7 @@ func (a *DefaultApiService) GetCommits(project, repository string, localVarOptio
 		localVarQueryParams.Add("limit", parameterToString(localVarTempParam, ""))
 	}
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -3780,12 +3934,12 @@ func (a *DefaultApiService) GetCommits(project, repository string, localVarOptio
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -3793,12 +3947,12 @@ func (a *DefaultApiService) GetCommits(project, repository string, localVarOptio
 
 /* DefaultApiService
  Retrieve commits for the specified pull request.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;REPO_READ&lt;/strong&gt; permission for the repository that this pull request  targets to call this resource.
- * @param ctx context.Context for authentication, logging, tracing, etc.
+
  @param pullRequestId
  @param optional (nil or map[string]interface{}) with one or more of:
 	 @param "withCounts" (bool) if set to true, the service will add \&quot;authorCount\&quot; and \&quot;totalCount\&quot; at the end of the page.                      \&quot;authorCount\&quot; is the number of different authors and \&quot;totalCount\&quot; is the total number of commits.
  @return */
-func (a *DefaultApiService) GetCommits_8(pullRequestID int64, localVarOptionals map[string]interface{}) (*APIResponse, error) {
+func (a *DefaultApiService) GetCommits_8(projectKey, repositorySlug string, pullRequestID int64, localVarOptionals map[string]interface{}) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Get")
 		localVarPostBody   interface{}
@@ -3808,6 +3962,8 @@ func (a *DefaultApiService) GetCommits_8(pullRequestID int64, localVarOptionals 
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/repos/{repositorySlug}/pull-requests/{pullRequestId}/commits"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
 	localVarPath = strings.Replace(localVarPath, "{"+"pullRequestId"+"}", fmt.Sprintf("%v", pullRequestID), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -3822,7 +3978,7 @@ func (a *DefaultApiService) GetCommits_8(pullRequestID int64, localVarOptionals 
 		localVarQueryParams.Add("withCounts", parameterToString(localVarTempParam, ""))
 	}
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -3845,12 +4001,12 @@ func (a *DefaultApiService) GetCommits_8(pullRequestID int64, localVarOptionals 
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -3858,7 +4014,7 @@ func (a *DefaultApiService) GetCommits_8(pullRequestID int64, localVarOptionals 
 
 /* DefaultApiService
  Retrieve a page of content for a file path at a specified revision.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;REPO_READ&lt;/strong&gt; permission for the specified repository to call this  resource.
- * @param ctx context.Context for authentication, logging, tracing, etc.
+
  @param optional (nil or map[string]interface{}) with one or more of:
 	 @param "at" (string) the commit ID or ref to retrieve the content for.
 	 @param "type_" (bool) if true only the type will be returned for the file path instead of the contents.
@@ -3905,7 +4061,19 @@ func (a *DefaultApiService) getContentWithPath(projectKey string, repositorySlug
 	if err := typeCheckParameter(localVarOptionals["noContent"], "string", "noContent"); err != nil {
 		return nil, err
 	}
+	if err := typeCheckParameter(localVarOptionals["limit"], "int", "limit"); err != nil {
+		return nil, err
+	}
+	if err := typeCheckParameter(localVarOptionals["start"], "int", "start"); err != nil {
+		return nil, err
+	}
 
+	if localVarTempParam, localVarOk := localVarOptionals["limit"].(int); localVarOk {
+		localVarQueryParams.Add("limit", parameterToString(localVarTempParam, ""))
+	}
+	if localVarTempParam, localVarOk := localVarOptionals["start"].(int); localVarOk {
+		localVarQueryParams.Add("start", parameterToString(localVarTempParam, ""))
+	}
 	if localVarTempParam, localVarOk := localVarOptionals["at"].(string); localVarOk {
 		localVarQueryParams.Add("at", parameterToString(localVarTempParam, ""))
 	}
@@ -3919,7 +4087,7 @@ func (a *DefaultApiService) getContentWithPath(projectKey string, repositorySlug
 		localVarQueryParams.Add("noContent", parameterToString(localVarTempParam, ""))
 	}
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -3942,12 +4110,12 @@ func (a *DefaultApiService) getContentWithPath(projectKey string, repositorySlug
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -3955,7 +4123,7 @@ func (a *DefaultApiService) getContentWithPath(projectKey string, repositorySlug
 
 /* DefaultApiService
  Retrieve a page of content for a file path at a specified revision.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;REPO_READ&lt;/strong&gt; permission for the specified repository to call this  resource.
- * @param ctx context.Context for authentication, logging, tracing, etc.
+
  @param path the file path to retrieve content from
  @param optional (nil or map[string]interface{}) with one or more of:
 	 @param "at" (string) the commit ID or ref to retrieve the content for.
@@ -3963,7 +4131,7 @@ func (a *DefaultApiService) getContentWithPath(projectKey string, repositorySlug
 	 @param "blame" (string) if present the blame will be returned for the file as well.
 	 @param "noContent" (string) if present and used with blame only the blame is retrieved instead of the contents.
  @return */
-func (a *DefaultApiService) GetContent_9(path string, localVarOptionals map[string]interface{}) (*APIResponse, error) {
+func (a *DefaultApiService) GetContent_9(projectKey, repositorySlug, path string, localVarOptionals map[string]interface{}) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Get")
 		localVarPostBody   interface{}
@@ -3973,6 +4141,8 @@ func (a *DefaultApiService) GetContent_9(path string, localVarOptionals map[stri
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/repos/{repositorySlug}/browse/{path}"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
 	localVarPath = strings.Replace(localVarPath, "{"+"path"+"}", fmt.Sprintf("%v", path), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -3991,7 +4161,19 @@ func (a *DefaultApiService) GetContent_9(path string, localVarOptionals map[stri
 	if err := typeCheckParameter(localVarOptionals["noContent"], "string", "noContent"); err != nil {
 		return nil, err
 	}
+	if err := typeCheckParameter(localVarOptionals["limit"], "int", "limit"); err != nil {
+		return nil, err
+	}
+	if err := typeCheckParameter(localVarOptionals["start"], "int", "start"); err != nil {
+		return nil, err
+	}
 
+	if localVarTempParam, localVarOk := localVarOptionals["limit"].(int); localVarOk {
+		localVarQueryParams.Add("limit", parameterToString(localVarTempParam, ""))
+	}
+	if localVarTempParam, localVarOk := localVarOptionals["start"].(int); localVarOk {
+		localVarQueryParams.Add("start", parameterToString(localVarTempParam, ""))
+	}
 	if localVarTempParam, localVarOk := localVarOptionals["at"].(string); localVarOk {
 		localVarQueryParams.Add("at", parameterToString(localVarTempParam, ""))
 	}
@@ -4005,7 +4187,7 @@ func (a *DefaultApiService) GetContent_9(path string, localVarOptionals map[stri
 		localVarQueryParams.Add("noContent", parameterToString(localVarTempParam, ""))
 	}
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -4028,12 +4210,12 @@ func (a *DefaultApiService) GetContent_9(path string, localVarOptionals map[stri
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -4041,14 +4223,14 @@ func (a *DefaultApiService) GetContent_9(path string, localVarOptionals map[stri
 
 /* DefaultApiService
  Retrieve the raw content for a file path at a specified revision.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;REPO_READ&lt;/strong&gt; permission for the specified repository to call this  resource.
- * @param ctx context.Context for authentication, logging, tracing, etc.
+
  @param optional (nil or map[string]interface{}) with one or more of:
 	 @param "at" (string) the commit ID or ref to retrieve the content for.
 	 @param "markup" (string) if present or &lt;code&gt;\&quot;true\&quot;&lt;/code&gt;, triggers the raw content to be markup-rendered and returned                    as HTML; otherwise, if not specified, or any value other than &lt;code&gt;\&quot;true\&quot;&lt;/code&gt;, the content                    is streamed without markup
 	 @param "hardwrap" (bool) (Optional) Whether the markup implementation should convert newlines to breaks.                    If not specified, {@link MarkupService} will use the value of the                    &lt;code&gt;markup.render.hardwrap&lt;/code&gt; property, which is &lt;code&gt;true&lt;/code&gt; by default
 	 @param "htmlEscape" (bool) (Optional) true if HTML should be escaped in the input markup, false otherwise.                    If not specified, {@link MarkupService} will use the value of the                    &lt;code&gt;markup.render.html.escape&lt;/code&gt; property, which is &lt;code&gt;true&lt;/code&gt; by default
  @return */
-func (a *DefaultApiService) GetContent_10(localVarOptionals map[string]interface{}) (*APIResponse, error) {
+func (a *DefaultApiService) GetContent_10(projectKey, repositorySlug string, localVarOptionals map[string]interface{}) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Get")
 		localVarPostBody   interface{}
@@ -4058,6 +4240,8 @@ func (a *DefaultApiService) GetContent_10(localVarOptionals map[string]interface
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/repos/{repositorySlug}/raw"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -4089,7 +4273,7 @@ func (a *DefaultApiService) GetContent_10(localVarOptionals map[string]interface
 		localVarQueryParams.Add("htmlEscape", parameterToString(localVarTempParam, ""))
 	}
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -4112,12 +4296,12 @@ func (a *DefaultApiService) GetContent_10(localVarOptionals map[string]interface
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -4125,7 +4309,7 @@ func (a *DefaultApiService) GetContent_10(localVarOptionals map[string]interface
 
 /* DefaultApiService
  Retrieve the raw content for a file path at a specified revision.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;REPO_READ&lt;/strong&gt; permission for the specified repository to call this  resource.
- * @param ctx context.Context for authentication, logging, tracing, etc.
+
  @param path the file path to retrieve content from
  @param optional (nil or map[string]interface{}) with one or more of:
 	 @param "at" (string) the commit ID or ref to retrieve the content for.
@@ -4143,6 +4327,8 @@ func (a *DefaultApiService) GetContent_11(projectKey, repositorySlug, path strin
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/repos/{repositorySlug}/raw/{path}"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
 	localVarPath = strings.Replace(localVarPath, "{"+"path"+"}", fmt.Sprintf("%v", path), -1)
 	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
 	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
@@ -4177,7 +4363,7 @@ func (a *DefaultApiService) GetContent_11(projectKey, repositorySlug, path strin
 		localVarQueryParams.Add("htmlEscape", parameterToString(localVarTempParam, ""))
 	}
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -4200,12 +4386,12 @@ func (a *DefaultApiService) GetContent_11(projectKey, repositorySlug, path strin
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewRawAPIResponse(localVarHTTPResponse)
@@ -4213,9 +4399,9 @@ func (a *DefaultApiService) GetContent_11(projectKey, repositorySlug, path strin
 
 /* DefaultApiService
 Get the default branch of the repository.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;REPO_READ&lt;/strong&gt; permission for the specified repository to call this  resource.
-* @param ctx context.Context for authentication, logging, tracing, etc.
+
 @return */
-func (a *DefaultApiService) GetDefaultBranch(ctx context.Context) (*APIResponse, error) {
+func (a *DefaultApiService) GetDefaultBranch(projectKey, repositorySlug string) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Get")
 		localVarPostBody   interface{}
@@ -4225,13 +4411,15 @@ func (a *DefaultApiService) GetDefaultBranch(ctx context.Context) (*APIResponse,
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/repos/{repositorySlug}/branches/default"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -4254,12 +4442,12 @@ func (a *DefaultApiService) GetDefaultBranch(ctx context.Context) (*APIResponse,
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -4267,10 +4455,10 @@ func (a *DefaultApiService) GetDefaultBranch(ctx context.Context) (*APIResponse,
 
 /* DefaultApiService
 Retrieve repositories which have been forked from this one. Unlike {@link #getRelatedRepositories(Repository,  PageRequest) related repositories}, this only looks at a given repository&#39;s direct forks. If those forks have  themselves been the origin of more forks, such \&quot;grandchildren\&quot; repositories will not be retrieved.  &lt;p&gt;  Only repositories to which the authenticated user has &lt;b&gt;REPO_READ&lt;/b&gt; permission will be included, even  if other repositories have been forked from this one.
-* @param ctx context.Context for authentication, logging, tracing, etc.
+
 @param projectKey the parent project key
 @return */
-func (a *DefaultApiService) GetForkedRepositories(projectKey string) (*APIResponse, error) {
+func (a *DefaultApiService) GetForkedRepositories(projectKey, repositorySlug string) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Get")
 		localVarPostBody   interface{}
@@ -4281,13 +4469,14 @@ func (a *DefaultApiService) GetForkedRepositories(projectKey string) (*APIRespon
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/repos/{repositorySlug}/forks"
 	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -4310,12 +4499,12 @@ func (a *DefaultApiService) GetForkedRepositories(projectKey string) (*APIRespon
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -4323,7 +4512,7 @@ func (a *DefaultApiService) GetForkedRepositories(projectKey string) (*APIRespon
 
 /* DefaultApiService
  Retrieve a page of groups.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;LICENSED_USER&lt;/strong&gt; permission or higher to call this resource.
- * @param ctx context.Context for authentication, logging, tracing, etc.
+
  @param optional (nil or map[string]interface{}) with one or more of:
 	 @param "filter" (string) if specified only group names containing the supplied string will be returned
  @return */
@@ -4345,12 +4534,24 @@ func (a *DefaultApiService) GetGroups(localVarOptionals map[string]interface{}) 
 	if err := typeCheckParameter(localVarOptionals["filter"], "string", "filter"); err != nil {
 		return nil, err
 	}
+	if err := typeCheckParameter(localVarOptionals["limit"], "int", "limit"); err != nil {
+		return nil, err
+	}
+	if err := typeCheckParameter(localVarOptionals["start"], "int", "start"); err != nil {
+		return nil, err
+	}
 
+	if localVarTempParam, localVarOk := localVarOptionals["limit"].(int); localVarOk {
+		localVarQueryParams.Add("limit", parameterToString(localVarTempParam, ""))
+	}
+	if localVarTempParam, localVarOk := localVarOptionals["start"].(int); localVarOk {
+		localVarQueryParams.Add("start", parameterToString(localVarTempParam, ""))
+	}
 	if localVarTempParam, localVarOk := localVarOptionals["filter"].(string); localVarOk {
 		localVarQueryParams.Add("filter", parameterToString(localVarTempParam, ""))
 	}
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -4373,12 +4574,12 @@ func (a *DefaultApiService) GetGroups(localVarOptionals map[string]interface{}) 
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -4386,7 +4587,7 @@ func (a *DefaultApiService) GetGroups(localVarOptionals map[string]interface{}) 
 
 /* DefaultApiService
  Retrieve a page of groups that have been granted at least one global permission.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;ADMIN&lt;/strong&gt; permission or higher to call this resource.
- * @param ctx context.Context for authentication, logging, tracing, etc.
+
  @param optional (nil or map[string]interface{}) with one or more of:
 	 @param "filter" (string) if specified only group names containing the supplied string will be returned
  @return */
@@ -4408,12 +4609,24 @@ func (a *DefaultApiService) GetGroupsWithAnyPermission(localVarOptionals map[str
 	if err := typeCheckParameter(localVarOptionals["filter"], "string", "filter"); err != nil {
 		return nil, err
 	}
+	if err := typeCheckParameter(localVarOptionals["limit"], "int", "limit"); err != nil {
+		return nil, err
+	}
+	if err := typeCheckParameter(localVarOptionals["start"], "int", "start"); err != nil {
+		return nil, err
+	}
 
+	if localVarTempParam, localVarOk := localVarOptionals["limit"].(int); localVarOk {
+		localVarQueryParams.Add("limit", parameterToString(localVarTempParam, ""))
+	}
+	if localVarTempParam, localVarOk := localVarOptionals["start"].(int); localVarOk {
+		localVarQueryParams.Add("start", parameterToString(localVarTempParam, ""))
+	}
 	if localVarTempParam, localVarOk := localVarOptionals["filter"].(string); localVarOk {
 		localVarQueryParams.Add("filter", parameterToString(localVarTempParam, ""))
 	}
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -4436,12 +4649,12 @@ func (a *DefaultApiService) GetGroupsWithAnyPermission(localVarOptionals map[str
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -4449,11 +4662,11 @@ func (a *DefaultApiService) GetGroupsWithAnyPermission(localVarOptionals map[str
 
 /* DefaultApiService
  Retrieve a page of groups that have been granted at least one permission for the specified project.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;PROJECT_ADMIN&lt;/strong&gt; permission for the specified project or a higher  global permission to call this resource.
- * @param ctx context.Context for authentication, logging, tracing, etc.
+
  @param optional (nil or map[string]interface{}) with one or more of:
 	 @param "filter" (string) if specified only group names containing the supplied string will be returned
  @return */
-func (a *DefaultApiService) GetGroupsWithAnyPermission_12(localVarOptionals map[string]interface{}) (*APIResponse, error) {
+func (a *DefaultApiService) GetGroupsWithAnyPermission_12(projectKey string, localVarOptionals map[string]interface{}) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Get")
 		localVarPostBody   interface{}
@@ -4463,6 +4676,7 @@ func (a *DefaultApiService) GetGroupsWithAnyPermission_12(localVarOptionals map[
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/permissions/groups"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -4471,12 +4685,24 @@ func (a *DefaultApiService) GetGroupsWithAnyPermission_12(localVarOptionals map[
 	if err := typeCheckParameter(localVarOptionals["filter"], "string", "filter"); err != nil {
 		return nil, err
 	}
+	if err := typeCheckParameter(localVarOptionals["limit"], "int", "limit"); err != nil {
+		return nil, err
+	}
+	if err := typeCheckParameter(localVarOptionals["start"], "int", "start"); err != nil {
+		return nil, err
+	}
 
+	if localVarTempParam, localVarOk := localVarOptionals["limit"].(int); localVarOk {
+		localVarQueryParams.Add("limit", parameterToString(localVarTempParam, ""))
+	}
+	if localVarTempParam, localVarOk := localVarOptionals["start"].(int); localVarOk {
+		localVarQueryParams.Add("start", parameterToString(localVarTempParam, ""))
+	}
 	if localVarTempParam, localVarOk := localVarOptionals["filter"].(string); localVarOk {
 		localVarQueryParams.Add("filter", parameterToString(localVarTempParam, ""))
 	}
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -4499,12 +4725,12 @@ func (a *DefaultApiService) GetGroupsWithAnyPermission_12(localVarOptionals map[
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -4512,11 +4738,11 @@ func (a *DefaultApiService) GetGroupsWithAnyPermission_12(localVarOptionals map[
 
 /* DefaultApiService
  Retrieve a page of groups that have been granted at least one permission for the specified repository.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;REPO_ADMIN&lt;/strong&gt; permission for the specified repository or a higher  project or global permission to call this resource.
- * @param ctx context.Context for authentication, logging, tracing, etc.
+
  @param optional (nil or map[string]interface{}) with one or more of:
 	 @param "filter" (string) if specified only group names containing the supplied string will be returned
  @return */
-func (a *DefaultApiService) GetGroupsWithAnyPermission_13(localVarOptionals map[string]interface{}) (*APIResponse, error) {
+func (a *DefaultApiService) GetGroupsWithAnyPermission_13(projectKey, repositorySlug string, localVarOptionals map[string]interface{}) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Get")
 		localVarPostBody   interface{}
@@ -4526,6 +4752,8 @@ func (a *DefaultApiService) GetGroupsWithAnyPermission_13(localVarOptionals map[
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/repos/{repositorySlug}/permissions/groups"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -4534,12 +4762,24 @@ func (a *DefaultApiService) GetGroupsWithAnyPermission_13(localVarOptionals map[
 	if err := typeCheckParameter(localVarOptionals["filter"], "string", "filter"); err != nil {
 		return nil, err
 	}
+	if err := typeCheckParameter(localVarOptionals["limit"], "int", "limit"); err != nil {
+		return nil, err
+	}
+	if err := typeCheckParameter(localVarOptionals["start"], "int", "start"); err != nil {
+		return nil, err
+	}
 
+	if localVarTempParam, localVarOk := localVarOptionals["limit"].(int); localVarOk {
+		localVarQueryParams.Add("limit", parameterToString(localVarTempParam, ""))
+	}
+	if localVarTempParam, localVarOk := localVarOptionals["start"].(int); localVarOk {
+		localVarQueryParams.Add("start", parameterToString(localVarTempParam, ""))
+	}
 	if localVarTempParam, localVarOk := localVarOptionals["filter"].(string); localVarOk {
 		localVarQueryParams.Add("filter", parameterToString(localVarTempParam, ""))
 	}
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -4562,12 +4802,12 @@ func (a *DefaultApiService) GetGroupsWithAnyPermission_13(localVarOptionals map[
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -4575,7 +4815,7 @@ func (a *DefaultApiService) GetGroupsWithAnyPermission_13(localVarOptionals map[
 
 /* DefaultApiService
  Retrieve a page of groups that have no granted global permissions.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;ADMIN&lt;/strong&gt; permission or higher to call this resource.
- * @param ctx context.Context for authentication, logging, tracing, etc.
+
  @param optional (nil or map[string]interface{}) with one or more of:
 	 @param "filter" (string) if specified only group names containing the supplied string will be returned
  @return */
@@ -4597,12 +4837,24 @@ func (a *DefaultApiService) GetGroupsWithoutAnyPermission(localVarOptionals map[
 	if err := typeCheckParameter(localVarOptionals["filter"], "string", "filter"); err != nil {
 		return nil, err
 	}
+	if err := typeCheckParameter(localVarOptionals["limit"], "int", "limit"); err != nil {
+		return nil, err
+	}
+	if err := typeCheckParameter(localVarOptionals["start"], "int", "start"); err != nil {
+		return nil, err
+	}
 
+	if localVarTempParam, localVarOk := localVarOptionals["limit"].(int); localVarOk {
+		localVarQueryParams.Add("limit", parameterToString(localVarTempParam, ""))
+	}
+	if localVarTempParam, localVarOk := localVarOptionals["start"].(int); localVarOk {
+		localVarQueryParams.Add("start", parameterToString(localVarTempParam, ""))
+	}
 	if localVarTempParam, localVarOk := localVarOptionals["filter"].(string); localVarOk {
 		localVarQueryParams.Add("filter", parameterToString(localVarTempParam, ""))
 	}
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -4625,12 +4877,12 @@ func (a *DefaultApiService) GetGroupsWithoutAnyPermission(localVarOptionals map[
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -4638,11 +4890,11 @@ func (a *DefaultApiService) GetGroupsWithoutAnyPermission(localVarOptionals map[
 
 /* DefaultApiService
  Retrieve a page of groups that have no granted permissions for the specified project.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;PROJECT_ADMIN&lt;/strong&gt; permission for the specified project or a higher  global permission to call this resource.
- * @param ctx context.Context for authentication, logging, tracing, etc.
+
  @param optional (nil or map[string]interface{}) with one or more of:
 	 @param "filter" (string) if specified only group names containing the supplied string will be returned
  @return */
-func (a *DefaultApiService) GetGroupsWithoutAnyPermission_14(localVarOptionals map[string]interface{}) (*APIResponse, error) {
+func (a *DefaultApiService) GetGroupsWithoutAnyPermission_14(projectKey string, localVarOptionals map[string]interface{}) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Get")
 		localVarPostBody   interface{}
@@ -4652,6 +4904,7 @@ func (a *DefaultApiService) GetGroupsWithoutAnyPermission_14(localVarOptionals m
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/permissions/groups/none"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -4660,12 +4913,24 @@ func (a *DefaultApiService) GetGroupsWithoutAnyPermission_14(localVarOptionals m
 	if err := typeCheckParameter(localVarOptionals["filter"], "string", "filter"); err != nil {
 		return nil, err
 	}
+	if err := typeCheckParameter(localVarOptionals["limit"], "int", "limit"); err != nil {
+		return nil, err
+	}
+	if err := typeCheckParameter(localVarOptionals["start"], "int", "start"); err != nil {
+		return nil, err
+	}
 
+	if localVarTempParam, localVarOk := localVarOptionals["limit"].(int); localVarOk {
+		localVarQueryParams.Add("limit", parameterToString(localVarTempParam, ""))
+	}
+	if localVarTempParam, localVarOk := localVarOptionals["start"].(int); localVarOk {
+		localVarQueryParams.Add("start", parameterToString(localVarTempParam, ""))
+	}
 	if localVarTempParam, localVarOk := localVarOptionals["filter"].(string); localVarOk {
 		localVarQueryParams.Add("filter", parameterToString(localVarTempParam, ""))
 	}
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -4688,12 +4953,12 @@ func (a *DefaultApiService) GetGroupsWithoutAnyPermission_14(localVarOptionals m
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -4701,11 +4966,11 @@ func (a *DefaultApiService) GetGroupsWithoutAnyPermission_14(localVarOptionals m
 
 /* DefaultApiService
  Retrieve a page of groups that have no granted permissions for the specified repository.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;REPO_ADMIN&lt;/strong&gt; permission for the specified repository or a higher  project or global permission to call this resource.
- * @param ctx context.Context for authentication, logging, tracing, etc.
+
  @param optional (nil or map[string]interface{}) with one or more of:
 	 @param "filter" (string) if specified only group names containing the supplied string will be returned
  @return */
-func (a *DefaultApiService) GetGroupsWithoutAnyPermission_15(localVarOptionals map[string]interface{}) (*APIResponse, error) {
+func (a *DefaultApiService) GetGroupsWithoutAnyPermission_15(projectKey, repositorySlug string, localVarOptionals map[string]interface{}) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Get")
 		localVarPostBody   interface{}
@@ -4715,6 +4980,8 @@ func (a *DefaultApiService) GetGroupsWithoutAnyPermission_15(localVarOptionals m
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/repos/{repositorySlug}/permissions/groups/none"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -4723,12 +4990,24 @@ func (a *DefaultApiService) GetGroupsWithoutAnyPermission_15(localVarOptionals m
 	if err := typeCheckParameter(localVarOptionals["filter"], "string", "filter"); err != nil {
 		return nil, err
 	}
+	if err := typeCheckParameter(localVarOptionals["limit"], "int", "limit"); err != nil {
+		return nil, err
+	}
+	if err := typeCheckParameter(localVarOptionals["start"], "int", "start"); err != nil {
+		return nil, err
+	}
 
+	if localVarTempParam, localVarOk := localVarOptionals["limit"].(int); localVarOk {
+		localVarQueryParams.Add("limit", parameterToString(localVarTempParam, ""))
+	}
+	if localVarTempParam, localVarOk := localVarOptionals["start"].(int); localVarOk {
+		localVarQueryParams.Add("start", parameterToString(localVarTempParam, ""))
+	}
 	if localVarTempParam, localVarOk := localVarOptionals["filter"].(string); localVarOk {
 		localVarQueryParams.Add("filter", parameterToString(localVarTempParam, ""))
 	}
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -4751,12 +5030,12 @@ func (a *DefaultApiService) GetGroupsWithoutAnyPermission_15(localVarOptionals m
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -4764,7 +5043,7 @@ func (a *DefaultApiService) GetGroupsWithoutAnyPermission_15(localVarOptionals m
 
 /* DefaultApiService
  Retrieve a page of group names.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;PROJECT_ADMIN&lt;/strong&gt; permission or higher to call this resource.
- * @param ctx context.Context for authentication, logging, tracing, etc.
+
  @param optional (nil or map[string]interface{}) with one or more of:
 	 @param "filter" (string) if specified only group names containing the supplied string will be returned
  @return */
@@ -4786,12 +5065,24 @@ func (a *DefaultApiService) GetGroups_16(localVarOptionals map[string]interface{
 	if err := typeCheckParameter(localVarOptionals["filter"], "string", "filter"); err != nil {
 		return nil, err
 	}
+	if err := typeCheckParameter(localVarOptionals["limit"], "int", "limit"); err != nil {
+		return nil, err
+	}
+	if err := typeCheckParameter(localVarOptionals["start"], "int", "start"); err != nil {
+		return nil, err
+	}
 
+	if localVarTempParam, localVarOk := localVarOptionals["limit"].(int); localVarOk {
+		localVarQueryParams.Add("limit", parameterToString(localVarTempParam, ""))
+	}
+	if localVarTempParam, localVarOk := localVarOptionals["start"].(int); localVarOk {
+		localVarQueryParams.Add("start", parameterToString(localVarTempParam, ""))
+	}
 	if localVarTempParam, localVarOk := localVarOptionals["filter"].(string); localVarOk {
 		localVarQueryParams.Add("filter", parameterToString(localVarTempParam, ""))
 	}
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -4814,12 +5105,12 @@ func (a *DefaultApiService) GetGroups_16(localVarOptionals map[string]interface{
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -4827,9 +5118,9 @@ func (a *DefaultApiService) GetGroups_16(localVarOptionals map[string]interface{
 
 /* DefaultApiService
 Gets information about the nodes that currently make up the stash cluster.  &lt;p&gt;  The authenticated user must have the &lt;strong&gt;SYS_ADMIN&lt;/strong&gt; permission to call this resource.
-* @param ctx context.Context for authentication, logging, tracing, etc.
+
 @return */
-func (a *DefaultApiService) GetInformation(ctx context.Context) (*APIResponse, error) {
+func (a *DefaultApiService) GetInformation() (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Get")
 		localVarPostBody   interface{}
@@ -4845,7 +5136,7 @@ func (a *DefaultApiService) GetInformation(ctx context.Context) (*APIResponse, e
 	localVarFormParams := url.Values{}
 
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -4868,12 +5159,12 @@ func (a *DefaultApiService) GetInformation(ctx context.Context) (*APIResponse, e
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -4881,13 +5172,13 @@ func (a *DefaultApiService) GetInformation(ctx context.Context) (*APIResponse, e
 
 /* DefaultApiService
  Get the latest invocations for a specific webhook.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;REPO_ADMIN&lt;/strong&gt; permission for the specified repository to call this  resource.
- * @param ctx context.Context for authentication, logging, tracing, etc.
+
  @param webhookId id of the webhook
  @param optional (nil or map[string]interface{}) with one or more of:
 	 @param "event" (string) the string id of a specific event to retrieve the last invocation for.
 	 @param "outcome" (string) the outcome to filter for. Can be SUCCESS, FAILURE, ERROR. None specified means that the all                   will be considered
  @return */
-func (a *DefaultApiService) GetLatestInvocation(webhookId int32, localVarOptionals map[string]interface{}) (*APIResponse, error) {
+func (a *DefaultApiService) GetLatestInvocation(projectKey, repositorySlug string, webhookId int32, localVarOptionals map[string]interface{}) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Get")
 		localVarPostBody   interface{}
@@ -4897,6 +5188,8 @@ func (a *DefaultApiService) GetLatestInvocation(webhookId int32, localVarOptiona
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/repos/{repositorySlug}/webhooks/{webhookId}/latest"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
 	localVarPath = strings.Replace(localVarPath, "{"+"webhookId"+"}", fmt.Sprintf("%v", webhookId), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -4917,7 +5210,7 @@ func (a *DefaultApiService) GetLatestInvocation(webhookId int32, localVarOptiona
 		localVarQueryParams.Add("outcome", parameterToString(localVarTempParam, ""))
 	}
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -4940,12 +5233,12 @@ func (a *DefaultApiService) GetLatestInvocation(webhookId int32, localVarOptiona
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -4953,7 +5246,7 @@ func (a *DefaultApiService) GetLatestInvocation(webhookId int32, localVarOptiona
 
 /* DefaultApiService
 Retrieve the current log level for a given logger.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;ADMIN&lt;/strong&gt; permission or higher to call this resource.
-* @param ctx context.Context for authentication, logging, tracing, etc.
+
 @param loggerName the name of the logger.
 @return */
 func (a *DefaultApiService) GetLevel(loggerName string) (*APIResponse, error) {
@@ -4973,7 +5266,7 @@ func (a *DefaultApiService) GetLevel(loggerName string) (*APIResponse, error) {
 	localVarFormParams := url.Values{}
 
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -4996,12 +5289,12 @@ func (a *DefaultApiService) GetLevel(loggerName string) (*APIResponse, error) {
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -5009,9 +5302,9 @@ func (a *DefaultApiService) GetLevel(loggerName string) (*APIResponse, error) {
 
 /* DefaultApiService
 Retrieves the current mail configuration.   The authenticated user must have the &lt;strong&gt;SYS_ADMIN&lt;/strong&gt; permission to call this resource.
-* @param ctx context.Context for authentication, logging, tracing, etc.
+
 @return */
-func (a *DefaultApiService) GetMailConfig(ctx context.Context) (*APIResponse, error) {
+func (a *DefaultApiService) GetMailConfig() (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Get")
 		localVarPostBody   interface{}
@@ -5027,7 +5320,7 @@ func (a *DefaultApiService) GetMailConfig(ctx context.Context) (*APIResponse, er
 	localVarFormParams := url.Values{}
 
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -5050,12 +5343,12 @@ func (a *DefaultApiService) GetMailConfig(ctx context.Context) (*APIResponse, er
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -5063,7 +5356,7 @@ func (a *DefaultApiService) GetMailConfig(ctx context.Context) (*APIResponse, er
 
 /* DefaultApiService
 Retrieve the merge strategies available for this instance.  &lt;p&gt;  The user must be authenticated to call this resource.
-* @param ctx context.Context for authentication, logging, tracing, etc.
+
 @param scmId the id of the scm to get strategies for
 @return */
 func (a *DefaultApiService) GetMergeConfig(scmId string) (*APIResponse, error) {
@@ -5083,7 +5376,7 @@ func (a *DefaultApiService) GetMergeConfig(scmId string) (*APIResponse, error) {
 	localVarFormParams := url.Values{}
 
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -5106,12 +5399,12 @@ func (a *DefaultApiService) GetMergeConfig(scmId string) (*APIResponse, error) {
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -5119,7 +5412,7 @@ func (a *DefaultApiService) GetMergeConfig(scmId string) (*APIResponse, error) {
 
 /* DefaultApiService
  Retrieve a page of pull requests to or from the specified repository.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;REPO_READ&lt;/strong&gt; permission for the specified repository to call  this resource.   Optionally clients can specify PR participant filters. Each filter has a mandatory {@code username.N}  parameter, and the optional {@code role.N} and {@code approved.N} parameters.  &lt;ul&gt;      &lt;li&gt;          {@code username.N} - the \&quot;root\&quot; of a single participant filter, where \&quot;N\&quot; is a natural number          starting from 1. This allows clients to specify multiple participant filters, by providing consecutive          filters as {@code username.1}, {@code username.2} etc. Note that the filters numbering has to start          with 1 and be continuous for all filters to be processed. The total allowed number of participant          filters is 10 and all filters exceeding that limit will be dropped.      &lt;/li&gt;      &lt;li&gt;          {@code role.N}(optional) the role associated with {@code username.N}.          This must be one of {@code AUTHOR}, {@code REVIEWER}, or{@code PARTICIPANT}      &lt;/li&gt;      &lt;li&gt;          {@code approved.N}(optional) the approved status associated with {@code username.N}.          That is whether {@code username.N} has approved the PR. Either {@code true}, or {@code false}      &lt;/li&gt;  &lt;/ul&gt;
- * @param ctx context.Context for authentication, logging, tracing, etc.
+
  @param optional (nil or map[string]interface{}) with one or more of:
 	 @param "direction" (string) (optional, defaults to &lt;strong&gt;INCOMING&lt;/strong&gt;) the direction relative to the specified                   repository. Either &lt;strong&gt;INCOMING&lt;/strong&gt; or &lt;strong&gt;OUTGOING&lt;/strong&gt;.
 	 @param "at" (string) (optional) a &lt;i&gt;fully-qualified&lt;/i&gt; branch ID to find pull requests to or from,            such as {@code refs/heads/master}
@@ -5163,6 +5456,12 @@ func (a *DefaultApiService) GetPullRequestsPage(projectKey, repositorySlug strin
 	if err := typeCheckParameter(localVarOptionals["withProperties"], "bool", "withProperties"); err != nil {
 		return nil, err
 	}
+	if err := typeCheckParameter(localVarOptionals["limit"], "int", "limit"); err != nil {
+		return nil, err
+	}
+	if err := typeCheckParameter(localVarOptionals["start"], "int", "start"); err != nil {
+		return nil, err
+	}
 
 	if localVarTempParam, localVarOk := localVarOptionals["direction"].(string); localVarOk {
 		localVarQueryParams.Add("direction", parameterToString(localVarTempParam, ""))
@@ -5182,8 +5481,14 @@ func (a *DefaultApiService) GetPullRequestsPage(projectKey, repositorySlug strin
 	if localVarTempParam, localVarOk := localVarOptionals["withProperties"].(bool); localVarOk {
 		localVarQueryParams.Add("withProperties", parameterToString(localVarTempParam, ""))
 	}
+	if localVarTempParam, localVarOk := localVarOptionals["limit"].(int); localVarOk {
+		localVarQueryParams.Add("limit", parameterToString(localVarTempParam, ""))
+	}
+	if localVarTempParam, localVarOk := localVarOptionals["start"].(int); localVarOk {
+		localVarQueryParams.Add("start", parameterToString(localVarTempParam, ""))
+	}
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -5206,12 +5511,12 @@ func (a *DefaultApiService) GetPullRequestsPage(projectKey, repositorySlug strin
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -5219,9 +5524,9 @@ func (a *DefaultApiService) GetPullRequestsPage(projectKey, repositorySlug strin
 
 /* DefaultApiService
 Retrieve the project matching the supplied &lt;strong&gt;projectKey&lt;/strong&gt;.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;PROJECT_VIEW&lt;/strong&gt; permission for the specified project to call this  resource.
-* @param ctx context.Context for authentication, logging, tracing, etc.
+
 @return */
-func (a *DefaultApiService) GetProject(ctx context.Context, projectKey string) (*APIResponse, error) {
+func (a *DefaultApiService) GetProject(projectKey string) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Get")
 		localVarPostBody   interface{}
@@ -5238,7 +5543,7 @@ func (a *DefaultApiService) GetProject(ctx context.Context, projectKey string) (
 	localVarFormParams := url.Values{}
 
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -5261,12 +5566,12 @@ func (a *DefaultApiService) GetProject(ctx context.Context, projectKey string) (
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -5274,11 +5579,11 @@ func (a *DefaultApiService) GetProject(ctx context.Context, projectKey string) (
 
 /* DefaultApiService
  Retrieve the avatar for the project matching the supplied &lt;strong&gt;projectKey&lt;/strong&gt;.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;PROJECT_VIEW&lt;/strong&gt; permission for the specified project to call this  resource.
- * @param ctx context.Context for authentication, logging, tracing, etc.
+
  @param optional (nil or map[string]interface{}) with one or more of:
 	 @param "s" (int32) The desired size of the image. The server will return an image as close as possible to the specified              size.
  @return */
-func (a *DefaultApiService) GetProjectAvatar(localVarOptionals map[string]interface{}) (*APIResponse, error) {
+func (a *DefaultApiService) GetProjectAvatar(projectKey, repositorySlug string, localVarOptionals map[string]interface{}) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Get")
 		localVarPostBody   interface{}
@@ -5288,6 +5593,7 @@ func (a *DefaultApiService) GetProjectAvatar(localVarOptionals map[string]interf
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/avatar.png"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -5301,7 +5607,7 @@ func (a *DefaultApiService) GetProjectAvatar(localVarOptionals map[string]interf
 		localVarQueryParams.Add("s", parameterToString(localVarTempParam, ""))
 	}
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -5324,12 +5630,12 @@ func (a *DefaultApiService) GetProjectAvatar(localVarOptionals map[string]interf
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -5337,7 +5643,7 @@ func (a *DefaultApiService) GetProjectAvatar(localVarOptionals map[string]interf
 
 /* DefaultApiService
  Retrieve a page of projects.  &lt;p&gt;  Only projects for which the authenticated user has the &lt;strong&gt;PROJECT_VIEW&lt;/strong&gt; permission will be returned.
- * @param ctx context.Context for authentication, logging, tracing, etc.
+
  @param optional (nil or map[string]interface{}) with one or more of:
 	 @param "name" (string)
 	 @param "permission" (string)
@@ -5385,7 +5691,7 @@ func (a *DefaultApiService) GetProjects(localVarOptionals map[string]interface{}
 		localVarQueryParams.Add("start", parameterToString(localVarTempParam, ""))
 	}
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -5408,21 +5714,21 @@ func (a *DefaultApiService) GetProjects(localVarOptionals map[string]interface{}
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
 }
 
 /* DefaultApiService
- * @param ctx context.Context for authentication, logging, tracing, etc.
- @return */
-func (a *DefaultApiService) GetPullRequestCount(ctx context.Context) (*APIResponse, error) {
+
+@return */
+func (a *DefaultApiService) GetPullRequestCount() (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Get")
 		localVarPostBody   interface{}
@@ -5438,7 +5744,7 @@ func (a *DefaultApiService) GetPullRequestCount(ctx context.Context) (*APIRespon
 	localVarFormParams := url.Values{}
 
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -5461,12 +5767,12 @@ func (a *DefaultApiService) GetPullRequestCount(ctx context.Context) (*APIRespon
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -5474,9 +5780,9 @@ func (a *DefaultApiService) GetPullRequestCount(ctx context.Context) (*APIRespon
 
 /* DefaultApiService
 Retrieve the pull request settings for the context repository.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;REPO_READ&lt;/strong&gt; permission for the context repository to call this  resource.  &lt;p&gt;  This resource will call all RestFragments that are registered with the key  &lt;strong&gt;bitbucket.repository.settings.pullRequests&lt;/strong&gt;. If any fragment fails validations by returning a  non-empty Map of errors, then no fragments will execute.  &lt;p&gt;  The property keys for the settings that are bundled with the application are  &lt;ul&gt;      &lt;li&gt;mergeConfig - the merge strategy configuration for pull requests&lt;/li&gt;      &lt;li&gt;requiredApprovers - (Deprecated, please use com.atlassian.bitbucket.server.bundled-hooks.requiredApproversMergeHook instead) the number of approvals required on a pull request for it to be mergeable, or 0 if the merge check is disabled&lt;/li&gt;      &lt;li&gt;com.atlassian.bitbucket.server.bundled-hooks.requiredApproversMergeHook - the merge check configuration for required approvers&lt;/li&gt;      &lt;li&gt;requiredAllApprovers - whether or not all approvers must approve a pull request for it to be mergeable&lt;/li&gt;      &lt;li&gt;requiredAllTasksComplete - whether or not all tasks on a pull request need to be completed for it to be mergeable&lt;/li&gt;      &lt;li&gt;requiredSuccessfulBuilds - (Deprecated, please use com.atlassian.bitbucket.server.bitbucket-build.requiredBuildsMergeCheck instead) the number of successful builds on a pull request for it to be mergeable, or 0 if the merge check is disabled&lt;/li&gt;      &lt;li&gt;com.atlassian.bitbucket.server.bitbucket-build.requiredBuildsMergeCheck - the merge check configuration for required builds&lt;/li&gt;  &lt;/ul&gt;
-* @param ctx context.Context for authentication, logging, tracing, etc.
+
 @return */
-func (a *DefaultApiService) GetPullRequestSettings(ctx context.Context) (*APIResponse, error) {
+func (a *DefaultApiService) GetPullRequestSettings(projectKey, repositorySlug string) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Get")
 		localVarPostBody   interface{}
@@ -5486,13 +5792,15 @@ func (a *DefaultApiService) GetPullRequestSettings(ctx context.Context) (*APIRes
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/repos/{repositorySlug}/settings/pull-requests"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -5515,12 +5823,12 @@ func (a *DefaultApiService) GetPullRequestSettings(ctx context.Context) (*APIRes
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -5528,10 +5836,10 @@ func (a *DefaultApiService) GetPullRequestSettings(ctx context.Context) (*APIRes
 
 /* DefaultApiService
 Retrieve the merge strategy configuration for this project and SCM.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;PROJECT_READ&lt;/strong&gt; permission for the context repository to call this  resource.
-* @param ctx context.Context for authentication, logging, tracing, etc.
+
 @param scmId the SCM to get strategies for
 @return */
-func (a *DefaultApiService) GetPullRequestSettings_17(scmId string) (*APIResponse, error) {
+func (a *DefaultApiService) GetPullRequestSettings_17(projectKey, repositorySlug string, scmId string) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Get")
 		localVarPostBody   interface{}
@@ -5541,6 +5849,8 @@ func (a *DefaultApiService) GetPullRequestSettings_17(scmId string) (*APIRespons
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/settings/pull-requests/{scmId}"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
 	localVarPath = strings.Replace(localVarPath, "{"+"scmId"+"}", fmt.Sprintf("%v", scmId), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -5548,7 +5858,7 @@ func (a *DefaultApiService) GetPullRequestSettings_17(scmId string) (*APIRespons
 	localVarFormParams := url.Values{}
 
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -5571,12 +5881,12 @@ func (a *DefaultApiService) GetPullRequestSettings_17(scmId string) (*APIRespons
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -5584,7 +5894,7 @@ func (a *DefaultApiService) GetPullRequestSettings_17(scmId string) (*APIRespons
 
 /* DefaultApiService
  Retrieves a page of suggestions for pull requests that the currently authenticated user may wish to  raise. Such suggestions are based on ref changes occurring and so contain the ref change that  prompted the suggestion plus the time the change event occurred. Changes will be returned in  descending order based on the time the change that prompted the suggestion occurred.  &lt;p&gt;  Note that although the response is a page object, the interface does not support paging, however  a limit can be applied to the size of the returned page.
- * @param ctx context.Context for authentication, logging, tracing, etc.
+
  @param optional (nil or map[string]interface{}) with one or more of:
 	 @param "changesSince" (string) restrict pull request suggestions to be based on events that occurred since some time                      in the past. This is expressed in seconds since \&quot;now\&quot;. So to return suggestions                      based only on activity within the past 48 hours, pass a value of 172800.
 	 @param "limit" (int32) restricts the result set to return at most this many suggestions.
@@ -5618,7 +5928,7 @@ func (a *DefaultApiService) GetPullRequestSuggestions(localVarOptionals map[stri
 		localVarQueryParams.Add("limit", parameterToString(localVarTempParam, ""))
 	}
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -5641,12 +5951,12 @@ func (a *DefaultApiService) GetPullRequestSuggestions(localVarOptionals map[stri
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -5654,9 +5964,9 @@ func (a *DefaultApiService) GetPullRequestSuggestions(localVarOptionals map[stri
 
 /* DefaultApiService
 Retrieve the tasks associated with a pull request.
-* @param ctx context.Context for authentication, logging, tracing, etc.
+
 @return */
-func (a *DefaultApiService) GetPullRequestTasks(ctx context.Context) (*APIResponse, error) {
+func (a *DefaultApiService) GetPullRequestTasks(projectKey, repositorySlug string, pullRequestId int64) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Get")
 		localVarPostBody   interface{}
@@ -5666,13 +5976,16 @@ func (a *DefaultApiService) GetPullRequestTasks(ctx context.Context) (*APIRespon
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/repos/{repositorySlug}/pull-requests/{pullRequestId}/tasks"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"pullRequestId"+"}", fmt.Sprintf("%v", pullRequestId), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -5695,12 +6008,12 @@ func (a *DefaultApiService) GetPullRequestTasks(ctx context.Context) (*APIRespon
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -5708,7 +6021,7 @@ func (a *DefaultApiService) GetPullRequestTasks(ctx context.Context) (*APIRespon
 
 /* DefaultApiService
  Retrieve a page of pull requests where the current authenticated user is involved as either a reviewer, author  or a participant. The request may be filtered by pull request state, role or participant status.
- * @param ctx context.Context for authentication, logging, tracing, etc.
+
  @param optional (nil or map[string]interface{}) with one or more of:
 	 @param "state" (string) (optional, defaults to returning pull requests in any state). If a state is supplied only pull               requests in the specified state will be returned. Either &lt;strong&gt;OPEN&lt;/strong&gt;,               &lt;strong&gt;DECLINED&lt;/strong&gt; or &lt;strong&gt;MERGED&lt;/strong&gt;.               Omit this parameter to return pull request in any state.
 	 @param "role" (string) (optional, defaults to returning pull requests for any role). If a role is supplied only pull               requests where the authenticated user is a participant in the given role will be returned.               Either &lt;strong&gt;REVIEWER&lt;/strong&gt;, &lt;strong&gt;AUTHOR&lt;/strong&gt; or &lt;strong&gt;PARTICIPANT&lt;/strong&gt;.
@@ -5746,7 +6059,19 @@ func (a *DefaultApiService) GetPullRequests(localVarOptionals map[string]interfa
 	if err := typeCheckParameter(localVarOptionals["closedSince"], "string", "closedSince"); err != nil {
 		return nil, err
 	}
+	if err := typeCheckParameter(localVarOptionals["limit"], "int", "limit"); err != nil {
+		return nil, err
+	}
+	if err := typeCheckParameter(localVarOptionals["start"], "int", "start"); err != nil {
+		return nil, err
+	}
 
+	if localVarTempParam, localVarOk := localVarOptionals["limit"].(int); localVarOk {
+		localVarQueryParams.Add("limit", parameterToString(localVarTempParam, ""))
+	}
+	if localVarTempParam, localVarOk := localVarOptionals["start"].(int); localVarOk {
+		localVarQueryParams.Add("start", parameterToString(localVarTempParam, ""))
+	}
 	if localVarTempParam, localVarOk := localVarOptionals["state"].(string); localVarOk {
 		localVarQueryParams.Add("state", parameterToString(localVarTempParam, ""))
 	}
@@ -5763,7 +6088,7 @@ func (a *DefaultApiService) GetPullRequests(localVarOptionals map[string]interfa
 		localVarQueryParams.Add("closedSince", parameterToString(localVarTempParam, ""))
 	}
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -5786,19 +6111,19 @@ func (a *DefaultApiService) GetPullRequests(localVarOptionals map[string]interfa
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
 }
 
 /* DefaultApiService
- * @param ctx context.Context for authentication, logging, tracing, etc.
+
  @param optional (nil or map[string]interface{}) with one or more of:
 	 @param "start" (int32)
 	 @param "limit" (int32)
@@ -5839,7 +6164,7 @@ func (a *DefaultApiService) GetPullRequests_18(localVarOptionals map[string]inte
 		localVarQueryParams.Add("role", parameterToString(localVarTempParam, ""))
 	}
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -5862,12 +6187,12 @@ func (a *DefaultApiService) GetPullRequests_18(localVarOptionals map[string]inte
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -5875,10 +6200,10 @@ func (a *DefaultApiService) GetPullRequests_18(localVarOptionals map[string]inte
 
 /* DefaultApiService
 Retrieve repositories which are related to this one. Related repositories are from the same  {@link Repository#getHierarchyId() hierarchy} as this repository.  &lt;p&gt;  Only repositories to which the authenticated user has &lt;b&gt;REPO_READ&lt;/b&gt; permission will be included, even  if more repositories are part of this repository&#39;s hierarchy.
-* @param ctx context.Context for authentication, logging, tracing, etc.
+
 @param projectKey the parent project key
 @return */
-func (a *DefaultApiService) GetRelatedRepositories(projectKey string) (*APIResponse, error) {
+func (a *DefaultApiService) GetRelatedRepositories(projectKey, repositorySlug string) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Get")
 		localVarPostBody   interface{}
@@ -5889,13 +6214,14 @@ func (a *DefaultApiService) GetRelatedRepositories(projectKey string) (*APIRespo
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/repos/{repositorySlug}/related"
 	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -5918,12 +6244,12 @@ func (a *DefaultApiService) GetRelatedRepositories(projectKey string) (*APIRespo
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -5931,7 +6257,7 @@ func (a *DefaultApiService) GetRelatedRepositories(projectKey string) (*APIRespo
 
 /* DefaultApiService
 Retrieve repositories from the project corresponding to the supplied &lt;strong&gt;projectKey&lt;/strong&gt;.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;REPO_READ&lt;/strong&gt; permission for the specified project to call this  resource.
-* @param ctx context.Context for authentication, logging, tracing, etc.
+
 @param projectKey the parent project key
 @return */
 func (a *DefaultApiService) GetRepositories(projectKey string) (*APIResponse, error) {
@@ -5969,7 +6295,7 @@ func (a *DefaultApiService) GetRepositoriesWithOptions(projectKey string, localV
 	}
 
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -5992,12 +6318,12 @@ func (a *DefaultApiService) GetRepositoriesWithOptions(projectKey string, localV
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -6005,7 +6331,7 @@ func (a *DefaultApiService) GetRepositoriesWithOptions(projectKey string, localV
 
 /* DefaultApiService
  Retrieve a page of recently accessed repositories for the currently authenticated user.  &lt;p&gt;  Repositories are ordered from most recently to least recently accessed.  &lt;p&gt;  Only authenticated users may call this resource.
- * @param ctx context.Context for authentication, logging, tracing, etc.
+
  @param optional (nil or map[string]interface{}) with one or more of:
 	 @param "permission" (string) (optional) if specified, it must be a valid repository permission level name and will limit                    the resulting repository list to ones that the requesting user has the specified permission                    level to. If not specified, the default &lt;code&gt;REPO_READ&lt;/code&gt; permission level will be assumed.
  @return */
@@ -6027,12 +6353,24 @@ func (a *DefaultApiService) GetRepositoriesRecentlyAccessed(localVarOptionals ma
 	if err := typeCheckParameter(localVarOptionals["permission"], "string", "permission"); err != nil {
 		return nil, err
 	}
+	if err := typeCheckParameter(localVarOptionals["limit"], "int", "limit"); err != nil {
+		return nil, err
+	}
+	if err := typeCheckParameter(localVarOptionals["start"], "int", "start"); err != nil {
+		return nil, err
+	}
 
+	if localVarTempParam, localVarOk := localVarOptionals["limit"].(int); localVarOk {
+		localVarQueryParams.Add("limit", parameterToString(localVarTempParam, ""))
+	}
+	if localVarTempParam, localVarOk := localVarOptionals["start"].(int); localVarOk {
+		localVarQueryParams.Add("start", parameterToString(localVarTempParam, ""))
+	}
 	if localVarTempParam, localVarOk := localVarOptionals["permission"].(string); localVarOk {
 		localVarQueryParams.Add("permission", parameterToString(localVarTempParam, ""))
 	}
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -6055,12 +6393,12 @@ func (a *DefaultApiService) GetRepositoriesRecentlyAccessed(localVarOptionals ma
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -6068,7 +6406,7 @@ func (a *DefaultApiService) GetRepositoriesRecentlyAccessed(localVarOptionals ma
 
 /* DefaultApiService
  Retrieve a page of repositories based on query parameters that control the search. See the documentation of the  parameters for more details.  &lt;p&gt;  This resource is anonymously accessible.  &lt;p&gt;  &lt;b&gt;Note on permissions.&lt;/b&gt; In absence of the {@code permission} query parameter the implicit &#39;read&#39; permission  is assumed. Please note that this permission is lower than the REPO_READ permission rather than being equal to  it. The implicit &#39;read&#39; permission for a given repository is assigned to any user that has any of the higher  permissions, such as &lt;tt&gt;REPO_READ&lt;/tt&gt;, as well as to anonymous users if the repository is marked as public.  The important implication of the above is that an anonymous request to this resource with a permission level  &lt;tt&gt;REPO_READ&lt;/tt&gt; is guaranteed to receive an empty list of repositories as a result. For anonymous requests  it is therefore recommended to not specify the &lt;tt&gt;permission&lt;/tt&gt; parameter at all.
- *   @param ctx context.Context for authentication, logging, tracing, etc.
+ *   @param  for authentication, logging, tracing, etc.
 	 @param optional (nil or map[string]interface{}) with one or more of:
 	 @param "name" (string) (optional) if specified, this will limit the resulting repository list to ones whose name                     matches this parameter&#39;s value. The match will be done case-insensitive and any leading                     and/or trailing whitespace characters on the &lt;code&gt;name&lt;/code&gt; parameter will be stripped.
 	 @param "projectname" (string) (optional) if specified, this will limit the resulting repository list to ones whose project&#39;s                     name matches this parameter&#39;s value. The match will be done case-insensitive and any leading                     and/or trailing whitespace characters on the &lt;code&gt;projectname&lt;/code&gt; parameter will                     be stripped.
@@ -6128,7 +6466,7 @@ func (a *DefaultApiService) GetRepositories_19(localVarOptionals map[string]inte
 		localVarQueryParams.Add("start", parameterToString(localVarTempParam, ""))
 	}
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -6151,12 +6489,12 @@ func (a *DefaultApiService) GetRepositories_19(localVarOptionals map[string]inte
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -6164,7 +6502,7 @@ func (a *DefaultApiService) GetRepositories_19(localVarOptionals map[string]inte
 
 /* DefaultApiService
 Retrieve the repository matching the supplied &lt;strong&gt;projectKey&lt;/strong&gt; and &lt;strong&gt;repositorySlug&lt;/strong&gt;.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;REPO_READ&lt;/strong&gt; permission for the specified repository to call this  resource.
-* @param ctx context.Context for authentication, logging, tracing, etc.
+
 @param projectKey the parent project key
 @param projectKey2 the parent project key
 @param repositorySlug the repository slug
@@ -6187,7 +6525,7 @@ func (a *DefaultApiService) GetRepository(projectKey, repositorySlug string) (*A
 	localVarFormParams := url.Values{}
 
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -6210,12 +6548,12 @@ func (a *DefaultApiService) GetRepository(projectKey, repositorySlug string) (*A
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -6223,7 +6561,7 @@ func (a *DefaultApiService) GetRepository(projectKey, repositorySlug string) (*A
 
 /* DefaultApiService
 Retrieve the repository matching the supplied &lt;strong&gt;projectKey&lt;/strong&gt; and &lt;strong&gt;repositorySlug&lt;/strong&gt;.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;REPO_READ&lt;/strong&gt; permission for the specified repository to call this  resource.
-* @param ctx context.Context for authentication, logging, tracing, etc.
+
 @param projectKey the parent project key
 @param projectKey2 the parent project key
 @param repositorySlug the repository slug
@@ -6246,7 +6584,7 @@ func (a *DefaultApiService) GetUserRepository(username, repositorySlug string) (
 	localVarFormParams := url.Values{}
 
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -6269,12 +6607,12 @@ func (a *DefaultApiService) GetUserRepository(username, repositorySlug string) (
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -6294,17 +6632,17 @@ func (a *DefaultApiService) GetPullRequest(projectKey, repositorySlug string, pu
 	)
 
 	// create path and map variables
-	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/repos/{repositorySlug}/pull-requests/{pullRequestID}"
+	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/repos/{repositorySlug}/pull-requests/{pullRequestId}"
 	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
 	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
-	localVarPath = strings.Replace(localVarPath, "{"+"pullRequestID"+"}", fmt.Sprintf("%v", pullRequestID), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"pullRequestId"+"}", fmt.Sprintf("%v", pullRequestID), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -6327,12 +6665,12 @@ func (a *DefaultApiService) GetPullRequest(projectKey, repositorySlug string, pu
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -6352,17 +6690,17 @@ func (a *DefaultApiService) GetPullRequestActivity(projectKey, repositorySlug st
 	)
 
 	// create path and map variables
-	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/repos/{repositorySlug}/pull-requests/{pullRequestID}/activities"
+	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/repos/{repositorySlug}/pull-requests/{pullRequestId}/activities"
 	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
 	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
-	localVarPath = strings.Replace(localVarPath, "{"+"pullRequestID"+"}", fmt.Sprintf("%v", pullRequestID), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"pullRequestId"+"}", fmt.Sprintf("%v", pullRequestID), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -6385,12 +6723,12 @@ func (a *DefaultApiService) GetPullRequestActivity(projectKey, repositorySlug st
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -6410,10 +6748,10 @@ func (a *DefaultApiService) GetPullRequestActivityWithOptions(projectKey, reposi
 	)
 
 	// create path and map variables
-	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/repos/{repositorySlug}/pull-requests/{pullRequestID}/activities"
+	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/repos/{repositorySlug}/pull-requests/{pullRequestId}/activities"
 	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
 	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
-	localVarPath = strings.Replace(localVarPath, "{"+"pullRequestID"+"}", fmt.Sprintf("%v", pullRequestID), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"pullRequestId"+"}", fmt.Sprintf("%v", pullRequestID), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -6434,7 +6772,7 @@ func (a *DefaultApiService) GetPullRequestActivityWithOptions(projectKey, reposi
 	}
 
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -6457,12 +6795,12 @@ func (a *DefaultApiService) GetPullRequestActivityWithOptions(projectKey, reposi
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -6486,10 +6824,10 @@ func (a *DefaultApiService) GetPullRequestCommitsWithOptions(projectKey, reposit
 	)
 
 	// create path and map variables
-	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/repos/{repositorySlug}/pull-requests/{pullRequestID}/commits"
+	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/repos/{repositorySlug}/pull-requests/{pullRequestId}/commits"
 	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
 	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
-	localVarPath = strings.Replace(localVarPath, "{"+"pullRequestID"+"}", fmt.Sprintf("%v", pullRequestID), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"pullRequestId"+"}", fmt.Sprintf("%v", pullRequestID), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -6511,7 +6849,7 @@ func (a *DefaultApiService) GetPullRequestCommitsWithOptions(projectKey, reposit
 	}
 
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -6534,12 +6872,12 @@ func (a *DefaultApiService) GetPullRequestCommitsWithOptions(projectKey, reposit
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -6562,7 +6900,7 @@ func (a *DefaultApiService) GetCommitBuildStatuses(commitSHA string) (*APIRespon
 	localVarFormParams := url.Values{}
 
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -6585,12 +6923,12 @@ func (a *DefaultApiService) GetCommitBuildStatuses(commitSHA string) (*APIRespon
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -6598,10 +6936,10 @@ func (a *DefaultApiService) GetCommitBuildStatuses(commitSHA string) (*APIRespon
 
 /* DefaultApiService
 Retrieve a repository hook for this repository.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;REPO_READ&lt;/strong&gt; permission for the specified repository to call this  resource.
-* @param ctx context.Context for authentication, logging, tracing, etc.
+
 @param hookKey
 @return */
-func (a *DefaultApiService) GetRepositoryHook(hookKey string) (*APIResponse, error) {
+func (a *DefaultApiService) GetRepositoryHook(projectKey, repositorySlug string, hookKey string) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Get")
 		localVarPostBody   interface{}
@@ -6611,6 +6949,8 @@ func (a *DefaultApiService) GetRepositoryHook(hookKey string) (*APIResponse, err
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/repos/{repositorySlug}/settings/hooks/{hookKey}"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
 	localVarPath = strings.Replace(localVarPath, "{"+"hookKey"+"}", fmt.Sprintf("%v", hookKey), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -6618,7 +6958,7 @@ func (a *DefaultApiService) GetRepositoryHook(hookKey string) (*APIResponse, err
 	localVarFormParams := url.Values{}
 
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -6641,12 +6981,12 @@ func (a *DefaultApiService) GetRepositoryHook(hookKey string) (*APIResponse, err
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -6654,10 +6994,10 @@ func (a *DefaultApiService) GetRepositoryHook(hookKey string) (*APIResponse, err
 
 /* DefaultApiService
 Retrieve a repository hook for this project.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;PROJECT_READ&lt;/strong&gt; permission for the specified project to call this  resource.
-* @param ctx context.Context for authentication, logging, tracing, etc.
+
 @param hookKey
 @return */
-func (a *DefaultApiService) GetRepositoryHook_20(hookKey string) (*APIResponse, error) {
+func (a *DefaultApiService) GetRepositoryHook_20(projectKey, repositorySlug string, hookKey string) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Get")
 		localVarPostBody   interface{}
@@ -6667,6 +7007,8 @@ func (a *DefaultApiService) GetRepositoryHook_20(hookKey string) (*APIResponse, 
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/settings/hooks/{hookKey}"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
 	localVarPath = strings.Replace(localVarPath, "{"+"hookKey"+"}", fmt.Sprintf("%v", hookKey), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -6674,7 +7016,7 @@ func (a *DefaultApiService) GetRepositoryHook_20(hookKey string) (*APIResponse, 
 	localVarFormParams := url.Values{}
 
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -6697,12 +7039,12 @@ func (a *DefaultApiService) GetRepositoryHook_20(hookKey string) (*APIResponse, 
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -6710,11 +7052,11 @@ func (a *DefaultApiService) GetRepositoryHook_20(hookKey string) (*APIResponse, 
 
 /* DefaultApiService
  Retrieve a page of repository hooks for this repository.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;REPO_READ&lt;/strong&gt; permission for the specified repository to call this  resource.
- * @param ctx context.Context for authentication, logging, tracing, etc.
+
  @param optional (nil or map[string]interface{}) with one or more of:
 	 @param "type_" (string) the optional type to filter by. Valid values are &lt;code&gt;PRE_RECEIVE&lt;/code&gt; or &lt;code&gt;POST_RECEIVE&lt;/code&gt;
  @return */
-func (a *DefaultApiService) GetRepositoryHooks(localVarOptionals map[string]interface{}) (*APIResponse, error) {
+func (a *DefaultApiService) GetRepositoryHooks(projectKey, repositorySlug string, localVarOptionals map[string]interface{}) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Get")
 		localVarPostBody   interface{}
@@ -6724,6 +7066,8 @@ func (a *DefaultApiService) GetRepositoryHooks(localVarOptionals map[string]inte
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/repos/{repositorySlug}/settings/hooks"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -6732,12 +7076,24 @@ func (a *DefaultApiService) GetRepositoryHooks(localVarOptionals map[string]inte
 	if err := typeCheckParameter(localVarOptionals["type_"], "string", "type_"); err != nil {
 		return nil, err
 	}
+	if err := typeCheckParameter(localVarOptionals["limit"], "int", "limit"); err != nil {
+		return nil, err
+	}
+	if err := typeCheckParameter(localVarOptionals["start"], "int", "start"); err != nil {
+		return nil, err
+	}
 
+	if localVarTempParam, localVarOk := localVarOptionals["limit"].(int); localVarOk {
+		localVarQueryParams.Add("limit", parameterToString(localVarTempParam, ""))
+	}
+	if localVarTempParam, localVarOk := localVarOptionals["start"].(int); localVarOk {
+		localVarQueryParams.Add("start", parameterToString(localVarTempParam, ""))
+	}
 	if localVarTempParam, localVarOk := localVarOptionals["type_"].(string); localVarOk {
 		localVarQueryParams.Add("type", parameterToString(localVarTempParam, ""))
 	}
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -6760,12 +7116,12 @@ func (a *DefaultApiService) GetRepositoryHooks(localVarOptionals map[string]inte
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -6773,11 +7129,11 @@ func (a *DefaultApiService) GetRepositoryHooks(localVarOptionals map[string]inte
 
 /* DefaultApiService
  Retrieve a page of repository hooks for this project.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;PROJECT_READ&lt;/strong&gt; permission for the specified project to call this  resource.
- * @param ctx context.Context for authentication, logging, tracing, etc.
+
  @param optional (nil or map[string]interface{}) with one or more of:
 	 @param "type_" (string) the optional type to filter by. Valid values are &lt;code&gt;PRE_RECEIVE&lt;/code&gt; or &lt;code&gt;POST_RECEIVE&lt;/code&gt;
  @return */
-func (a *DefaultApiService) GetRepositoryHooks_21(localVarOptionals map[string]interface{}) (*APIResponse, error) {
+func (a *DefaultApiService) GetRepositoryHooks_21(projectKey string, localVarOptionals map[string]interface{}) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Get")
 		localVarPostBody   interface{}
@@ -6787,6 +7143,7 @@ func (a *DefaultApiService) GetRepositoryHooks_21(localVarOptionals map[string]i
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/settings/hooks"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -6795,12 +7152,24 @@ func (a *DefaultApiService) GetRepositoryHooks_21(localVarOptionals map[string]i
 	if err := typeCheckParameter(localVarOptionals["type_"], "string", "type_"); err != nil {
 		return nil, err
 	}
+	if err := typeCheckParameter(localVarOptionals["limit"], "int", "limit"); err != nil {
+		return nil, err
+	}
+	if err := typeCheckParameter(localVarOptionals["start"], "int", "start"); err != nil {
+		return nil, err
+	}
 
+	if localVarTempParam, localVarOk := localVarOptionals["limit"].(int); localVarOk {
+		localVarQueryParams.Add("limit", parameterToString(localVarTempParam, ""))
+	}
+	if localVarTempParam, localVarOk := localVarOptionals["start"].(int); localVarOk {
+		localVarQueryParams.Add("start", parameterToString(localVarTempParam, ""))
+	}
 	if localVarTempParam, localVarOk := localVarOptionals["type_"].(string); localVarOk {
 		localVarQueryParams.Add("type", parameterToString(localVarTempParam, ""))
 	}
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -6823,12 +7192,12 @@ func (a *DefaultApiService) GetRepositoryHooks_21(localVarOptionals map[string]i
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -6836,9 +7205,9 @@ func (a *DefaultApiService) GetRepositoryHooks_21(localVarOptionals map[string]i
 
 /* DefaultApiService
 Retrieve the current log level for the root logger.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;ADMIN&lt;/strong&gt; permission or higher to call this resource.
-* @param ctx context.Context for authentication, logging, tracing, etc.
+
 @return */
-func (a *DefaultApiService) GetRootLevel(ctx context.Context) (*APIResponse, error) {
+func (a *DefaultApiService) GetRootLevel() (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Get")
 		localVarPostBody   interface{}
@@ -6854,7 +7223,7 @@ func (a *DefaultApiService) GetRootLevel(ctx context.Context) (*APIResponse, err
 	localVarFormParams := url.Values{}
 
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -6877,12 +7246,12 @@ func (a *DefaultApiService) GetRootLevel(ctx context.Context) (*APIResponse, err
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -6890,9 +7259,9 @@ func (a *DefaultApiService) GetRootLevel(ctx context.Context) (*APIResponse, err
 
 /* DefaultApiService
 Retrieves the server email address
-* @param ctx context.Context for authentication, logging, tracing, etc.
+
 @return */
-func (a *DefaultApiService) GetSenderAddress(ctx context.Context) (*APIResponse, error) {
+func (a *DefaultApiService) GetSenderAddress() (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Get")
 		localVarPostBody   interface{}
@@ -6908,7 +7277,7 @@ func (a *DefaultApiService) GetSenderAddress(ctx context.Context) (*APIResponse,
 	localVarFormParams := url.Values{}
 
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -6931,12 +7300,12 @@ func (a *DefaultApiService) GetSenderAddress(ctx context.Context) (*APIResponse,
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -6944,10 +7313,10 @@ func (a *DefaultApiService) GetSenderAddress(ctx context.Context) (*APIResponse,
 
 /* DefaultApiService
 Retrieve the settings for a repository hook for this repository.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;REPO_READ&lt;/strong&gt; permission for the specified repository to call this  resource.
-* @param ctx context.Context for authentication, logging, tracing, etc.
+
 @param hookKey
 @return */
-func (a *DefaultApiService) GetSettings(hookKey string) (*APIResponse, error) {
+func (a *DefaultApiService) GetSettings(projectKey, repositorySlug string, hookKey string) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Get")
 		localVarPostBody   interface{}
@@ -6957,6 +7326,8 @@ func (a *DefaultApiService) GetSettings(hookKey string) (*APIResponse, error) {
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/repos/{repositorySlug}/settings/hooks/{hookKey}/settings"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
 	localVarPath = strings.Replace(localVarPath, "{"+"hookKey"+"}", fmt.Sprintf("%v", hookKey), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -6964,7 +7335,7 @@ func (a *DefaultApiService) GetSettings(hookKey string) (*APIResponse, error) {
 	localVarFormParams := url.Values{}
 
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -6987,12 +7358,12 @@ func (a *DefaultApiService) GetSettings(hookKey string) (*APIResponse, error) {
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -7000,10 +7371,10 @@ func (a *DefaultApiService) GetSettings(hookKey string) (*APIResponse, error) {
 
 /* DefaultApiService
 Retrieve the settings for a repository hook for this project.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;PROJECT_READ&lt;/strong&gt; permission for the specified project to call this  resource.
-* @param ctx context.Context for authentication, logging, tracing, etc.
+
 @param hookKey
 @return */
-func (a *DefaultApiService) GetSettings_22(hookKey string) (*APIResponse, error) {
+func (a *DefaultApiService) GetSettings_22(projectKey, repositorySlug string, hookKey string) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Get")
 		localVarPostBody   interface{}
@@ -7013,6 +7384,8 @@ func (a *DefaultApiService) GetSettings_22(hookKey string) (*APIResponse, error)
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/settings/hooks/{hookKey}/settings"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
 	localVarPath = strings.Replace(localVarPath, "{"+"hookKey"+"}", fmt.Sprintf("%v", hookKey), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -7020,7 +7393,7 @@ func (a *DefaultApiService) GetSettings_22(hookKey string) (*APIResponse, error)
 	localVarFormParams := url.Values{}
 
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -7043,12 +7416,12 @@ func (a *DefaultApiService) GetSettings_22(hookKey string) (*APIResponse, error)
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -7056,12 +7429,12 @@ func (a *DefaultApiService) GetSettings_22(hookKey string) (*APIResponse, error)
 
 /* DefaultApiService
  Get the statistics for a specific webhook.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;REPO_ADMIN&lt;/strong&gt; permission for the specified repository to call this  resource.
- * @param ctx context.Context for authentication, logging, tracing, etc.
+
  @param webhookId id of the webhook
  @param optional (nil or map[string]interface{}) with one or more of:
 	 @param "event" (string) the string id of a specific event to retrieve the last invocation for. May be empty, in which                   case all events are considered
  @return */
-func (a *DefaultApiService) GetStatistics(webhookId int32, localVarOptionals map[string]interface{}) (*APIResponse, error) {
+func (a *DefaultApiService) GetStatistics(projectKey, repositorySlug string, webhookId int32, localVarOptionals map[string]interface{}) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Get")
 		localVarPostBody   interface{}
@@ -7071,6 +7444,8 @@ func (a *DefaultApiService) GetStatistics(webhookId int32, localVarOptionals map
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/repos/{repositorySlug}/webhooks/{webhookId}/statistics"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
 	localVarPath = strings.Replace(localVarPath, "{"+"webhookId"+"}", fmt.Sprintf("%v", webhookId), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -7085,7 +7460,7 @@ func (a *DefaultApiService) GetStatistics(webhookId int32, localVarOptionals map
 		localVarQueryParams.Add("event", parameterToString(localVarTempParam, ""))
 	}
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -7108,12 +7483,12 @@ func (a *DefaultApiService) GetStatistics(webhookId int32, localVarOptionals map
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -7121,10 +7496,10 @@ func (a *DefaultApiService) GetStatistics(webhookId int32, localVarOptionals map
 
 /* DefaultApiService
 Get the statistics summary for a specific webhook.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;REPO_ADMIN&lt;/strong&gt; permission for the specified repository to call this  resource.
-* @param ctx context.Context for authentication, logging, tracing, etc.
+
 @param webhookId id of the webhook
 @return */
-func (a *DefaultApiService) GetStatisticsSummary(webhookId int32) (*APIResponse, error) {
+func (a *DefaultApiService) GetStatisticsSummary(projectKey, repositorySlug string, webhookId int32) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Get")
 		localVarPostBody   interface{}
@@ -7134,6 +7509,8 @@ func (a *DefaultApiService) GetStatisticsSummary(webhookId int32) (*APIResponse,
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/repos/{repositorySlug}/webhooks/{webhookId}/statistics/summary"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
 	localVarPath = strings.Replace(localVarPath, "{"+"webhookId"+"}", fmt.Sprintf("%v", webhookId), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -7141,7 +7518,7 @@ func (a *DefaultApiService) GetStatisticsSummary(webhookId int32) (*APIResponse,
 	localVarFormParams := url.Values{}
 
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -7164,12 +7541,12 @@ func (a *DefaultApiService) GetStatisticsSummary(webhookId int32) (*APIResponse,
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -7177,10 +7554,10 @@ func (a *DefaultApiService) GetStatisticsSummary(webhookId int32) (*APIResponse,
 
 /* DefaultApiService
 Retrieve a tag in the specified repository.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;REPO_READ&lt;/strong&gt; permission for the context repository to call this  resource.
-* @param ctx context.Context for authentication, logging, tracing, etc.
+
 @param name the name of the tag to be retrieved
 @return */
-func (a *DefaultApiService) GetTag(name string) (*APIResponse, error) {
+func (a *DefaultApiService) GetTag(projectKey, repositorySlug string, name string) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Get")
 		localVarPostBody   interface{}
@@ -7190,6 +7567,8 @@ func (a *DefaultApiService) GetTag(name string) (*APIResponse, error) {
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/repos/{repositorySlug}/tags/{name}"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
 	localVarPath = strings.Replace(localVarPath, "{"+"name"+"}", fmt.Sprintf("%v", name), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -7197,7 +7576,7 @@ func (a *DefaultApiService) GetTag(name string) (*APIResponse, error) {
 	localVarFormParams := url.Values{}
 
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -7220,12 +7599,12 @@ func (a *DefaultApiService) GetTag(name string) (*APIResponse, error) {
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -7233,7 +7612,7 @@ func (a *DefaultApiService) GetTag(name string) (*APIResponse, error) {
 
 /* DefaultApiService
  Retrieve the tags matching the supplied &lt;strong&gt;filterText&lt;/strong&gt; param.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;REPO_READ&lt;/strong&gt; permission for the context repository to call this  resource.
- * @param ctx context.Context for authentication, logging, tracing, etc.
+
  @param optional (nil or map[string]interface{}) with one or more of:
 	 @param "filterText" (string) the text to match on
 	 @param "orderBy" (string) ordering of refs either ALPHABETICAL (by name) or MODIFICATION (last updated)
@@ -7269,7 +7648,7 @@ func (a *DefaultApiService) GetTags(project, repository string, localVarOptional
 		localVarQueryParams.Add("orderBy", parameterToString(localVarTempParam, ""))
 	}
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -7292,12 +7671,12 @@ func (a *DefaultApiService) GetTags(project, repository string, localVarOptional
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -7305,7 +7684,7 @@ func (a *DefaultApiService) GetTags(project, repository string, localVarOptional
 
 /* DefaultApiService
 Retrieve a existing task.
-* @param ctx context.Context for authentication, logging, tracing, etc.
+
 @param taskId the id identifying the task to delete
 @return */
 func (a *DefaultApiService) GetTask(taskId int64) (*APIResponse, error) {
@@ -7325,7 +7704,7 @@ func (a *DefaultApiService) GetTask(taskId int64) (*APIResponse, error) {
 	localVarFormParams := url.Values{}
 
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -7348,12 +7727,12 @@ func (a *DefaultApiService) GetTask(taskId int64) (*APIResponse, error) {
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -7380,7 +7759,7 @@ func (a *DefaultApiService) GetSSHKeys(user string) (*APIResponse, error) {
 	}
 
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -7403,12 +7782,12 @@ func (a *DefaultApiService) GetSSHKeys(user string) (*APIResponse, error) {
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -7468,12 +7847,12 @@ func (a *DefaultApiService) CreateSSHKey(localVarOptionals map[string]interface{
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -7481,7 +7860,7 @@ func (a *DefaultApiService) CreateSSHKey(localVarOptionals map[string]interface{
 
 /* DefaultApiService
 Retrieve the user matching the supplied &lt;strong&gt;userSlug&lt;/strong&gt;.  &lt;p&gt;
-* @param ctx context.Context for authentication, logging, tracing, etc.
+
 @return */
 func (a *DefaultApiService) GetUser(username string) (*APIResponse, error) {
 	var (
@@ -7501,7 +7880,7 @@ func (a *DefaultApiService) GetUser(username string) (*APIResponse, error) {
 	localVarFormParams := url.Values{}
 
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -7524,12 +7903,12 @@ func (a *DefaultApiService) GetUser(username string) (*APIResponse, error) {
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -7537,9 +7916,9 @@ func (a *DefaultApiService) GetUser(username string) (*APIResponse, error) {
 
 /* DefaultApiService
 Retrieve a map of user setting key values for a specific user identified by the user slug.  &lt;p&gt;
-* @param ctx context.Context for authentication, logging, tracing, etc.
+
 @return */
-func (a *DefaultApiService) GetUserSettings(ctx context.Context) (*APIResponse, error) {
+func (a *DefaultApiService) GetUserSettings(userSlug string) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Get")
 		localVarPostBody   interface{}
@@ -7549,13 +7928,14 @@ func (a *DefaultApiService) GetUserSettings(ctx context.Context) (*APIResponse, 
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/users/{userSlug}/settings"
+	localVarPath = strings.Replace(localVarPath, "{"+"userSlug"+"}", fmt.Sprintf("%v", userSlug), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -7578,12 +7958,12 @@ func (a *DefaultApiService) GetUserSettings(ctx context.Context) (*APIResponse, 
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -7591,7 +7971,7 @@ func (a *DefaultApiService) GetUserSettings(ctx context.Context) (*APIResponse, 
 
 /* DefaultApiService
  Retrieve a page of users.  &lt;p&gt;  The authenticated user must have the &lt;strong&gt;LICENSED_USER&lt;/strong&gt; permission to call this resource.
- * @param ctx context.Context for authentication, logging, tracing, etc.
+
  @param optional (nil or map[string]interface{}) with one or more of:
 	 @param "filter" (string) if specified only users with usernames, display name or email addresses containing the supplied                string will be returned
  @return */
@@ -7613,12 +7993,24 @@ func (a *DefaultApiService) GetUsers(localVarOptionals map[string]interface{}) (
 	if err := typeCheckParameter(localVarOptionals["filter"], "string", "filter"); err != nil {
 		return nil, err
 	}
+	if err := typeCheckParameter(localVarOptionals["limit"], "int", "limit"); err != nil {
+		return nil, err
+	}
+	if err := typeCheckParameter(localVarOptionals["start"], "int", "start"); err != nil {
+		return nil, err
+	}
 
+	if localVarTempParam, localVarOk := localVarOptionals["limit"].(int); localVarOk {
+		localVarQueryParams.Add("limit", parameterToString(localVarTempParam, ""))
+	}
+	if localVarTempParam, localVarOk := localVarOptionals["start"].(int); localVarOk {
+		localVarQueryParams.Add("start", parameterToString(localVarTempParam, ""))
+	}
 	if localVarTempParam, localVarOk := localVarOptionals["filter"].(string); localVarOk {
 		localVarQueryParams.Add("filter", parameterToString(localVarTempParam, ""))
 	}
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -7641,12 +8033,12 @@ func (a *DefaultApiService) GetUsers(localVarOptionals map[string]interface{}) (
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -7654,7 +8046,7 @@ func (a *DefaultApiService) GetUsers(localVarOptionals map[string]interface{}) (
 
 /* DefaultApiService
  Retrieve a page of users that have been granted at least one global permission.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;ADMIN&lt;/strong&gt; permission or higher to call this resource.
- * @param ctx context.Context for authentication, logging, tracing, etc.
+
  @param optional (nil or map[string]interface{}) with one or more of:
 	 @param "filter" (string) if specified only user names containing the supplied string will be returned
  @return */
@@ -7676,12 +8068,24 @@ func (a *DefaultApiService) GetUsersWithAnyPermission(localVarOptionals map[stri
 	if err := typeCheckParameter(localVarOptionals["filter"], "string", "filter"); err != nil {
 		return nil, err
 	}
+	if err := typeCheckParameter(localVarOptionals["limit"], "int", "limit"); err != nil {
+		return nil, err
+	}
+	if err := typeCheckParameter(localVarOptionals["start"], "int", "start"); err != nil {
+		return nil, err
+	}
 
+	if localVarTempParam, localVarOk := localVarOptionals["limit"].(int); localVarOk {
+		localVarQueryParams.Add("limit", parameterToString(localVarTempParam, ""))
+	}
+	if localVarTempParam, localVarOk := localVarOptionals["start"].(int); localVarOk {
+		localVarQueryParams.Add("start", parameterToString(localVarTempParam, ""))
+	}
 	if localVarTempParam, localVarOk := localVarOptionals["filter"].(string); localVarOk {
 		localVarQueryParams.Add("filter", parameterToString(localVarTempParam, ""))
 	}
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -7704,12 +8108,12 @@ func (a *DefaultApiService) GetUsersWithAnyPermission(localVarOptionals map[stri
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -7717,11 +8121,11 @@ func (a *DefaultApiService) GetUsersWithAnyPermission(localVarOptionals map[stri
 
 /* DefaultApiService
  Retrieve a page of users that have been granted at least one permission for the specified project.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;PROJECT_ADMIN&lt;/strong&gt; permission for the specified project or a higher  global permission to call this resource.
- * @param ctx context.Context for authentication, logging, tracing, etc.
+
  @param optional (nil or map[string]interface{}) with one or more of:
 	 @param "filter" (string) if specified only group names containing the supplied string will be returned
  @return */
-func (a *DefaultApiService) GetUsersWithAnyPermission_23(localVarOptionals map[string]interface{}) (*APIResponse, error) {
+func (a *DefaultApiService) GetUsersWithAnyPermission_23(projectKey string, localVarOptionals map[string]interface{}) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Get")
 		localVarPostBody   interface{}
@@ -7731,6 +8135,7 @@ func (a *DefaultApiService) GetUsersWithAnyPermission_23(localVarOptionals map[s
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/permissions/users"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -7739,12 +8144,24 @@ func (a *DefaultApiService) GetUsersWithAnyPermission_23(localVarOptionals map[s
 	if err := typeCheckParameter(localVarOptionals["filter"], "string", "filter"); err != nil {
 		return nil, err
 	}
+	if err := typeCheckParameter(localVarOptionals["limit"], "int", "limit"); err != nil {
+		return nil, err
+	}
+	if err := typeCheckParameter(localVarOptionals["start"], "int", "start"); err != nil {
+		return nil, err
+	}
 
+	if localVarTempParam, localVarOk := localVarOptionals["limit"].(int); localVarOk {
+		localVarQueryParams.Add("limit", parameterToString(localVarTempParam, ""))
+	}
+	if localVarTempParam, localVarOk := localVarOptionals["start"].(int); localVarOk {
+		localVarQueryParams.Add("start", parameterToString(localVarTempParam, ""))
+	}
 	if localVarTempParam, localVarOk := localVarOptionals["filter"].(string); localVarOk {
 		localVarQueryParams.Add("filter", parameterToString(localVarTempParam, ""))
 	}
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -7767,12 +8184,12 @@ func (a *DefaultApiService) GetUsersWithAnyPermission_23(localVarOptionals map[s
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -7780,11 +8197,11 @@ func (a *DefaultApiService) GetUsersWithAnyPermission_23(localVarOptionals map[s
 
 /* DefaultApiService
  Retrieve a page of users that have been granted at least one permission for the specified repository.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;REPO_ADMIN&lt;/strong&gt; permission for the specified repository or a higher  project or global permission to call this resource.
- * @param ctx context.Context for authentication, logging, tracing, etc.
+
  @param optional (nil or map[string]interface{}) with one or more of:
 	 @param "filter" (string) if specified only group names containing the supplied string will be returned
  @return */
-func (a *DefaultApiService) GetUsersWithAnyPermission_24(localVarOptionals map[string]interface{}) (*APIResponse, error) {
+func (a *DefaultApiService) GetUsersWithAnyPermission_24(projectKey string, repositorySlug string, localVarOptionals map[string]interface{}) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Get")
 		localVarPostBody   interface{}
@@ -7794,6 +8211,8 @@ func (a *DefaultApiService) GetUsersWithAnyPermission_24(localVarOptionals map[s
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/repos/{repositorySlug}/permissions/users"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -7802,12 +8221,24 @@ func (a *DefaultApiService) GetUsersWithAnyPermission_24(localVarOptionals map[s
 	if err := typeCheckParameter(localVarOptionals["filter"], "string", "filter"); err != nil {
 		return nil, err
 	}
+	if err := typeCheckParameter(localVarOptionals["limit"], "int", "limit"); err != nil {
+		return nil, err
+	}
+	if err := typeCheckParameter(localVarOptionals["start"], "int", "start"); err != nil {
+		return nil, err
+	}
 
+	if localVarTempParam, localVarOk := localVarOptionals["limit"].(int); localVarOk {
+		localVarQueryParams.Add("limit", parameterToString(localVarTempParam, ""))
+	}
+	if localVarTempParam, localVarOk := localVarOptionals["start"].(int); localVarOk {
+		localVarQueryParams.Add("start", parameterToString(localVarTempParam, ""))
+	}
 	if localVarTempParam, localVarOk := localVarOptionals["filter"].(string); localVarOk {
 		localVarQueryParams.Add("filter", parameterToString(localVarTempParam, ""))
 	}
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -7830,12 +8261,12 @@ func (a *DefaultApiService) GetUsersWithAnyPermission_24(localVarOptionals map[s
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -7843,7 +8274,7 @@ func (a *DefaultApiService) GetUsersWithAnyPermission_24(localVarOptionals map[s
 
 /* DefaultApiService
  Retrieve a page of users that have no granted global permissions.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;ADMIN&lt;/strong&gt; permission or higher to call this resource.
- * @param ctx context.Context for authentication, logging, tracing, etc.
+
  @param optional (nil or map[string]interface{}) with one or more of:
 	 @param "filter" (string) if specified only user names containing the supplied string will be returned
  @return */
@@ -7865,12 +8296,24 @@ func (a *DefaultApiService) GetUsersWithoutAnyPermission(localVarOptionals map[s
 	if err := typeCheckParameter(localVarOptionals["filter"], "string", "filter"); err != nil {
 		return nil, err
 	}
+	if err := typeCheckParameter(localVarOptionals["limit"], "int", "limit"); err != nil {
+		return nil, err
+	}
+	if err := typeCheckParameter(localVarOptionals["start"], "int", "start"); err != nil {
+		return nil, err
+	}
 
+	if localVarTempParam, localVarOk := localVarOptionals["limit"].(int); localVarOk {
+		localVarQueryParams.Add("limit", parameterToString(localVarTempParam, ""))
+	}
+	if localVarTempParam, localVarOk := localVarOptionals["start"].(int); localVarOk {
+		localVarQueryParams.Add("start", parameterToString(localVarTempParam, ""))
+	}
 	if localVarTempParam, localVarOk := localVarOptionals["filter"].(string); localVarOk {
 		localVarQueryParams.Add("filter", parameterToString(localVarTempParam, ""))
 	}
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -7893,12 +8336,12 @@ func (a *DefaultApiService) GetUsersWithoutAnyPermission(localVarOptionals map[s
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -7906,11 +8349,11 @@ func (a *DefaultApiService) GetUsersWithoutAnyPermission(localVarOptionals map[s
 
 /* DefaultApiService
  Retrieve a page of &lt;i&gt;licensed&lt;/i&gt; users that have no granted permissions for the specified project.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;PROJECT_ADMIN&lt;/strong&gt; permission for the specified project or a higher  global permission to call this resource.
- * @param ctx context.Context for authentication, logging, tracing, etc.
+
  @param optional (nil or map[string]interface{}) with one or more of:
 	 @param "filter" (string) if specified only group names containing the supplied string will be returned
  @return */
-func (a *DefaultApiService) GetUsersWithoutPermission(localVarOptionals map[string]interface{}) (*APIResponse, error) {
+func (a *DefaultApiService) GetUsersWithoutPermission(projectKey string, localVarOptionals map[string]interface{}) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Get")
 		localVarPostBody   interface{}
@@ -7920,6 +8363,7 @@ func (a *DefaultApiService) GetUsersWithoutPermission(localVarOptionals map[stri
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/permissions/users/none"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -7928,12 +8372,24 @@ func (a *DefaultApiService) GetUsersWithoutPermission(localVarOptionals map[stri
 	if err := typeCheckParameter(localVarOptionals["filter"], "string", "filter"); err != nil {
 		return nil, err
 	}
+	if err := typeCheckParameter(localVarOptionals["limit"], "int", "limit"); err != nil {
+		return nil, err
+	}
+	if err := typeCheckParameter(localVarOptionals["start"], "int", "start"); err != nil {
+		return nil, err
+	}
 
+	if localVarTempParam, localVarOk := localVarOptionals["limit"].(int); localVarOk {
+		localVarQueryParams.Add("limit", parameterToString(localVarTempParam, ""))
+	}
+	if localVarTempParam, localVarOk := localVarOptionals["start"].(int); localVarOk {
+		localVarQueryParams.Add("start", parameterToString(localVarTempParam, ""))
+	}
 	if localVarTempParam, localVarOk := localVarOptionals["filter"].(string); localVarOk {
 		localVarQueryParams.Add("filter", parameterToString(localVarTempParam, ""))
 	}
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -7956,12 +8412,12 @@ func (a *DefaultApiService) GetUsersWithoutPermission(localVarOptionals map[stri
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -7969,11 +8425,11 @@ func (a *DefaultApiService) GetUsersWithoutPermission(localVarOptionals map[stri
 
 /* DefaultApiService
  Retrieve a page of &lt;i&gt;licensed&lt;/i&gt; users that have no granted permissions for the specified repository.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;REPO_ADMIN&lt;/strong&gt; permission for the specified repository or a higher  project or global permission to call this resource.
- * @param ctx context.Context for authentication, logging, tracing, etc.
+
  @param optional (nil or map[string]interface{}) with one or more of:
 	 @param "filter" (string) if specified only group names containing the supplied string will be returned
  @return */
-func (a *DefaultApiService) GetUsersWithoutPermission_25(localVarOptionals map[string]interface{}) (*APIResponse, error) {
+func (a *DefaultApiService) GetUsersWithoutPermission_25(projectKey, repositorySlug string, localVarOptionals map[string]interface{}) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Get")
 		localVarPostBody   interface{}
@@ -7983,6 +8439,8 @@ func (a *DefaultApiService) GetUsersWithoutPermission_25(localVarOptionals map[s
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/repos/{repositorySlug}/permissions/users/none"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -7991,12 +8449,24 @@ func (a *DefaultApiService) GetUsersWithoutPermission_25(localVarOptionals map[s
 	if err := typeCheckParameter(localVarOptionals["filter"], "string", "filter"); err != nil {
 		return nil, err
 	}
+	if err := typeCheckParameter(localVarOptionals["limit"], "int", "limit"); err != nil {
+		return nil, err
+	}
+	if err := typeCheckParameter(localVarOptionals["start"], "int", "start"); err != nil {
+		return nil, err
+	}
 
+	if localVarTempParam, localVarOk := localVarOptionals["limit"].(int); localVarOk {
+		localVarQueryParams.Add("limit", parameterToString(localVarTempParam, ""))
+	}
+	if localVarTempParam, localVarOk := localVarOptionals["start"].(int); localVarOk {
+		localVarQueryParams.Add("start", parameterToString(localVarTempParam, ""))
+	}
 	if localVarTempParam, localVarOk := localVarOptionals["filter"].(string); localVarOk {
 		localVarQueryParams.Add("filter", parameterToString(localVarTempParam, ""))
 	}
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -8019,12 +8489,12 @@ func (a *DefaultApiService) GetUsersWithoutPermission_25(localVarOptionals map[s
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -8032,9 +8502,9 @@ func (a *DefaultApiService) GetUsersWithoutPermission_25(localVarOptionals map[s
 
 /* DefaultApiService
 Retrieve a page of users, optionally run through provided filters.  &lt;p&gt;  Only authenticated users may call this resource.   &lt;h3&gt;Supported Filters&lt;/h3&gt;  &lt;p&gt;  Filters are provided in query parameters in a standard &lt;code&gt;name&#x3D;value&lt;/code&gt; fashion. The following filters are  currently supported:  &lt;ul&gt;      &lt;li&gt;          {@code filter} - return only users, whose username, name or email address &lt;i&gt;contain&lt;/i&gt; the          {@code filter} value      &lt;/li&gt;      &lt;li&gt;          {@code group} - return only users who are members of the given group      &lt;/li&gt;      &lt;li&gt;          {@code permission} - the \&quot;root\&quot; of a permission filter, whose value must be a valid global,          project, or repository permission. Additional filter parameters referring to this filter that specify the          resource (project or repository) to apply the filter to must be prefixed with &lt;code&gt;permission.&lt;/code&gt;. See the          section \&quot;Permission Filters\&quot; below for more details.      &lt;/li&gt;      &lt;li&gt;          {@code permission.N} - the \&quot;root\&quot; of a single permission filter, similar to the {@code permission}          parameter, where \&quot;N\&quot; is a natural number starting from 1. This allows clients to specify multiple permission          filters, by providing consecutive filters as {@code permission.1}, {@code permission.2} etc. Note that          the filters numbering has to start with 1 and be continuous for all filters to be processed. The total allowed          number of permission filters is 50 and all filters exceeding that limit will be dropped. See the section          \&quot;Permission Filters\&quot; below for more details on how the permission filters are processed.      &lt;/li&gt;  &lt;/ul&gt;     &lt;h3&gt;Permission Filters&lt;/h3&gt;  &lt;p&gt;  The following three sub-sections list parameters supported for permission filters (where &lt;code&gt;[root]&lt;/code&gt; is  the root permission filter name, e.g. {@code permission}, {@code permission.1} etc.) depending on the  permission resource. The system determines which filter to apply (Global, Project or Repository permission)  based on the &lt;code&gt;[root]&lt;/code&gt; permission value. E.g. {@code ADMIN} is a global permission,  {@code PROJECT_ADMIN} is a project permission and {@code REPO_ADMIN} is a repository permission. Note  that the parameters for a given resource will be looked up in the order as they are listed below, that is e.g.  for a project resource, if both {@code projectId} and {@code projectKey} are provided, the system will  use {@code projectId} for the lookup.  &lt;h4&gt;Global permissions&lt;/h4&gt;  &lt;p&gt;  The permission value under &lt;code&gt;[root]&lt;/code&gt; is the only required and recognized parameter, as global  permissions do not apply to a specific resource.  &lt;p&gt;  Example valid filter: &lt;code&gt;permission&#x3D;ADMIN&lt;/code&gt;.  &lt;h4&gt;Project permissions&lt;/h4&gt;  &lt;ul&gt;      &lt;li&gt;&lt;code&gt;[root]&lt;/code&gt;- specifies the project permission&lt;/li&gt;      &lt;li&gt;&lt;code&gt;[root].projectId&lt;/code&gt; - specifies the project ID to lookup the project by&lt;/li&gt;      &lt;li&gt;&lt;code&gt;[root].projectKey&lt;/code&gt; - specifies the project key to lookup the project by&lt;/li&gt;  &lt;/ul&gt;  &lt;p&gt;  Example valid filter: &lt;code&gt;permission.1&#x3D;PROJECT_ADMIN&amp;permission.1.projectKey&#x3D;TEST_PROJECT&lt;/code&gt;.  &lt;h4&gt;Repository permissions&lt;/h4&gt;  &lt;ul&gt;      &lt;li&gt;&lt;code&gt;[root]&lt;/code&gt;- specifies the repository permission&lt;/li&gt;      &lt;li&gt;&lt;code&gt;[root].projectId&lt;/code&gt; - specifies the repository ID to lookup the repository by&lt;/li&gt;      &lt;li&gt;&lt;code&gt;[root].projectKey&lt;/code&gt; and &lt;code&gt;[root].repositorySlug&lt;/code&gt;- specifies the project key and      repository slug to lookup the repository by; both values &lt;i&gt;need to&lt;/i&gt; be provided for this look up to be      triggered&lt;/li&gt;  &lt;/ul&gt;  Example valid filter: &lt;code&gt;permission.2&#x3D;REPO_ADMIN&amp;permission.2.projectKey&#x3D;TEST_PROJECT&amp;permission.2.repositorySlug&#x3D;test_repo&lt;/code&gt;.
-* @param ctx context.Context for authentication, logging, tracing, etc.
+
 @return */
-func (a *DefaultApiService) GetUsers_26(ctx context.Context) (*APIResponse, error) {
+func (a *DefaultApiService) GetUsers_26(localVarOptionals map[string]interface{}) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Get")
 		localVarPostBody   interface{}
@@ -8049,8 +8519,22 @@ func (a *DefaultApiService) GetUsers_26(ctx context.Context) (*APIResponse, erro
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
+	if err := typeCheckParameter(localVarOptionals["limit"], "int", "limit"); err != nil {
+		return nil, err
+	}
+	if err := typeCheckParameter(localVarOptionals["start"], "int", "start"); err != nil {
+		return nil, err
+	}
+
+	if localVarTempParam, localVarOk := localVarOptionals["limit"].(int); localVarOk {
+		localVarQueryParams.Add("limit", parameterToString(localVarTempParam, ""))
+	}
+	if localVarTempParam, localVarOk := localVarOptionals["start"].(int); localVarOk {
+		localVarQueryParams.Add("start", parameterToString(localVarTempParam, ""))
+	}
+
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -8073,12 +8557,12 @@ func (a *DefaultApiService) GetUsers_26(ctx context.Context) (*APIResponse, erro
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -8086,12 +8570,12 @@ func (a *DefaultApiService) GetUsers_26(ctx context.Context) (*APIResponse, erro
 
 /* DefaultApiService
  Get a webhook by id.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;REPO_ADMIN&lt;/strong&gt; permission for the specified repository to call this  resource.
- * @param ctx context.Context for authentication, logging, tracing, etc.
+
  @param webhookId the existing webhook id
  @param optional (nil or map[string]interface{}) with one or more of:
 	 @param "statistics" (bool)
  @return */
-func (a *DefaultApiService) GetWebhook(webhookId int32, localVarOptionals map[string]interface{}) (*APIResponse, error) {
+func (a *DefaultApiService) GetWebhook(projectKey, repositorySlug string, webhookId int32, localVarOptionals map[string]interface{}) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Get")
 		localVarPostBody   interface{}
@@ -8101,6 +8585,8 @@ func (a *DefaultApiService) GetWebhook(webhookId int32, localVarOptionals map[st
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/repos/{repositorySlug}/webhooks/{webhookId}"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
 	localVarPath = strings.Replace(localVarPath, "{"+"webhookId"+"}", fmt.Sprintf("%v", webhookId), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -8115,7 +8601,7 @@ func (a *DefaultApiService) GetWebhook(webhookId int32, localVarOptionals map[st
 		localVarQueryParams.Add("statistics", parameterToString(localVarTempParam, ""))
 	}
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -8138,12 +8624,12 @@ func (a *DefaultApiService) GetWebhook(webhookId int32, localVarOptionals map[st
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -8151,10 +8637,10 @@ func (a *DefaultApiService) GetWebhook(webhookId int32, localVarOptionals map[st
 
 /* DefaultApiService
 Retrieve a pull request.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;REPO_READ&lt;/strong&gt; permission for the repository that this pull request  targets to call this resource.
-* @param ctx context.Context for authentication, logging, tracing, etc.
+
 @param pullRequestId the ID of the pull request within the repository
 @return */
-func (a *DefaultApiService) Get_27(pullRequestID int64) (*APIResponse, error) {
+func (a *DefaultApiService) Get_27(projectKey, repositorySlug string, pullRequestID int64) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Get")
 		localVarPostBody   interface{}
@@ -8164,6 +8650,8 @@ func (a *DefaultApiService) Get_27(pullRequestID int64) (*APIResponse, error) {
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/repos/{repositorySlug}/pull-requests/{pullRequestId}"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
 	localVarPath = strings.Replace(localVarPath, "{"+"pullRequestId"+"}", fmt.Sprintf("%v", pullRequestID), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -8171,7 +8659,7 @@ func (a *DefaultApiService) Get_27(pullRequestID int64) (*APIResponse, error) {
 	localVarFormParams := url.Values{}
 
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -8194,12 +8682,12 @@ func (a *DefaultApiService) Get_27(pullRequestID int64) (*APIResponse, error) {
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -8207,10 +8695,10 @@ func (a *DefaultApiService) Get_27(pullRequestID int64) (*APIResponse, error) {
 
 /* DefaultApiService
 Check whether the specified permission is the default permission (granted to all users) for a project.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;PROJECT_ADMIN&lt;/strong&gt; permission for the specified project or a higher  global permission to call this resource.
-* @param ctx context.Context for authentication, logging, tracing, etc.
+
 @param permission the permission to grant                        Available project permissions are:                        &lt;ul&gt;                            &lt;li&gt;PROJECT_READ&lt;/li&gt;                            &lt;li&gt;PROJECT_WRITE&lt;/li&gt;                            &lt;li&gt;PROJECT_ADMIN&lt;/li&gt;                        &lt;/ul&gt;
 @return */
-func (a *DefaultApiService) HasAllUserPermission(permission string) (*APIResponse, error) {
+func (a *DefaultApiService) HasAllUserPermission(projectKey, permission string) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Get")
 		localVarPostBody   interface{}
@@ -8220,6 +8708,7 @@ func (a *DefaultApiService) HasAllUserPermission(permission string) (*APIRespons
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/permissions/{permission}/all"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
 	localVarPath = strings.Replace(localVarPath, "{"+"permission"+"}", fmt.Sprintf("%v", permission), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -8227,7 +8716,7 @@ func (a *DefaultApiService) HasAllUserPermission(permission string) (*APIRespons
 	localVarFormParams := url.Values{}
 
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -8250,12 +8739,12 @@ func (a *DefaultApiService) HasAllUserPermission(permission string) (*APIRespons
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -8263,10 +8752,10 @@ func (a *DefaultApiService) HasAllUserPermission(permission string) (*APIRespons
 
 /* DefaultApiService
 Retrieves a page of the participants for a given pull request.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;REPO_READ&lt;/strong&gt; permission for the repository that this pull request  targets to call this resource.
-* @param ctx context.Context for authentication, logging, tracing, etc.
+
 @param pullRequestId the id of the pull request within the repository
 @return */
-func (a *DefaultApiService) ListParticipants(pullRequestID int64) (*APIResponse, error) {
+func (a *DefaultApiService) ListParticipants(projectKey, repositorySlug string, pullRequestID int64) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Get")
 		localVarPostBody   interface{}
@@ -8276,6 +8765,8 @@ func (a *DefaultApiService) ListParticipants(pullRequestID int64) (*APIResponse,
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/repos/{repositorySlug}/pull-requests/{pullRequestId}/participants"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
 	localVarPath = strings.Replace(localVarPath, "{"+"pullRequestId"+"}", fmt.Sprintf("%v", pullRequestID), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -8283,7 +8774,7 @@ func (a *DefaultApiService) ListParticipants(pullRequestID int64) (*APIResponse,
 	localVarFormParams := url.Values{}
 
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -8306,12 +8797,12 @@ func (a *DefaultApiService) ListParticipants(pullRequestID int64) (*APIResponse,
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -8319,7 +8810,7 @@ func (a *DefaultApiService) ListParticipants(pullRequestID int64) (*APIResponse,
 
 /* DefaultApiService
  Merge the specified pull request.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;REPO_WRITE&lt;/strong&gt; permission for the repository that this pull request  targets to call this resource.
- * @param ctx context.Context for authentication, logging, tracing, etc.
+
  @param pullRequestId the ID of the pull request within the repository
  @param optional (nil or map[string]interface{}) with one or more of:
 	 @param "version" (int32) the current version of the pull request. If the server&#39;s version isn&#39;t the same as the specified                 version the operation will fail. To determine the current version of the pull request it should be                 fetched from the server prior to this operation. Look for the &#39;version&#39; attribute in the returned                 JSON structure.
@@ -8370,12 +8861,12 @@ func (a *DefaultApiService) Merge(projectKey, repositorySlug string, pullRequest
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -8383,12 +8874,12 @@ func (a *DefaultApiService) Merge(projectKey, repositorySlug string, pullRequest
 
 /* DefaultApiService
  Grant or revoke a project permission to all users, i.e. set the default permission.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;PROJECT_ADMIN&lt;/strong&gt; permission for the specified project or a higher  global permission to call this resource.
- * @param ctx context.Context for authentication, logging, tracing, etc.
+
  @param permission the permission to grant                        Available project permissions are:                        &lt;ul&gt;                            &lt;li&gt;PROJECT_READ&lt;/li&gt;                            &lt;li&gt;PROJECT_WRITE&lt;/li&gt;                            &lt;li&gt;PROJECT_ADMIN&lt;/li&gt;                        &lt;/ul&gt;
  @param optional (nil or map[string]interface{}) with one or more of:
 	 @param "allow" (bool) &lt;em&gt;true&lt;/em&gt; to grant the specified permission to all users, or &lt;em&gt;false&lt;/em&gt; to revoke it
  @return */
-func (a *DefaultApiService) ModifyAllUserPermission(permission string, localVarOptionals map[string]interface{}) (*APIResponse, error) {
+func (a *DefaultApiService) ModifyAllUserPermission(projectKey, repositorySlug string, permission string, localVarOptionals map[string]interface{}) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Post")
 		localVarPostBody   interface{}
@@ -8398,6 +8889,8 @@ func (a *DefaultApiService) ModifyAllUserPermission(permission string, localVarO
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/permissions/{permission}/all"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
 	localVarPath = strings.Replace(localVarPath, "{"+"permission"+"}", fmt.Sprintf("%v", permission), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -8412,7 +8905,7 @@ func (a *DefaultApiService) ModifyAllUserPermission(permission string, localVarO
 		localVarQueryParams.Add("allow", parameterToString(localVarTempParam, ""))
 	}
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -8435,12 +8928,12 @@ func (a *DefaultApiService) ModifyAllUserPermission(permission string, localVarO
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -8448,7 +8941,7 @@ func (a *DefaultApiService) ModifyAllUserPermission(permission string, localVarO
 
 /* DefaultApiService
  Preview the generated html for given markdown contents.  &lt;p&gt;  Only authenticated users may call this resource.
- * @param ctx context.Context for authentication, logging, tracing, etc.
+
  @param optional (nil or map[string]interface{}) with one or more of:
 	 @param "urlMode" (string) (Optional) The UrlMode used when building the url. One of: ABSOLUTE, RELATIVE and CONFIGURED                       By default this is RELATIVE.
 	 @param "hardwrap" (bool) (Optional) Whether the markup implementation should convert newlines to breaks.                       By default this is false which reflects the standard markdown specification.
@@ -8489,7 +8982,7 @@ func (a *DefaultApiService) Preview(localVarOptionals map[string]interface{}) (*
 		localVarQueryParams.Add("htmlEscape", parameterToString(localVarTempParam, ""))
 	}
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -8512,12 +9005,12 @@ func (a *DefaultApiService) Preview(localVarOptionals map[string]interface{}) (*
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -8525,9 +9018,9 @@ func (a *DefaultApiService) Preview(localVarOptionals map[string]interface{}) (*
 
 /* DefaultApiService
 Remove a user from a group. This is very similar to &lt;code&gt;groups/remove-user&lt;/code&gt;, but with the &lt;em&gt;context&lt;/em&gt;  and &lt;em&gt;itemName&lt;/em&gt; attributes of the supplied request entity reversed. On the face of it this may appear  redundant, but it facilitates a specific UI component in Stash.  &lt;p&gt;  In the request entity, the &lt;em&gt;context&lt;/em&gt; attribute is the user and the &lt;em&gt;itemName&lt;/em&gt; is the group.  &lt;p&gt;  The authenticated user must have the &lt;strong&gt;ADMIN&lt;/strong&gt; permission to call this resource.
-* @param ctx context.Context for authentication, logging, tracing, etc.
+
 @return */
-func (a *DefaultApiService) RemoveGroupFromUser(ctx context.Context) (*APIResponse, error) {
+func (a *DefaultApiService) RemoveGroupFromUser() (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Post")
 		localVarPostBody   interface{}
@@ -8543,7 +9036,7 @@ func (a *DefaultApiService) RemoveGroupFromUser(ctx context.Context) (*APIRespon
 	localVarFormParams := url.Values{}
 
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -8566,12 +9059,12 @@ func (a *DefaultApiService) RemoveGroupFromUser(ctx context.Context) (*APIRespon
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -8579,9 +9072,9 @@ func (a *DefaultApiService) RemoveGroupFromUser(ctx context.Context) (*APIRespon
 
 /* DefaultApiService
 &lt;strong&gt;Deprecated since 2.10&lt;/strong&gt;. Use /rest/users/remove-groups instead.  &lt;p&gt;  Remove a user from a group.  &lt;p&gt;  The authenticated user must have the &lt;strong&gt;ADMIN&lt;/strong&gt; permission to call this resource.  &lt;p&gt;  In the request entity, the &lt;em&gt;context&lt;/em&gt; attribute is the group and the &lt;em&gt;itemName&lt;/em&gt; is the user.
-* @param ctx context.Context for authentication, logging, tracing, etc.
+
 @return */
-func (a *DefaultApiService) RemoveUserFromGroup(ctx context.Context) (*APIResponse, error) {
+func (a *DefaultApiService) RemoveUserFromGroup() (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Post")
 		localVarPostBody   interface{}
@@ -8597,7 +9090,7 @@ func (a *DefaultApiService) RemoveUserFromGroup(ctx context.Context) (*APIRespon
 	localVarFormParams := url.Values{}
 
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -8620,12 +9113,12 @@ func (a *DefaultApiService) RemoveUserFromGroup(ctx context.Context) (*APIRespon
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -8633,9 +9126,9 @@ func (a *DefaultApiService) RemoveUserFromGroup(ctx context.Context) (*APIRespon
 
 /* DefaultApiService
 Rename a user.  &lt;p&gt;  The authenticated user must have the &lt;strong&gt;ADMIN&lt;/strong&gt; permission to call this resource.
-* @param ctx context.Context for authentication, logging, tracing, etc.
+
 @return */
-func (a *DefaultApiService) RenameUser(ctx context.Context) (*APIResponse, error) {
+func (a *DefaultApiService) RenameUser() (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Post")
 		localVarPostBody   interface{}
@@ -8651,7 +9144,7 @@ func (a *DefaultApiService) RenameUser(ctx context.Context) (*APIResponse, error
 	localVarFormParams := url.Values{}
 
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -8674,12 +9167,12 @@ func (a *DefaultApiService) RenameUser(ctx context.Context) (*APIResponse, error
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -8687,12 +9180,12 @@ func (a *DefaultApiService) RenameUser(ctx context.Context) (*APIResponse, error
 
 /* DefaultApiService
  Re-open a declined pull request.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;REPO_READ&lt;/strong&gt; permission for the repository that this pull request  targets to call this resource.
- * @param ctx context.Context for authentication, logging, tracing, etc.
+
  @param pullRequestId the id of the pull request within the repository
  @param optional (nil or map[string]interface{}) with one or more of:
 	 @param "version" (int32) the current version of the pull request. If the server&#39;s version isn&#39;t the same as the specified                 version the operation will fail. To determine the current version of the pull request it should be                 fetched from the server prior to this operation. Look for the &#39;version&#39; attribute in the returned                 JSON structure.
  @return */
-func (a *DefaultApiService) Reopen(pullRequestID int64, localVarOptionals map[string]interface{}) (*APIResponse, error) {
+func (a *DefaultApiService) Reopen(projectKey, repositorySlug string, pullRequestID int64, localVarOptionals map[string]interface{}) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Post")
 		localVarPostBody   interface{}
@@ -8702,6 +9195,8 @@ func (a *DefaultApiService) Reopen(pullRequestID int64, localVarOptionals map[st
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/repos/{repositorySlug}/pull-requests/{pullRequestId}/reopen"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
 	localVarPath = strings.Replace(localVarPath, "{"+"pullRequestId"+"}", fmt.Sprintf("%v", pullRequestID), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -8716,7 +9211,7 @@ func (a *DefaultApiService) Reopen(pullRequestID int64, localVarOptionals map[st
 		localVarQueryParams.Add("version", parameterToString(localVarTempParam, ""))
 	}
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -8739,12 +9234,12 @@ func (a *DefaultApiService) Reopen(pullRequestID int64, localVarOptionals map[st
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -8752,10 +9247,10 @@ func (a *DefaultApiService) Reopen(pullRequestID int64, localVarOptionals map[st
 
 /* DefaultApiService
 If a create or fork operation fails, calling this method will clean up the broken repository and try again. The  repository must be in an INITIALISATION_FAILED state.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;PROJECT_ADMIN&lt;/strong&gt; permission for the specified project to call this  resource.
-* @param ctx context.Context for authentication, logging, tracing, etc.
+
 @param projectKey the parent project key
 @return */
-func (a *DefaultApiService) RetryCreateRepository(projectKey string) (*APIResponse, error) {
+func (a *DefaultApiService) RetryCreateRepository(projectKey, repositorySlug string) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Post")
 		localVarPostBody   interface{}
@@ -8766,13 +9261,14 @@ func (a *DefaultApiService) RetryCreateRepository(projectKey string) (*APIRespon
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/repos/{repositorySlug}/recreate"
 	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -8795,12 +9291,12 @@ func (a *DefaultApiService) RetryCreateRepository(projectKey string) (*APIRespon
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -8808,7 +9304,7 @@ func (a *DefaultApiService) RetryCreateRepository(projectKey string) (*APIRespon
 
 /* DefaultApiService
  Revoke all global permissions for a group.   &lt;p&gt;  The authenticated user must have:  &lt;ul&gt;      &lt;li&gt;&lt;strong&gt;ADMIN&lt;/strong&gt; permission or higher; and&lt;/li&gt;      &lt;li&gt;greater or equal permissions than the current permission level of the group (a user may not demote the      permission level of a group with higher permissions than them)&lt;/li&gt;  &lt;/ul&gt;  to call this resource. In addition, a user may not revoke a group&#39;s permissions if their own permission level  would be reduced as a result.
- * @param ctx context.Context for authentication, logging, tracing, etc.
+
  @param optional (nil or map[string]interface{}) with one or more of:
 	 @param "name" (string) the name of the group
  @return */
@@ -8835,7 +9331,7 @@ func (a *DefaultApiService) RevokePermissionsForGroup(localVarOptionals map[stri
 		localVarQueryParams.Add("name", parameterToString(localVarTempParam, ""))
 	}
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -8858,24 +9354,24 @@ func (a *DefaultApiService) RevokePermissionsForGroup(localVarOptionals map[stri
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
-	return NewBitbucketAPIResponse(localVarHTTPResponse)
+	return NewAPIResponse(localVarHTTPResponse), nil
 }
 
 /* DefaultApiService
  Revoke all permissions for the specified project for a group.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;PROJECT_ADMIN&lt;/strong&gt; permission for the specified project or a higher  global permission to call this resource.  &lt;p&gt;  In addition, a user may not revoke a group&#39;s permissions if it will reduce their own permission level.
- * @param ctx context.Context for authentication, logging, tracing, etc.
+
  @param optional (nil or map[string]interface{}) with one or more of:
 	 @param "name" (string) the name of the group
  @return */
-func (a *DefaultApiService) RevokePermissionsForGroup_28(localVarOptionals map[string]interface{}) (*APIResponse, error) {
+func (a *DefaultApiService) RevokePermissionsForGroup_28(projectKey string, localVarOptionals map[string]interface{}) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Delete")
 		localVarPostBody   interface{}
@@ -8885,6 +9381,7 @@ func (a *DefaultApiService) RevokePermissionsForGroup_28(localVarOptionals map[s
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/permissions/groups"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -8898,7 +9395,7 @@ func (a *DefaultApiService) RevokePermissionsForGroup_28(localVarOptionals map[s
 		localVarQueryParams.Add("name", parameterToString(localVarTempParam, ""))
 	}
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -8921,24 +9418,24 @@ func (a *DefaultApiService) RevokePermissionsForGroup_28(localVarOptionals map[s
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
-	return NewBitbucketAPIResponse(localVarHTTPResponse)
+	return NewAPIResponse(localVarHTTPResponse), nil
 }
 
 /* DefaultApiService
  Revoke all permissions for the specified repository for a group.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;REPO_ADMIN&lt;/strong&gt; permission for the specified repository or a higher  project or global permission to call this resource.  &lt;p&gt;  In addition, a user may not revoke a group&#39;s permissions if it will reduce their own permission level.
- * @param ctx context.Context for authentication, logging, tracing, etc.
+
  @param optional (nil or map[string]interface{}) with one or more of:
 	 @param "name" (string) the name of the group
  @return */
-func (a *DefaultApiService) RevokePermissionsForGroup_29(localVarOptionals map[string]interface{}) (*APIResponse, error) {
+func (a *DefaultApiService) RevokePermissionsForGroup_29(projectKey, repositorySlug string, localVarOptionals map[string]interface{}) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Delete")
 		localVarPostBody   interface{}
@@ -8948,6 +9445,8 @@ func (a *DefaultApiService) RevokePermissionsForGroup_29(localVarOptionals map[s
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/repos/{repositorySlug}/permissions/groups"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -8961,7 +9460,7 @@ func (a *DefaultApiService) RevokePermissionsForGroup_29(localVarOptionals map[s
 		localVarQueryParams.Add("name", parameterToString(localVarTempParam, ""))
 	}
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -8984,20 +9483,20 @@ func (a *DefaultApiService) RevokePermissionsForGroup_29(localVarOptionals map[s
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
-	return NewBitbucketAPIResponse(localVarHTTPResponse)
+	return NewAPIResponse(localVarHTTPResponse), nil
 }
 
 /* DefaultApiService
  Revoke all global permissions for a user.  &lt;p&gt;  The authenticated user must have:  &lt;ul&gt;      &lt;li&gt;&lt;strong&gt;ADMIN&lt;/strong&gt; permission or higher; and&lt;/li&gt;      &lt;li&gt;greater or equal permissions than the current permission level of the user (a user may not demote the      permission level of a user with higher permissions than them)&lt;/li&gt;  &lt;/ul&gt;  to call this resource. In addition, a user may not demote their own permission level.
- * @param ctx context.Context for authentication, logging, tracing, etc.
+
  @param optional (nil or map[string]interface{}) with one or more of:
 	 @param "name" (string) the name of the user
  @return */
@@ -9024,7 +9523,7 @@ func (a *DefaultApiService) RevokePermissionsForUser(localVarOptionals map[strin
 		localVarQueryParams.Add("name", parameterToString(localVarTempParam, ""))
 	}
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -9047,24 +9546,24 @@ func (a *DefaultApiService) RevokePermissionsForUser(localVarOptionals map[strin
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
-	return NewBitbucketAPIResponse(localVarHTTPResponse)
+	return NewAPIResponse(localVarHTTPResponse), nil
 }
 
 /* DefaultApiService
  Revoke all permissions for the specified project for a user.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;PROJECT_ADMIN&lt;/strong&gt; permission for the specified project or a higher  global permission to call this resource.  &lt;p&gt;  In addition, a user may not revoke their own project permissions if they do not have a higher global permission.
- * @param ctx context.Context for authentication, logging, tracing, etc.
+
  @param optional (nil or map[string]interface{}) with one or more of:
 	 @param "name" (string) the name of the user
  @return */
-func (a *DefaultApiService) RevokePermissionsForUser_30(localVarOptionals map[string]interface{}) (*APIResponse, error) {
+func (a *DefaultApiService) RevokePermissionsForUser_30(projectKey string, localVarOptionals map[string]interface{}) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Delete")
 		localVarPostBody   interface{}
@@ -9074,6 +9573,7 @@ func (a *DefaultApiService) RevokePermissionsForUser_30(localVarOptionals map[st
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/permissions/users"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -9087,7 +9587,7 @@ func (a *DefaultApiService) RevokePermissionsForUser_30(localVarOptionals map[st
 		localVarQueryParams.Add("name", parameterToString(localVarTempParam, ""))
 	}
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -9110,24 +9610,24 @@ func (a *DefaultApiService) RevokePermissionsForUser_30(localVarOptionals map[st
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
-	return NewBitbucketAPIResponse(localVarHTTPResponse)
+	return NewAPIResponse(localVarHTTPResponse), nil
 }
 
 /* DefaultApiService
  Revoke all permissions for the specified repository for a user.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;REPO_ADMIN&lt;/strong&gt; permission for the specified repository or a higher  project or global permission to call this resource.  &lt;p&gt;  In addition, a user may not revoke their own repository permissions if they do not have a higher  project or global permission.
- * @param ctx context.Context for authentication, logging, tracing, etc.
+
  @param optional (nil or map[string]interface{}) with one or more of:
 	 @param "name" (string) the name of the user
  @return */
-func (a *DefaultApiService) RevokePermissionsForUser_31(localVarOptionals map[string]interface{}) (*APIResponse, error) {
+func (a *DefaultApiService) RevokePermissionsForUser_31(projectKey string, repositorySlug string, localVarOptionals map[string]interface{}) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Delete")
 		localVarPostBody   interface{}
@@ -9137,6 +9637,8 @@ func (a *DefaultApiService) RevokePermissionsForUser_31(localVarOptionals map[st
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/repos/{repositorySlug}/permissions/users"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -9150,7 +9652,7 @@ func (a *DefaultApiService) RevokePermissionsForUser_31(localVarOptionals map[st
 		localVarQueryParams.Add("name", parameterToString(localVarTempParam, ""))
 	}
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -9173,26 +9675,26 @@ func (a *DefaultApiService) RevokePermissionsForUser_31(localVarOptionals map[st
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
-	return NewBitbucketAPIResponse(localVarHTTPResponse)
+	return NewAPIResponse(localVarHTTPResponse), nil
 }
 
 /* DefaultApiService
  Retrieve a page of participant users for all the pull requests to or from the specified repository.  &lt;p&gt;  &lt;p&gt;  Optionally clients can specify following filters.
- * @param ctx context.Context for authentication, logging, tracing, etc.
+
  @param optional (nil or map[string]interface{}) with one or more of:
 	 @param "direction" (string) (optional, defaults to &lt;strong&gt;INCOMING&lt;/strong&gt;) the direction relative to the specified                   repository. Either &lt;strong&gt;INCOMING&lt;/strong&gt; or &lt;strong&gt;OUTGOING&lt;/strong&gt;.
 	 @param "filter" (string) (optional) return only users, whose username, name or email address &lt;i&gt;contain&lt;/i&gt;                   the {@code filter} value
 	 @param "role" (string) (optional) The role associated with the pull request participant.                   This must be one of {@code AUTHOR}, {@code REVIEWER}, or{@code PARTICIPANT}
  @return */
-func (a *DefaultApiService) Search(localVarOptionals map[string]interface{}) (*APIResponse, error) {
+func (a *DefaultApiService) Search(projectKey, repositorySlug string, localVarOptionals map[string]interface{}) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Get")
 		localVarPostBody   interface{}
@@ -9202,6 +9704,8 @@ func (a *DefaultApiService) Search(localVarOptionals map[string]interface{}) (*A
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/repos/{repositorySlug}/participants"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -9216,7 +9720,19 @@ func (a *DefaultApiService) Search(localVarOptionals map[string]interface{}) (*A
 	if err := typeCheckParameter(localVarOptionals["role"], "string", "role"); err != nil {
 		return nil, err
 	}
+	if err := typeCheckParameter(localVarOptionals["limit"], "int", "limit"); err != nil {
+		return nil, err
+	}
+	if err := typeCheckParameter(localVarOptionals["start"], "int", "start"); err != nil {
+		return nil, err
+	}
 
+	if localVarTempParam, localVarOk := localVarOptionals["limit"].(int); localVarOk {
+		localVarQueryParams.Add("limit", parameterToString(localVarTempParam, ""))
+	}
+	if localVarTempParam, localVarOk := localVarOptionals["start"].(int); localVarOk {
+		localVarQueryParams.Add("start", parameterToString(localVarTempParam, ""))
+	}
 	if localVarTempParam, localVarOk := localVarOptionals["direction"].(string); localVarOk {
 		localVarQueryParams.Add("direction", parameterToString(localVarTempParam, ""))
 	}
@@ -9227,7 +9743,7 @@ func (a *DefaultApiService) Search(localVarOptionals map[string]interface{}) (*A
 		localVarQueryParams.Add("role", parameterToString(localVarTempParam, ""))
 	}
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -9250,12 +9766,12 @@ func (a *DefaultApiService) Search(localVarOptionals map[string]interface{}) (*A
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -9263,9 +9779,9 @@ func (a *DefaultApiService) Search(localVarOptionals map[string]interface{}) (*A
 
 /* DefaultApiService
 Update the default branch of a repository.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;REPO_ADMIN&lt;/strong&gt; permission for the specified repository to call this  resource.
-* @param ctx context.Context for authentication, logging, tracing, etc.
+
 @return */
-func (a *DefaultApiService) SetDefaultBranch(ctx context.Context) (*APIResponse, error) {
+func (a *DefaultApiService) SetDefaultBranch(projectKey, repositorySlug string) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Put")
 		localVarPostBody   interface{}
@@ -9275,13 +9791,15 @@ func (a *DefaultApiService) SetDefaultBranch(ctx context.Context) (*APIResponse,
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/repos/{repositorySlug}/branches/default"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -9304,12 +9822,12 @@ func (a *DefaultApiService) SetDefaultBranch(ctx context.Context) (*APIResponse,
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -9317,7 +9835,7 @@ func (a *DefaultApiService) SetDefaultBranch(ctx context.Context) (*APIResponse,
 
 /* DefaultApiService
 Set the current log level for a given logger.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;ADMIN&lt;/strong&gt; permission or higher to call this resource.
-* @param ctx context.Context for authentication, logging, tracing, etc.
+
 @param levelName the level to set the logger to. Either TRACE, DEBUG, INFO, WARN or ERROR
 @param loggerName the name of the logger.
 @return */
@@ -9339,7 +9857,7 @@ func (a *DefaultApiService) SetLevel(levelName string, loggerName string) (*APIR
 	localVarFormParams := url.Values{}
 
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -9362,12 +9880,12 @@ func (a *DefaultApiService) SetLevel(levelName string, loggerName string) (*APIR
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -9375,9 +9893,9 @@ func (a *DefaultApiService) SetLevel(levelName string, loggerName string) (*APIR
 
 /* DefaultApiService
 Updates the mail configuration   The authenticated user must have the &lt;strong&gt;SYS_ADMIN&lt;/strong&gt; permission to call this resource.
-* @param ctx context.Context for authentication, logging, tracing, etc.
+
 @return */
-func (a *DefaultApiService) SetMailConfig(ctx context.Context) (*APIResponse, error) {
+func (a *DefaultApiService) SetMailConfig() (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Put")
 		localVarPostBody   interface{}
@@ -9393,7 +9911,7 @@ func (a *DefaultApiService) SetMailConfig(ctx context.Context) (*APIResponse, er
 	localVarFormParams := url.Values{}
 
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -9416,12 +9934,12 @@ func (a *DefaultApiService) SetMailConfig(ctx context.Context) (*APIResponse, er
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -9429,7 +9947,7 @@ func (a *DefaultApiService) SetMailConfig(ctx context.Context) (*APIResponse, er
 
 /* DefaultApiService
 Update the pull request merge strategies for the context repository.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;ADMIN&lt;/strong&gt; permission for the context repository to call this  resource.  &lt;p&gt;  Only the strategies provided will be enabled, only one may be set to default  &lt;p&gt;  An explicitly set pull request merge strategy configuration can be deleted by POSTing a document with  an empty \&quot;mergeConfig\&quot; attribute. i.e:  &lt;pre&gt;  {      \&quot;mergeConfig\&quot;: {      }  }  &lt;/pre&gt;  Upon completion of this request, the effective configuration will be the default configuration.
-* @param ctx context.Context for authentication, logging, tracing, etc.
+
 @param scmId the id of the scm to get strategies for
 @return */
 func (a *DefaultApiService) SetMergeConfig(scmId string) (*APIResponse, error) {
@@ -9449,7 +9967,7 @@ func (a *DefaultApiService) SetMergeConfig(scmId string) (*APIResponse, error) {
 	localVarFormParams := url.Values{}
 
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -9472,12 +9990,12 @@ func (a *DefaultApiService) SetMergeConfig(scmId string) (*APIResponse, error) {
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -9485,7 +10003,7 @@ func (a *DefaultApiService) SetMergeConfig(scmId string) (*APIResponse, error) {
 
 /* DefaultApiService
  Promote or demote a group&#39;s permission level for the specified repository. Available repository permissions are:  &lt;ul&gt;      &lt;li&gt;REPO_READ&lt;/li&gt;      &lt;li&gt;REPO_WRITE&lt;/li&gt;      &lt;li&gt;REPO_ADMIN&lt;/li&gt;  &lt;/ul&gt;  See the &lt;a href&#x3D;\&quot;https://confluence.atlassian.com/display/BitbucketServer/Using+repository+permissions\&quot;&gt;Bitbucket  Server documentation&lt;/a&gt; for a detailed explanation of what each permission entails.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;REPO_ADMIN&lt;/strong&gt; permission for the specified repository or a higher  project or global permission to call this resource. In addition, a user may not demote a group&#39;s permission level if their  own permission level would be reduced as a result.
- * @param ctx context.Context for authentication, logging, tracing, etc.
+
  @param optional (nil or map[string]interface{}) with one or more of:
 	 @param "permission" (string) the permission to grant
 	 @param "name" (string) the names of the groups
@@ -9521,7 +10039,7 @@ func (a *DefaultApiService) SetPermissionForGroup(projectKey string, repositoryS
 		localVarQueryParams.Add("name", parameterToString(localVarTempParam, ""))
 	}
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -9544,12 +10062,12 @@ func (a *DefaultApiService) SetPermissionForGroup(projectKey string, repositoryS
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	// No body parsing (a successful 204 response has no content)
@@ -9558,7 +10076,7 @@ func (a *DefaultApiService) SetPermissionForGroup(projectKey string, repositoryS
 
 /* DefaultApiService
  Promote or demote a user&#39;s global permission level. Available global permissions are:  &lt;ul&gt;      &lt;li&gt;LICENSED_USER&lt;/li&gt;      &lt;li&gt;PROJECT_CREATE&lt;/li&gt;      &lt;li&gt;ADMIN&lt;/li&gt;      &lt;li&gt;SYS_ADMIN&lt;/li&gt;  &lt;/ul&gt;  See the &lt;a href&#x3D;\&quot;https://confluence.atlassian.com/display/BitbucketServer/Global+permissions\&quot;&gt;Bitbucket Server  documentation&lt;/a&gt; for a detailed explanation of what each permission entails.  &lt;p&gt;  The authenticated user must have:  &lt;ul&gt;      &lt;li&gt;&lt;strong&gt;ADMIN&lt;/strong&gt; permission or higher; and&lt;/li&gt;      &lt;li&gt;the permission they are attempting to grant or higher; and&lt;/li&gt;      &lt;li&gt;greater or equal permissions than the current permission level of the group (a user may not demote the      permission level of a group with higher permissions than them)&lt;/li&gt;  &lt;/ul&gt;  to call this resource. In addition, a user may not demote a group&#39;s permission level if their own permission  level would be reduced as a result.
- * @param ctx context.Context for authentication, logging, tracing, etc.
+
  @param optional (nil or map[string]interface{}) with one or more of:
 	 @param "permission" (string) the permission to grant
 	 @param "name" (string) the names of the groups
@@ -9592,7 +10110,7 @@ func (a *DefaultApiService) SetPermissionForGroups(localVarOptionals map[string]
 		localVarQueryParams.Add("name", parameterToString(localVarTempParam, ""))
 	}
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -9615,12 +10133,12 @@ func (a *DefaultApiService) SetPermissionForGroups(localVarOptionals map[string]
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -9628,12 +10146,12 @@ func (a *DefaultApiService) SetPermissionForGroups(localVarOptionals map[string]
 
 /* DefaultApiService
  Promote or demote a group&#39;s permission level for the specified project.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;PROJECT_ADMIN&lt;/strong&gt; permission for the specified project or a higher  global permission to call this resource. In addition, a user may not demote a group&#39;s permission level if their  own permission level would be reduced as a result.
- * @param ctx context.Context for authentication, logging, tracing, etc.
+
  @param optional (nil or map[string]interface{}) with one or more of:
 	 @param "permission" (string) The permission to grant.                        See the [permissions documentation](https://confluence.atlassian.com/display/BitbucketServer/Using+project+permissions)                        for a detailed explanation of what each permission entails.                        Available project permissions are:                        &lt;ul&gt;                            &lt;li&gt;PROJECT_READ&lt;/li&gt;                            &lt;li&gt;PROJECT_WRITE&lt;/li&gt;                            &lt;li&gt;PROJECT_ADMIN&lt;/li&gt;                        &lt;/ul&gt;
 	 @param "name" (string) the names of the groups
  @return */
-func (a *DefaultApiService) SetPermissionForGroups_32(localVarOptionals map[string]interface{}) (*APIResponse, error) {
+func (a *DefaultApiService) SetPermissionForGroups_32(projectKey string, localVarOptionals map[string]interface{}) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Put")
 		localVarPostBody   interface{}
@@ -9643,6 +10161,7 @@ func (a *DefaultApiService) SetPermissionForGroups_32(localVarOptionals map[stri
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/permissions/groups"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -9662,7 +10181,7 @@ func (a *DefaultApiService) SetPermissionForGroups_32(localVarOptionals map[stri
 		localVarQueryParams.Add("name", parameterToString(localVarTempParam, ""))
 	}
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -9685,25 +10204,27 @@ func (a *DefaultApiService) SetPermissionForGroups_32(localVarOptionals map[stri
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
-	return NewBitbucketAPIResponse(localVarHTTPResponse)
+	return NewAPIResponse(localVarHTTPResponse), nil
 }
 
 /* DefaultApiService
  Promote or demote a user&#39;s permission level for the specified repository. Available repository permissions are:  &lt;ul&gt;      &lt;li&gt;REPO_READ&lt;/li&gt;      &lt;li&gt;REPO_WRITE&lt;/li&gt;      &lt;li&gt;REPO_ADMIN&lt;/li&gt;  &lt;/ul&gt;  See the &lt;a href&#x3D;\&quot;https://confluence.atlassian.com/display/BitbucketServer/Using+repository+permissions\&quot;&gt;Bitbucket  Server documentation&lt;/a&gt; for a detailed explanation of what each permission entails.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;REPO_ADMIN&lt;/strong&gt; permission for the specified repository or a higher  project or global permission to call this resource. In addition, a user may not reduce their own permission level unless  they have a project or global permission that already implies that permission.
- * @param ctx context.Context for authentication, logging, tracing, etc.
+
+ @param "projectKey" (string) name of the project to grant permission to
+ @param "repositorySlug" (string) repository slug
  @param optional (nil or map[string]interface{}) with one or more of:
 	 @param "name" (string) the names of the users
 	 @param "permission" (string) the permission to grant
  @return */
-func (a *DefaultApiService) SetPermissionForUser(localVarOptionals map[string]interface{}) (*APIResponse, error) {
+func (a *DefaultApiService) SetPermissionForUser(projectKey string, repositorySlug string, localVarOptionals map[string]interface{}) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Put")
 		localVarPostBody   interface{}
@@ -9713,6 +10234,8 @@ func (a *DefaultApiService) SetPermissionForUser(localVarOptionals map[string]in
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/repos/{repositorySlug}/permissions/users"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -9732,7 +10255,7 @@ func (a *DefaultApiService) SetPermissionForUser(localVarOptionals map[string]in
 		localVarQueryParams.Add("permission", parameterToString(localVarTempParam, ""))
 	}
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -9755,20 +10278,20 @@ func (a *DefaultApiService) SetPermissionForUser(localVarOptionals map[string]in
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
-	return NewBitbucketAPIResponse(localVarHTTPResponse)
+	return NewAPIResponse(localVarHTTPResponse), nil
 }
 
 /* DefaultApiService
  Promote or demote the global permission level of a user. Available global permissions are:  &lt;ul&gt;      &lt;li&gt;LICENSED_USER&lt;/li&gt;      &lt;li&gt;PROJECT_CREATE&lt;/li&gt;      &lt;li&gt;ADMIN&lt;/li&gt;      &lt;li&gt;SYS_ADMIN&lt;/li&gt;  &lt;/ul&gt;  See the &lt;a href&#x3D;\&quot;https://confluence.atlassian.com/display/BitbucketServer/Global+permissions\&quot;&gt;Bitbucket Server  documentation&lt;/a&gt; for a detailed explanation of what each permission entails.  &lt;p&gt;  The authenticated user must have:  &lt;ul&gt;      &lt;li&gt;&lt;strong&gt;ADMIN&lt;/strong&gt; permission or higher; and&lt;/li&gt;      &lt;li&gt;the permission they are attempting to grant; and&lt;/li&gt;      &lt;li&gt;greater or equal permissions than the current permission level of the user (a user may not demote the      permission level of a user with higher permissions than them)&lt;/li&gt;  &lt;/ul&gt;  to call this resource. In addition, a user may not demote their own permission level.
- * @param ctx context.Context for authentication, logging, tracing, etc.
+
  @param optional (nil or map[string]interface{}) with one or more of:
 	 @param "name" (string) the names of the users
 	 @param "permission" (string) the permission to grant
@@ -9802,7 +10325,7 @@ func (a *DefaultApiService) SetPermissionForUsers(localVarOptionals map[string]i
 		localVarQueryParams.Add("permission", parameterToString(localVarTempParam, ""))
 	}
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -9825,12 +10348,12 @@ func (a *DefaultApiService) SetPermissionForUsers(localVarOptionals map[string]i
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -9838,12 +10361,12 @@ func (a *DefaultApiService) SetPermissionForUsers(localVarOptionals map[string]i
 
 /* DefaultApiService
  Promote or demote a user&#39;s permission level for the specified project.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;PROJECT_ADMIN&lt;/strong&gt; permission for the specified project or a higher  global permission to call this resource. In addition, a user may not reduce their own permission level unless  they have a global permission that already implies that permission.
- * @param ctx context.Context for authentication, logging, tracing, etc.
+
  @param optional (nil or map[string]interface{}) with one or more of:
 	 @param "name" (string) the names of the users
 	 @param "permission" (string) the permission to grant. See the [permissions documentation](https://confluence.atlassian.com/display/BitbucketServer/Using+project+permissions)                        for a detailed explanation of what each permission entails.                        Available project permissions are:                        &lt;ul&gt;                            &lt;li&gt;PROJECT_READ&lt;/li&gt;                            &lt;li&gt;PROJECT_WRITE&lt;/li&gt;                            &lt;li&gt;PROJECT_ADMIN&lt;/li&gt;                        &lt;/ul&gt;
  @return */
-func (a *DefaultApiService) SetPermissionForUsers_33(localVarOptionals map[string]interface{}) (*APIResponse, error) {
+func (a *DefaultApiService) SetPermissionForUsers_33(projectKey string, localVarOptionals map[string]interface{}) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Put")
 		localVarPostBody   interface{}
@@ -9853,6 +10376,7 @@ func (a *DefaultApiService) SetPermissionForUsers_33(localVarOptionals map[strin
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/permissions/users"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -9872,7 +10396,7 @@ func (a *DefaultApiService) SetPermissionForUsers_33(localVarOptionals map[strin
 		localVarQueryParams.Add("permission", parameterToString(localVarTempParam, ""))
 	}
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -9895,20 +10419,20 @@ func (a *DefaultApiService) SetPermissionForUsers_33(localVarOptionals map[strin
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
-	return NewBitbucketAPIResponse(localVarHTTPResponse)
+	return NewAPIResponse(localVarHTTPResponse), nil
 }
 
 /* DefaultApiService
 Set the current log level for the root logger.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;ADMIN&lt;/strong&gt; permission or higher to call this resource.
-* @param ctx context.Context for authentication, logging, tracing, etc.
+
 @param levelName the level to set the logger to. Either TRACE, DEBUG, INFO, WARN or ERROR
 @return */
 func (a *DefaultApiService) SetRootLevel(levelName string) (*APIResponse, error) {
@@ -9928,7 +10452,7 @@ func (a *DefaultApiService) SetRootLevel(levelName string) (*APIResponse, error)
 	localVarFormParams := url.Values{}
 
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -9951,12 +10475,12 @@ func (a *DefaultApiService) SetRootLevel(levelName string) (*APIResponse, error)
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -9964,9 +10488,9 @@ func (a *DefaultApiService) SetRootLevel(levelName string) (*APIResponse, error)
 
 /* DefaultApiService
 Updates the server email address   The authenticated user must have the &lt;strong&gt;ADMIN&lt;/strong&gt; permission to call this resource.
-* @param ctx context.Context for authentication, logging, tracing, etc.
+
 @return */
-func (a *DefaultApiService) SetSenderAddress(ctx context.Context) (*APIResponse, error) {
+func (a *DefaultApiService) SetSenderAddress() (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Put")
 		localVarPostBody   interface{}
@@ -9982,7 +10506,7 @@ func (a *DefaultApiService) SetSenderAddress(ctx context.Context) (*APIResponse,
 	localVarFormParams := url.Values{}
 
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -10005,12 +10529,12 @@ func (a *DefaultApiService) SetSenderAddress(ctx context.Context) (*APIResponse,
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -10018,10 +10542,10 @@ func (a *DefaultApiService) SetSenderAddress(ctx context.Context) (*APIResponse,
 
 /* DefaultApiService
 Modify the settings for a repository hook for this repository.  &lt;p&gt;  The service will reject any settings which are too large, the current limit is 32KB once serialized.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;REPO_ADMIN&lt;/strong&gt; permission for the specified repository to call this  resource.  &lt;p&gt;  A JSON document can be provided to use as the settings for the hook. These structure and validity of the document  is decided by the plugin providing the hook.
-* @param ctx context.Context for authentication, logging, tracing, etc.
+
 @param hookKey
 @return */
-func (a *DefaultApiService) SetSettings(hookKey string) (*APIResponse, error) {
+func (a *DefaultApiService) SetSettings(projectKey, repositorySlug string, hookKey string) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Put")
 		localVarPostBody   interface{}
@@ -10031,6 +10555,8 @@ func (a *DefaultApiService) SetSettings(hookKey string) (*APIResponse, error) {
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/repos/{repositorySlug}/settings/hooks/{hookKey}/settings"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
 	localVarPath = strings.Replace(localVarPath, "{"+"hookKey"+"}", fmt.Sprintf("%v", hookKey), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -10038,7 +10564,7 @@ func (a *DefaultApiService) SetSettings(hookKey string) (*APIResponse, error) {
 	localVarFormParams := url.Values{}
 
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -10061,12 +10587,12 @@ func (a *DefaultApiService) SetSettings(hookKey string) (*APIResponse, error) {
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -10074,10 +10600,10 @@ func (a *DefaultApiService) SetSettings(hookKey string) (*APIResponse, error) {
 
 /* DefaultApiService
 Modify the settings for a repository hook for this project.  &lt;p&gt;  The service will reject any settings which are too large, the current limit is 32KB once serialized.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;PROJECT_ADMIN&lt;/strong&gt; permission for the specified project to call this  resource.  &lt;p&gt;  A JSON document can be provided to use as the settings for the hook. These structure and validity of the document  is decided by the plugin providing the hook.
-* @param ctx context.Context for authentication, logging, tracing, etc.
+
 @param hookKey
 @return */
-func (a *DefaultApiService) SetSettings_34(hookKey string) (*APIResponse, error) {
+func (a *DefaultApiService) SetSettings_34(projectKey, repositorySlug string, hookKey string) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Put")
 		localVarPostBody   interface{}
@@ -10087,6 +10613,8 @@ func (a *DefaultApiService) SetSettings_34(hookKey string) (*APIResponse, error)
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/settings/hooks/{hookKey}/settings"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
 	localVarPath = strings.Replace(localVarPath, "{"+"hookKey"+"}", fmt.Sprintf("%v", hookKey), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -10094,7 +10622,7 @@ func (a *DefaultApiService) SetSettings_34(hookKey string) (*APIResponse, error)
 	localVarFormParams := url.Values{}
 
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -10117,12 +10645,12 @@ func (a *DefaultApiService) SetSettings_34(hookKey string) (*APIResponse, error)
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -10130,11 +10658,11 @@ func (a *DefaultApiService) SetSettings_34(hookKey string) (*APIResponse, error)
 
 /* DefaultApiService
  Streams files in the requested &lt;code&gt;path&lt;/code&gt; with the last commit to modify each file. Commit modifications  are traversed starting from the &lt;code&gt;at&lt;/code&gt; commit or, if not specified, from the tip of the default branch.  &lt;p&gt;  Unless the repository is public, the authenticated user must have &lt;b&gt;REPO_READ&lt;/b&gt; access to call this resource.
- * @param ctx context.Context for authentication, logging, tracing, etc.
+
  @param optional (nil or map[string]interface{}) with one or more of:
 	 @param "at" (string) the commit to use as the starting point when listing files and calculating modifications
  @return */
-func (a *DefaultApiService) Stream(localVarOptionals map[string]interface{}) (*APIResponse, error) {
+func (a *DefaultApiService) Stream(projectKey, repositorySlug string, localVarOptionals map[string]interface{}) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Get")
 		localVarPostBody   interface{}
@@ -10144,6 +10672,8 @@ func (a *DefaultApiService) Stream(localVarOptionals map[string]interface{}) (*A
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/repos/{repositorySlug}/last-modified"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -10157,7 +10687,7 @@ func (a *DefaultApiService) Stream(localVarOptionals map[string]interface{}) (*A
 		localVarQueryParams.Add("at", parameterToString(localVarTempParam, ""))
 	}
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -10180,12 +10710,12 @@ func (a *DefaultApiService) Stream(localVarOptionals map[string]interface{}) (*A
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -10193,13 +10723,13 @@ func (a *DefaultApiService) Stream(localVarOptionals map[string]interface{}) (*A
 
 /* DefaultApiService
  Gets the file changes available in the {@code from} commit but not in the {@code to} commit.  &lt;p&gt;  If either the {@code from} or {@code to} commit are not specified, they will be replaced by the  default branch of their containing repository.
- * @param ctx context.Context for authentication, logging, tracing, etc.
+
  @param optional (nil or map[string]interface{}) with one or more of:
 	 @param "from" (string) the source commit (can be a partial/full commit ID or qualified/unqualified ref name)
 	 @param "to" (string) the target commit (can be a partial/full commit ID or qualified/unqualified ref name)
 	 @param "fromRepo" (string) an optional parameter specifying the source repository containing the source commit                  if that commit is not present in the current repository; the repository can be specified                  by either its ID &lt;em&gt;fromRepo&#x3D;42&lt;/em&gt; or by its project key plus its repo slug separated by                  a slash: &lt;em&gt;fromRepo&#x3D;projectKey/repoSlug&lt;/em&gt;
  @return */
-func (a *DefaultApiService) StreamChanges(localVarOptionals map[string]interface{}) (*APIResponse, error) {
+func (a *DefaultApiService) StreamChanges(projectKey, repositorySlug string, localVarOptionals map[string]interface{}) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Get")
 		localVarPostBody   interface{}
@@ -10209,6 +10739,8 @@ func (a *DefaultApiService) StreamChanges(localVarOptionals map[string]interface
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/repos/{repositorySlug}/compare/changes"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -10234,7 +10766,7 @@ func (a *DefaultApiService) StreamChanges(localVarOptionals map[string]interface
 		localVarQueryParams.Add("fromRepo", parameterToString(localVarTempParam, ""))
 	}
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -10257,12 +10789,12 @@ func (a *DefaultApiService) StreamChanges(localVarOptionals map[string]interface
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -10270,14 +10802,14 @@ func (a *DefaultApiService) StreamChanges(localVarOptionals map[string]interface
 
 /* DefaultApiService
  Gets changes for the specified PullRequest.  &lt;p&gt;  If the {@code changeScope} query parameter is set to {@code unreviewed}, the application will attempt to stream  unreviewed changes based on the {@code lastReviewedCommit} of the current user, which are the changes between the  {@code lastReviewedCommit} and the latest commit of the source branch. The current user is considered to  &lt;i&gt;not&lt;/i&gt; have any unreviewed changes for the pull request when the {@code lastReviewedCommit} is either  {@code null} (everything is unreviewed, so all changes are streamed), equal to the latest commit of the source  branch (everything is reviewed), or no longer on the source branch (the source branch has been rebased). In these  cases, the application will fall back to streaming all changes (the default), which is the effective diff for the  pull request. The type of changes streamed can be determined by the {@code changeScope} parameter included in the  properties map of the response.  &lt;p&gt;  Note: This resource is currently &lt;i&gt;not paged&lt;/i&gt;. The server will return at most one page. The server will  truncate the number of changes to either the request&#39;s page limit or an internal maximum, whichever is smaller.  The start parameter of the page request is also ignored.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;REPO_READ&lt;/strong&gt; permission for the repository that this pull request  targets to call this resource.
- * @param ctx context.Context for authentication, logging, tracing, etc.
+
  @param optional (nil or map[string]interface{}) with one or more of:
 	 @param "changeScope" (string) {@code UNREVIEWED} to stream the unreviewed changes for the current user (if they exist);                     {@code RANGE} to stream changes between two arbitrary commits (requires {@code sinceId} and                     {@code untilId}); otherwise {@code ALL} to stream all changes (the default)
 	 @param "sinceId" (string) the since commit hash to stream changes for a {@code RANGE} arbitrary change scope
 	 @param "untilId" (string) the until commit hash to stream changes for a {@code RANGE} arbitrary change scope
 	 @param "withComments" (bool) {@code true} to apply comment counts in the changes (the default); otherwise, {@code false}                      to stream changes without comment counts
  @return */
-func (a *DefaultApiService) StreamChanges_35(localVarOptionals map[string]interface{}) (*APIResponse, error) {
+func (a *DefaultApiService) StreamChanges_35(projectKey, repositorySlug string, pullRequestID int64, localVarOptionals map[string]interface{}) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Get")
 		localVarPostBody   interface{}
@@ -10287,6 +10819,9 @@ func (a *DefaultApiService) StreamChanges_35(localVarOptionals map[string]interf
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/repos/{repositorySlug}/pull-requests/{pullRequestId}/changes"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"pullRequestId"+"}", fmt.Sprintf("%v", pullRequestID), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -10318,7 +10853,7 @@ func (a *DefaultApiService) StreamChanges_35(localVarOptionals map[string]interf
 		localVarQueryParams.Add("withComments", parameterToString(localVarTempParam, ""))
 	}
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -10341,12 +10876,12 @@ func (a *DefaultApiService) StreamChanges_35(localVarOptionals map[string]interf
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -10354,7 +10889,7 @@ func (a *DefaultApiService) StreamChanges_35(localVarOptionals map[string]interf
 
 /* DefaultApiService
  Gets the commits accessible from the {@code from} commit but not in the {@code to} commit.  &lt;p&gt;  If either the {@code from} or {@code to} commit are not specified, they will be replaced by the  default branch of their containing repository.
- * @param ctx context.Context for authentication, logging, tracing, etc.
+
  @param optional (nil or map[string]interface{}) with one or more of:
 	 @param "from" (string) the source commit (can be a partial/full commit ID or qualified/unqualified ref name)
 	 @param "to" (string) the target commit (can be a partial/full commit ID or qualified/unqualified ref name)
@@ -10395,7 +10930,7 @@ func (a *DefaultApiService) StreamCommits(project, repository string, localVarOp
 		localVarQueryParams.Add("fromRepo", parameterToString(localVarTempParam, ""))
 	}
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -10418,12 +10953,12 @@ func (a *DefaultApiService) StreamCommits(project, repository string, localVarOp
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -10431,7 +10966,7 @@ func (a *DefaultApiService) StreamCommits(project, repository string, localVarOp
 
 /* DefaultApiService
  Retrieve the diff between two provided revisions.  &lt;p&gt;  &lt;strong&gt;Note:&lt;/strong&gt; This resource is currently &lt;i&gt;not paged&lt;/i&gt;. The server will internally apply a hard cap  to the streamed lines, and it is not possible to request subsequent pages if that cap is exceeded. In the event  that the cap is reached, the diff will be cut short and one or more {@code truncated} flags will be set to  {@code true} on the {@code \&quot;segments\&quot;}, {@code \&quot;hunks\&quot;} and {@code \&quot;diffs\&quot;} properties, as well as the top-level  object, in the returned JSON response.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;REPO_READ&lt;/strong&gt; permission for the specified repository to call this  resource.
- * @param ctx context.Context for authentication, logging, tracing, etc.
+
  @param commitId
  @param optional (nil or map[string]interface{}) with one or more of:
 	 @param "autoSrcPath" (bool) {@code true} to automatically try to find the source path when it&#39;s not provided,                       {@code false} otherwise. Requires the {@code path} to be provided.
@@ -10441,7 +10976,7 @@ func (a *DefaultApiService) StreamCommits(project, repository string, localVarOp
 	 @param "whitespace" (string) optional whitespace flag which can be set to {@code ignore-all}
 	 @param "withComments" (bool) {@code true} to embed comments in the diff (the default); otherwise {@code false}                       to stream the diff without comments
  @return */
-func (a *DefaultApiService) StreamDiff(commitId string, localVarOptionals map[string]interface{}) (*APIResponse, error) {
+func (a *DefaultApiService) StreamDiff(projectKey, repositorySlug string, commitId string, localVarOptionals map[string]interface{}) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Get")
 		localVarPostBody   interface{}
@@ -10451,6 +10986,8 @@ func (a *DefaultApiService) StreamDiff(commitId string, localVarOptionals map[st
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/repos/{repositorySlug}/commits/{commitId}/diff"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
 	localVarPath = strings.Replace(localVarPath, "{"+"commitId"+"}", fmt.Sprintf("%v", commitId), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -10495,7 +11032,7 @@ func (a *DefaultApiService) StreamDiff(commitId string, localVarOptionals map[st
 		localVarQueryParams.Add("withComments", parameterToString(localVarTempParam, ""))
 	}
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -10518,12 +11055,12 @@ func (a *DefaultApiService) StreamDiff(commitId string, localVarOptionals map[st
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -10531,7 +11068,7 @@ func (a *DefaultApiService) StreamDiff(commitId string, localVarOptionals map[st
 
 /* DefaultApiService
  Retrieve the diff between two provided revisions.  &lt;p&gt;  &lt;strong&gt;Note:&lt;/strong&gt; This resource is currently &lt;i&gt;not paged&lt;/i&gt;. The server will internally apply a hard cap  to the streamed lines, and it is not possible to request subsequent pages if that cap is exceeded. In the event  that the cap is reached, the diff will be cut short and one or more {@code truncated} flags will be set to  {@code true} on the {@code \&quot;segments\&quot;}, {@code \&quot;hunks\&quot;} and {@code \&quot;diffs\&quot;} properties, as well as the top-level  object, in the returned JSON response.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;REPO_READ&lt;/strong&gt; permission for the specified repository to call this  resource.
- * @param ctx context.Context for authentication, logging, tracing, etc.
+
  @param commitId
  @param path the path to the file which should be diffed (optional)
  @param commitId2
@@ -10543,7 +11080,7 @@ func (a *DefaultApiService) StreamDiff(commitId string, localVarOptionals map[st
 	 @param "whitespace" (string) optional whitespace flag which can be set to {@code ignore-all}
 	 @param "withComments" (bool) {@code true} to embed comments in the diff (the default); otherwise {@code false}                       to stream the diff without comments
  @return */
-func (a *DefaultApiService) StreamDiff_36(commitId string, path string, commitId2 string, localVarOptionals map[string]interface{}) (*APIResponse, error) {
+func (a *DefaultApiService) StreamDiff_36(projectKey, repositorySlug string, commitId string, path string, localVarOptionals map[string]interface{}) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Get")
 		localVarPostBody   interface{}
@@ -10553,9 +11090,10 @@ func (a *DefaultApiService) StreamDiff_36(commitId string, path string, commitId
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/repos/{repositorySlug}/commits/{commitId}/diff/{path}"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
 	localVarPath = strings.Replace(localVarPath, "{"+"commitId"+"}", fmt.Sprintf("%v", commitId), -1)
 	localVarPath = strings.Replace(localVarPath, "{"+"path"+"}", fmt.Sprintf("%v", path), -1)
-	localVarPath = strings.Replace(localVarPath, "{"+"commitId"+"}", fmt.Sprintf("%v", commitId2), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -10599,7 +11137,7 @@ func (a *DefaultApiService) StreamDiff_36(commitId string, path string, commitId
 		localVarQueryParams.Add("withComments", parameterToString(localVarTempParam, ""))
 	}
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -10622,12 +11160,12 @@ func (a *DefaultApiService) StreamDiff_36(commitId string, path string, commitId
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -10635,7 +11173,7 @@ func (a *DefaultApiService) StreamDiff_36(commitId string, path string, commitId
 
 /* DefaultApiService
  Gets a diff of the changes available in the {@code from} commit but not in the {@code to} commit.  &lt;p&gt;  If either the {@code from} or {@code to} commit are not specified, they will be replaced by the  default branch of their containing repository.
- * @param ctx context.Context for authentication, logging, tracing, etc.
+
  @param path the path to the file to diff (optional)
  @param optional (nil or map[string]interface{}) with one or more of:
 	 @param "from" (string) the source commit (can be a partial/full commit ID or qualified/unqualified ref name)
@@ -10698,7 +11236,7 @@ func (a *DefaultApiService) StreamDiff_37(project, repository, path string, loca
 		localVarQueryParams.Add("whitespace", parameterToString(localVarTempParam, ""))
 	}
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -10721,12 +11259,12 @@ func (a *DefaultApiService) StreamDiff_37(project, repository, path string, loca
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -10734,7 +11272,7 @@ func (a *DefaultApiService) StreamDiff_37(project, repository, path string, loca
 
 /* DefaultApiService
  Retrieve the diff for a specified file path between two provided revisions.  &lt;p&gt;  &lt;strong&gt;Note:&lt;/strong&gt; This resource is currently &lt;i&gt;not paged&lt;/i&gt;. The server will internally apply a hard cap  to the streamed lines, and it is not possible to request subsequent pages if that cap is exceeded. In the event  that the cap is reached, the diff will be cut short and one or more &lt;code&gt;truncated&lt;/code&gt; flags will be set to  &lt;code&gt;true&lt;/code&gt; on the segments, hunks and diffs substructures in the returned JSON response.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;REPO_READ&lt;/strong&gt; permission for the specified repository to call this  resource.
- * @param ctx context.Context for authentication, logging, tracing, etc.
+
  @param optional (nil or map[string]interface{}) with one or more of:
 	 @param "contextLines" (int32) the number of context lines to include around added/removed lines in the diff
 	 @param "since" (string) the base revision to diff from. If omitted the parent revision of the until revision is used
@@ -10742,7 +11280,7 @@ func (a *DefaultApiService) StreamDiff_37(project, repository, path string, loca
 	 @param "until" (string) the target revision to diff to (required)
 	 @param "whitespace" (string) optional whitespace flag which can be set to &lt;code&gt;ignore-all&lt;/code&gt;
  @return */
-func (a *DefaultApiService) StreamDiff_38(localVarOptionals map[string]interface{}) (*APIResponse, error) {
+func (a *DefaultApiService) StreamDiff_38(projectKey, repositorySlug string, localVarOptionals map[string]interface{}) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Get")
 		localVarPostBody   interface{}
@@ -10752,6 +11290,8 @@ func (a *DefaultApiService) StreamDiff_38(localVarOptionals map[string]interface
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/repos/{repositorySlug}/diff"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -10789,7 +11329,7 @@ func (a *DefaultApiService) StreamDiff_38(localVarOptionals map[string]interface
 		localVarQueryParams.Add("whitespace", parameterToString(localVarTempParam, ""))
 	}
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -10812,12 +11352,12 @@ func (a *DefaultApiService) StreamDiff_38(localVarOptionals map[string]interface
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -10825,7 +11365,7 @@ func (a *DefaultApiService) StreamDiff_38(localVarOptionals map[string]interface
 
 /* DefaultApiService
  Retrieve the diff for a specified file path between two provided revisions.  &lt;p&gt;  &lt;strong&gt;Note:&lt;/strong&gt; This resource is currently &lt;i&gt;not paged&lt;/i&gt;. The server will internally apply a hard cap  to the streamed lines, and it is not possible to request subsequent pages if that cap is exceeded. In the event  that the cap is reached, the diff will be cut short and one or more &lt;code&gt;truncated&lt;/code&gt; flags will be set to  &lt;code&gt;true&lt;/code&gt; on the segments, hunks and diffs substructures in the returned JSON response.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;REPO_READ&lt;/strong&gt; permission for the specified repository to call this  resource.
- * @param ctx context.Context for authentication, logging, tracing, etc.
+
  @param path the path to the file which should be diffed (required)
  @param optional (nil or map[string]interface{}) with one or more of:
 	 @param "contextLines" (int32) the number of context lines to include around added/removed lines in the diff
@@ -10834,7 +11374,7 @@ func (a *DefaultApiService) StreamDiff_38(localVarOptionals map[string]interface
 	 @param "until" (string) the target revision to diff to (required)
 	 @param "whitespace" (string) optional whitespace flag which can be set to &lt;code&gt;ignore-all&lt;/code&gt;
  @return */
-func (a *DefaultApiService) StreamDiff_39(path string, localVarOptionals map[string]interface{}) (*APIResponse, error) {
+func (a *DefaultApiService) StreamDiff_39(projectKey, repositorySlug string, path string, localVarOptionals map[string]interface{}) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Get")
 		localVarPostBody   interface{}
@@ -10844,6 +11384,8 @@ func (a *DefaultApiService) StreamDiff_39(path string, localVarOptionals map[str
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/repos/{repositorySlug}/diff/{path}"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
 	localVarPath = strings.Replace(localVarPath, "{"+"path"+"}", fmt.Sprintf("%v", path), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -10882,7 +11424,7 @@ func (a *DefaultApiService) StreamDiff_39(path string, localVarOptionals map[str
 		localVarQueryParams.Add("whitespace", parameterToString(localVarTempParam, ""))
 	}
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -10905,12 +11447,12 @@ func (a *DefaultApiService) StreamDiff_39(path string, localVarOptionals map[str
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -10918,7 +11460,86 @@ func (a *DefaultApiService) StreamDiff_39(path string, localVarOptionals map[str
 
 /* DefaultApiService
  Streams a diff within a pull request.  &lt;p&gt;  If the specified file has been copied, moved or renamed, the &lt;code&gt;srcPath&lt;/code&gt; must also be specified to  produce the correct diff.  &lt;p&gt;  Note: This RESTful endpoint is currently &lt;i&gt;not paged&lt;/i&gt;. The server will internally apply a hard cap to the  streamed lines, and it is not possible to request subsequent pages if that cap is exceeded.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;REPO_READ&lt;/strong&gt; permission for the repository that this pull request  targets to call this resource.
- * @param ctx context.Context for authentication, logging, tracing, etc.
+
+ @param optional (nil or map[string]interface{}) with one or more of:
+	 @param "contextLines" (int32) the number of context lines to include around added/removed lines in the diff
+	 @param "diffType" (string) the type of diff being requested. When {@code withComments} is {@code true}                      this works as a hint to the system to attach the correct set of comments to the diff
+	 @param "sinceId" (string) the since commit hash to stream a diff between two arbitrary hashes
+	 @param "srcPath" (string) the previous path to the file, if the file has been copied, moved or renamed
+	 @param "untilId" (string) the until commit hash to stream a diff between two arbitrary hashes
+	 @param "whitespace" (string) optional whitespace flag which can be set to &lt;code&gt;ignore-all&lt;/code&gt;
+	 @param "withComments" (bool) &lt;code&gt;true&lt;/code&gt; to embed comments in the diff (the default); otherwise, &lt;code&gt;false&lt;/code&gt;                      to stream the diff without comments
+ @return */
+func (a *DefaultApiService) GetPullRequestDiffRaw(projectKey, repositorySlug string, pullRequestID int, localVarOptionals map[string]interface{}) (*APIResponse, error) {
+	var (
+		localVarHTTPMethod = strings.ToUpper("Get")
+		localVarPostBody   interface{}
+		localVarFileName   string
+		localVarFileBytes  []byte
+	)
+
+	// create path and map variables
+	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/repos/{repositorySlug}/pull-requests/{pullRequestId}.diff"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"pullRequestId"+"}", fmt.Sprintf("%v", pullRequestID), -1)
+
+	localVarHeaderParams := make(map[string]string)
+	localVarQueryParams := url.Values{}
+	localVarFormParams := url.Values{}
+
+	if err := typeCheckParameter(localVarOptionals["contextLines"], "int32", "contextLines"); err != nil {
+		return nil, err
+	}
+	if err := typeCheckParameter(localVarOptionals["whitespace"], "string", "whitespace"); err != nil {
+		return nil, err
+	}
+
+	if localVarTempParam, localVarOk := localVarOptionals["contextLines"].(int32); localVarOk {
+		localVarQueryParams.Add("contextLines", parameterToString(localVarTempParam, ""))
+	}
+	if localVarTempParam, localVarOk := localVarOptionals["whitespace"].(string); localVarOk {
+		localVarQueryParams.Add("whitespace", parameterToString(localVarTempParam, ""))
+	}
+
+	// to determine the Content-Type header
+	localVarHTTPContentTypes := []string{}
+
+	// set Content-Type header
+	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
+	if localVarHTTPContentType != "" {
+		localVarHeaderParams["Content-Type"] = localVarHTTPContentType
+	}
+
+	// to determine the Accept header
+	localVarHTTPHeaderAccepts := []string{""}
+
+	// set Accept header
+	localVarHTTPHeaderAccept := selectHeaderAccept(localVarHTTPHeaderAccepts)
+	if localVarHTTPHeaderAccept != "" {
+		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
+	}
+	r, err := a.client.prepareRequest(a.client.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	if err != nil {
+		return nil, err
+	}
+
+	localVarHTTPResponse, err := a.client.callAPI(r)
+	if err != nil || localVarHTTPResponse == nil {
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
+	}
+	defer localVarHTTPResponse.Body.Close()
+	if localVarHTTPResponse.StatusCode >= 300 {
+		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+	}
+
+	return NewRawAPIResponse(localVarHTTPResponse)
+}
+
+/* DefaultApiService
+ Streams a diff within a pull request.  &lt;p&gt;  If the specified file has been copied, moved or renamed, the &lt;code&gt;srcPath&lt;/code&gt; must also be specified to  produce the correct diff.  &lt;p&gt;  Note: This RESTful endpoint is currently &lt;i&gt;not paged&lt;/i&gt;. The server will internally apply a hard cap to the  streamed lines, and it is not possible to request subsequent pages if that cap is exceeded.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;REPO_READ&lt;/strong&gt; permission for the repository that this pull request  targets to call this resource.
+
  @param optional (nil or map[string]interface{}) with one or more of:
 	 @param "contextLines" (int32) the number of context lines to include around added/removed lines in the diff
 	 @param "diffType" (string) the type of diff being requested. When {@code withComments} is {@code true}                      this works as a hint to the system to attach the correct set of comments to the diff
@@ -10990,7 +11611,7 @@ func (a *DefaultApiService) GetPullRequestDiff(projectKey, repositorySlug string
 		localVarQueryParams.Add("withComments", parameterToString(localVarTempParam, ""))
 	}
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -11013,12 +11634,12 @@ func (a *DefaultApiService) GetPullRequestDiff(projectKey, repositorySlug string
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -11026,7 +11647,7 @@ func (a *DefaultApiService) GetPullRequestDiff(projectKey, repositorySlug string
 
 /* DefaultApiService
  Streams a diff within a pull request.  &lt;p&gt;  If the specified file has been copied, moved or renamed, the &lt;code&gt;srcPath&lt;/code&gt; must also be specified to  produce the correct diff.  &lt;p&gt;  Note: This RESTful endpoint is currently &lt;i&gt;not paged&lt;/i&gt;. The server will internally apply a hard cap to the  streamed lines, and it is not possible to request subsequent pages if that cap is exceeded.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;REPO_READ&lt;/strong&gt; permission for the repository that this pull request  targets to call this resource.
- * @param ctx context.Context for authentication, logging, tracing, etc.
+
  @param path the path to the file which should be diffed (optional)
  @param optional (nil or map[string]interface{}) with one or more of:
 	 @param "contextLines" (int32) the number of context lines to include around added/removed lines in the diff
@@ -11037,7 +11658,7 @@ func (a *DefaultApiService) GetPullRequestDiff(projectKey, repositorySlug string
 	 @param "whitespace" (string) optional whitespace flag which can be set to &lt;code&gt;ignore-all&lt;/code&gt;
 	 @param "withComments" (bool) &lt;code&gt;true&lt;/code&gt; to embed comments in the diff (the default); otherwise, &lt;code&gt;false&lt;/code&gt;                      to stream the diff without comments
  @return */
-func (a *DefaultApiService) StreamDiff_41(path string, localVarOptionals map[string]interface{}) (*APIResponse, error) {
+func (a *DefaultApiService) StreamDiff_41(projectKey, repositorySlug string, pullRequestID int64, path string, localVarOptionals map[string]interface{}) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Get")
 		localVarPostBody   interface{}
@@ -11047,7 +11668,10 @@ func (a *DefaultApiService) StreamDiff_41(path string, localVarOptionals map[str
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/repos/{repositorySlug}/pull-requests/{pullRequestId}/diff/{path}"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
 	localVarPath = strings.Replace(localVarPath, "{"+"path"+"}", fmt.Sprintf("%v", path), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"pullRequestId"+"}", fmt.Sprintf("%v", pullRequestID), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -11097,7 +11721,7 @@ func (a *DefaultApiService) StreamDiff_41(path string, localVarOptionals map[str
 		localVarQueryParams.Add("withComments", parameterToString(localVarTempParam, ""))
 	}
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -11120,12 +11744,12 @@ func (a *DefaultApiService) StreamDiff_41(path string, localVarOptionals map[str
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -11133,11 +11757,11 @@ func (a *DefaultApiService) StreamDiff_41(path string, localVarOptionals map[str
 
 /* DefaultApiService
  Retrieve a page of files from particular directory of a repository. The search is done recursively, so all files  from any sub-directory of the specified directory will be returned.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;REPO_READ&lt;/strong&gt; permission for the specified repository to call this  resource.
- * @param ctx context.Context for authentication, logging, tracing, etc.
+
  @param optional (nil or map[string]interface{}) with one or more of:
 	 @param "at" (string) the commit ID or ref (e.g. a branch or tag) to list the files at.              If not specified the default branch will be used instead.
  @return */
-func (a *DefaultApiService) StreamFiles(localVarOptionals map[string]interface{}) (*APIResponse, error) {
+func (a *DefaultApiService) StreamFiles(projectKey, repositorySlug string, localVarOptionals map[string]interface{}) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Get")
 		localVarPostBody   interface{}
@@ -11147,6 +11771,8 @@ func (a *DefaultApiService) StreamFiles(localVarOptionals map[string]interface{}
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/repos/{repositorySlug}/files"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -11155,12 +11781,24 @@ func (a *DefaultApiService) StreamFiles(localVarOptionals map[string]interface{}
 	if err := typeCheckParameter(localVarOptionals["at"], "string", "at"); err != nil {
 		return nil, err
 	}
+	if err := typeCheckParameter(localVarOptionals["limit"], "int", "limit"); err != nil {
+		return nil, err
+	}
+	if err := typeCheckParameter(localVarOptionals["start"], "int", "start"); err != nil {
+		return nil, err
+	}
 
+	if localVarTempParam, localVarOk := localVarOptionals["limit"].(int); localVarOk {
+		localVarQueryParams.Add("limit", parameterToString(localVarTempParam, ""))
+	}
+	if localVarTempParam, localVarOk := localVarOptionals["start"].(int); localVarOk {
+		localVarQueryParams.Add("start", parameterToString(localVarTempParam, ""))
+	}
 	if localVarTempParam, localVarOk := localVarOptionals["at"].(string); localVarOk {
 		localVarQueryParams.Add("at", parameterToString(localVarTempParam, ""))
 	}
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -11183,12 +11821,12 @@ func (a *DefaultApiService) StreamFiles(localVarOptionals map[string]interface{}
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -11196,12 +11834,12 @@ func (a *DefaultApiService) StreamFiles(localVarOptionals map[string]interface{}
 
 /* DefaultApiService
  Retrieve a page of files from particular directory of a repository. The search is done recursively, so all files  from any sub-directory of the specified directory will be returned.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;REPO_READ&lt;/strong&gt; permission for the specified repository to call this  resource.
- * @param ctx context.Context for authentication, logging, tracing, etc.
+
  @param path the directory to list files for.
  @param optional (nil or map[string]interface{}) with one or more of:
 	 @param "at" (string) the commit ID or ref (e.g. a branch or tag) to list the files at.              If not specified the default branch will be used instead.
  @return */
-func (a *DefaultApiService) StreamFiles_42(path string, localVarOptionals map[string]interface{}) (*APIResponse, error) {
+func (a *DefaultApiService) StreamFiles_42(projectKey, repositorySlug string, path string, localVarOptionals map[string]interface{}) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Get")
 		localVarPostBody   interface{}
@@ -11211,6 +11849,8 @@ func (a *DefaultApiService) StreamFiles_42(path string, localVarOptionals map[st
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/repos/{repositorySlug}/files/{path}"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
 	localVarPath = strings.Replace(localVarPath, "{"+"path"+"}", fmt.Sprintf("%v", path), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -11220,12 +11860,24 @@ func (a *DefaultApiService) StreamFiles_42(path string, localVarOptionals map[st
 	if err := typeCheckParameter(localVarOptionals["at"], "string", "at"); err != nil {
 		return nil, err
 	}
+	if err := typeCheckParameter(localVarOptionals["limit"], "int", "limit"); err != nil {
+		return nil, err
+	}
+	if err := typeCheckParameter(localVarOptionals["start"], "int", "start"); err != nil {
+		return nil, err
+	}
 
+	if localVarTempParam, localVarOk := localVarOptionals["limit"].(int); localVarOk {
+		localVarQueryParams.Add("limit", parameterToString(localVarTempParam, ""))
+	}
+	if localVarTempParam, localVarOk := localVarOptionals["start"].(int); localVarOk {
+		localVarQueryParams.Add("start", parameterToString(localVarTempParam, ""))
+	}
 	if localVarTempParam, localVarOk := localVarOptionals["at"].(string); localVarOk {
 		localVarQueryParams.Add("at", parameterToString(localVarTempParam, ""))
 	}
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -11248,12 +11900,12 @@ func (a *DefaultApiService) StreamFiles_42(path string, localVarOptionals map[st
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -11261,12 +11913,12 @@ func (a *DefaultApiService) StreamFiles_42(path string, localVarOptionals map[st
 
 /* DefaultApiService
  Streams files in the requested &lt;code&gt;path&lt;/code&gt; with the last commit to modify each file. Commit modifications  are traversed starting from the &lt;code&gt;at&lt;/code&gt; commit or, if not specified, from the tip of the default branch.  &lt;p&gt;  Unless the repository is public, the authenticated user must have &lt;b&gt;REPO_READ&lt;/b&gt; access to call this resource.
- * @param ctx context.Context for authentication, logging, tracing, etc.
+
  @param path the path within the repository whose files should be streamed
  @param optional (nil or map[string]interface{}) with one or more of:
 	 @param "at" (string) the commit to use as the starting point when listing files and calculating modifications
  @return */
-func (a *DefaultApiService) Stream_43(path string, localVarOptionals map[string]interface{}) (*APIResponse, error) {
+func (a *DefaultApiService) Stream_43(projectKey, repositorySlug string, path string, localVarOptionals map[string]interface{}) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Get")
 		localVarPostBody   interface{}
@@ -11276,6 +11928,8 @@ func (a *DefaultApiService) Stream_43(path string, localVarOptionals map[string]
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/repos/{repositorySlug}/last-modified/{path}"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
 	localVarPath = strings.Replace(localVarPath, "{"+"path"+"}", fmt.Sprintf("%v", path), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -11290,7 +11944,7 @@ func (a *DefaultApiService) Stream_43(path string, localVarOptionals map[string]
 		localVarQueryParams.Add("at", parameterToString(localVarTempParam, ""))
 	}
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -11313,12 +11967,12 @@ func (a *DefaultApiService) Stream_43(path string, localVarOptionals map[string]
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -11326,11 +11980,11 @@ func (a *DefaultApiService) Stream_43(path string, localVarOptionals map[string]
 
 /* DefaultApiService
  Test connectivity to a specific endpoint.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;REPO_ADMIN&lt;/strong&gt; permission for the specified repository to call this  resource.
- * @param ctx context.Context for authentication, logging, tracing, etc.
+
  @param optional (nil or map[string]interface{}) with one or more of:
 	 @param "url" (string) the url in which to connect to
  @return */
-func (a *DefaultApiService) TestWebhook(localVarOptionals map[string]interface{}) (*APIResponse, error) {
+func (a *DefaultApiService) TestWebhook(projectKey, repositorySlug string, localVarOptionals map[string]interface{}) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Post")
 		localVarPostBody   interface{}
@@ -11340,6 +11994,8 @@ func (a *DefaultApiService) TestWebhook(localVarOptionals map[string]interface{}
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/repos/{repositorySlug}/webhooks/test"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -11353,7 +12009,7 @@ func (a *DefaultApiService) TestWebhook(localVarOptionals map[string]interface{}
 		localVarQueryParams.Add("url", parameterToString(localVarTempParam, ""))
 	}
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -11376,12 +12032,12 @@ func (a *DefaultApiService) TestWebhook(localVarOptionals map[string]interface{}
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -11389,12 +12045,12 @@ func (a *DefaultApiService) TestWebhook(localVarOptionals map[string]interface{}
 
 /* DefaultApiService
  Unassigns a participant from the REVIEWER role they may have been given in a pull request.  &lt;p&gt;  If the participant has no explicit role this method has no effect.  &lt;p&gt;  Afterwards, the user will still remain a participant in the pull request but their role will be reduced to  PARTICIPANT. This is because once made a participant of a pull request,  a user will forever remain a participant. Only their role may be altered.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;REPO_WRITE&lt;/strong&gt; permission for the repository that this pull request  targets to call this resource.  &lt;p&gt;  &lt;strong&gt;Deprecated since 4.2&lt;/strong&gt;. Use  /rest/api/1.0/projects/{projectKey}/repos/{repositorySlug}/pull-requests/{pullRequestId}/participants/{userSlug}  instead.
- * @param ctx context.Context for authentication, logging, tracing, etc.
+
  @param pullRequestId the id of the pull request within the repository
  @param optional (nil or map[string]interface{}) with one or more of:
 	 @param "username" (string) the participant&#39;s user name
  @return */
-func (a *DefaultApiService) UnassignParticipantRole(pullRequestID int64, localVarOptionals map[string]interface{}) (*APIResponse, error) {
+func (a *DefaultApiService) UnassignParticipantRole(projectKey, repositorySlug string, pullRequestID int64, localVarOptionals map[string]interface{}) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Delete")
 		localVarPostBody   interface{}
@@ -11404,6 +12060,8 @@ func (a *DefaultApiService) UnassignParticipantRole(pullRequestID int64, localVa
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/repos/{repositorySlug}/pull-requests/{pullRequestId}/participants"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
 	localVarPath = strings.Replace(localVarPath, "{"+"pullRequestId"+"}", fmt.Sprintf("%v", pullRequestID), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -11418,7 +12076,7 @@ func (a *DefaultApiService) UnassignParticipantRole(pullRequestID int64, localVa
 		localVarQueryParams.Add("username", parameterToString(localVarTempParam, ""))
 	}
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -11441,12 +12099,12 @@ func (a *DefaultApiService) UnassignParticipantRole(pullRequestID int64, localVa
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -11454,12 +12112,12 @@ func (a *DefaultApiService) UnassignParticipantRole(pullRequestID int64, localVa
 
 /* UnassignParticipantRole_44
 Unassigns a participant from the REVIEWER role they may have been given in a pull request.  &lt;p&gt;  If the participant has no explicit role this method has no effect.  &lt;p&gt;  Afterwards, the user will still remain a participant in the pull request but their role will be reduced to  PARTICIPANT. This is because once made a participant of a pull request,  a user will forever remain a participant. Only their role may be altered.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;REPO_WRITE&lt;/strong&gt; permission for the repository that this pull request  targets to call this resource.  &lt;p&gt;  &lt;strong&gt;Deprecated since 4.2&lt;/strong&gt;. Use  /rest/api/1.0/projects/{projectKey}/repos/{repositorySlug}/pull-requests/{pullRequestId}/participants/{userSlug}  instead.
- * @param ctx context.Context for authentication, logging, tracing, etc.
+
  @param pullRequestId the id of the pull request within the repository
  @param userSlug the slug for the user changing their status
  @param pullRequestId2 the id of the pull request within the repository
  @return */
-func (a *DefaultApiService) UnassignParticipantRole_44(pullRequestID int64, userSlug string, pullRequestId2 int64) (*APIResponse, error) {
+func (a *DefaultApiService) UnassignParticipantRole_44(projectKey, repositorySlug string, pullRequestID int64, userSlug string) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Delete")
 		localVarPostBody   interface{}
@@ -11469,16 +12127,17 @@ func (a *DefaultApiService) UnassignParticipantRole_44(pullRequestID int64, user
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/repos/{repositorySlug}/pull-requests/{pullRequestId}/participants/{userSlug}"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
 	localVarPath = strings.Replace(localVarPath, "{"+"pullRequestId"+"}", fmt.Sprintf("%v", pullRequestID), -1)
 	localVarPath = strings.Replace(localVarPath, "{"+"userSlug"+"}", fmt.Sprintf("%v", userSlug), -1)
-	localVarPath = strings.Replace(localVarPath, "{"+"pullRequestId"+"}", fmt.Sprintf("%v", pullRequestId2), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -11501,12 +12160,12 @@ func (a *DefaultApiService) UnassignParticipantRole_44(pullRequestID int64, user
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -11514,10 +12173,10 @@ func (a *DefaultApiService) UnassignParticipantRole_44(pullRequestID int64, user
 
 /* DefaultApiService
 Removes the authenticated user as a watcher for the specified commit.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;REPO_READ&lt;/strong&gt; permission for the repository containing the commit  to call this resource.
-* @param ctx context.Context for authentication, logging, tracing, etc.
+
 @param commitId the &lt;i&gt;full {@link Commit#getId() ID}&lt;/i&gt; of the commit within the repository
 @return */
-func (a *DefaultApiService) Unwatch(commitId string) (*APIResponse, error) {
+func (a *DefaultApiService) Unwatch(projectKey, repositorySlug string, commitId string) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Delete")
 		localVarPostBody   interface{}
@@ -11527,6 +12186,8 @@ func (a *DefaultApiService) Unwatch(commitId string) (*APIResponse, error) {
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/repos/{repositorySlug}/commits/{commitId}/watch"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
 	localVarPath = strings.Replace(localVarPath, "{"+"commitId"+"}", fmt.Sprintf("%v", commitId), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -11534,7 +12195,7 @@ func (a *DefaultApiService) Unwatch(commitId string) (*APIResponse, error) {
 	localVarFormParams := url.Values{}
 
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -11557,12 +12218,12 @@ func (a *DefaultApiService) Unwatch(commitId string) (*APIResponse, error) {
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -11570,10 +12231,10 @@ func (a *DefaultApiService) Unwatch(commitId string) (*APIResponse, error) {
 
 /* DefaultApiService
 Make the authenticated user stop watching the specified pull request.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;REPO_READ&lt;/strong&gt; permission for the repository that this pull request  targets to call this resource.
-* @param ctx context.Context for authentication, logging, tracing, etc.
+
 @param pullRequestId the id of the pull request within the repository
 @return */
-func (a *DefaultApiService) Unwatch_45(pullRequestID int64) (*APIResponse, error) {
+func (a *DefaultApiService) Unwatch_45(projectKey, repositorySlug string, pullRequestID int64) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Delete")
 		localVarPostBody   interface{}
@@ -11583,6 +12244,8 @@ func (a *DefaultApiService) Unwatch_45(pullRequestID int64) (*APIResponse, error
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/repos/{repositorySlug}/pull-requests/{pullRequestId}/watch"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
 	localVarPath = strings.Replace(localVarPath, "{"+"pullRequestId"+"}", fmt.Sprintf("%v", pullRequestID), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -11590,7 +12253,7 @@ func (a *DefaultApiService) Unwatch_45(pullRequestID int64) (*APIResponse, error
 	localVarFormParams := url.Values{}
 
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -11613,12 +12276,12 @@ func (a *DefaultApiService) Unwatch_45(pullRequestID int64) (*APIResponse, error
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -11626,9 +12289,9 @@ func (a *DefaultApiService) Unwatch_45(pullRequestID int64) (*APIResponse, error
 
 /* DefaultApiService
 Decodes the provided encoded license and sets it as the active license. If no license was provided, a 400 is  returned. If the license cannot be decoded, or cannot be applied, a 409 is returned. Some possible reasons a  license may not be applied include:  &lt;ul&gt;      &lt;li&gt;It is for a different product&lt;/li&gt;      &lt;li&gt;It is already expired&lt;/li&gt;  &lt;/ul&gt;  Otherwise, if the license is updated successfully, details for the new license are returned with a 200 response.  &lt;p&gt;  &lt;b&gt;Warning&lt;/b&gt;: It is possible to downgrade the license during update, applying a license with a lower number  of permitted users. If the number of currently-licensed users exceeds the limits of the new license, pushing  will be disabled until the licensed user count is brought into compliance with the new license.  &lt;p&gt;  The authenticated user must have &lt;b&gt;SYS_ADMIN&lt;/b&gt; permission. &lt;b&gt;ADMIN&lt;/b&gt; users may &lt;i&gt;view&lt;/i&gt; the current  license details, but they may not &lt;i&gt;update&lt;/i&gt; the license.
-* @param ctx context.Context for authentication, logging, tracing, etc.
+
 @return */
-func (a *DefaultApiService) Update(ctx context.Context) (*APIResponse, error) {
+func (a *DefaultApiService) Update() (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Post")
 		localVarPostBody   interface{}
@@ -11644,7 +12307,7 @@ func (a *DefaultApiService) Update(ctx context.Context) (*APIResponse, error) {
 	localVarFormParams := url.Values{}
 
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -11667,12 +12330,12 @@ func (a *DefaultApiService) Update(ctx context.Context) (*APIResponse, error) {
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -11680,12 +12343,12 @@ func (a *DefaultApiService) Update(ctx context.Context) (*APIResponse, error) {
 
 /* DefaultApiService
 Update the text of a comment. Only the user who created a comment may update it.  &lt;p&gt;  &lt;strong&gt;Note:&lt;/strong&gt; the supplied supplied JSON object must contain a &lt;code&gt;version&lt;/code&gt; that must match  the server&#39;s version of the comment or the update will fail. To determine the current version of the comment,  the comment should be fetched from the server prior to the update. Look for the &#39;version&#39; attribute in the  returned JSON structure.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;REPO_READ&lt;/strong&gt; permission for the repository that the commit  is in to call this resource.
-* @param ctx context.Context for authentication, logging, tracing, etc.
+
 @param commitId the commit to which the comments must be anchored
 @param commentId the ID of the comment to retrieve
 @param commitId2 the &lt;i&gt;full {@link Commit#getId() ID}&lt;/i&gt; of the commit within the repository
 @return */
-func (a *DefaultApiService) UpdateComment(commitId string, commentId int64, commitId2 string) (*APIResponse, error) {
+func (a *DefaultApiService) UpdateComment(projectKey, repositorySlug string, commitId string, commentId int64) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Put")
 		localVarPostBody   interface{}
@@ -11695,16 +12358,17 @@ func (a *DefaultApiService) UpdateComment(commitId string, commentId int64, comm
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/repos/{repositorySlug}/commits/{commitId}/comments/{commentId}"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
 	localVarPath = strings.Replace(localVarPath, "{"+"commitId"+"}", fmt.Sprintf("%v", commitId), -1)
 	localVarPath = strings.Replace(localVarPath, "{"+"commentId"+"}", fmt.Sprintf("%v", commentId), -1)
-	localVarPath = strings.Replace(localVarPath, "{"+"commitId"+"}", fmt.Sprintf("%v", commitId2), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -11727,12 +12391,12 @@ func (a *DefaultApiService) UpdateComment(commitId string, commentId int64, comm
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -11740,10 +12404,10 @@ func (a *DefaultApiService) UpdateComment(commitId string, commentId int64, comm
 
 /* DefaultApiService
 Update the text of a comment. Only the user who created a comment may update it.  &lt;p&gt;  &lt;strong&gt;Note:&lt;/strong&gt; the supplied supplied JSON object must contain a &lt;code&gt;version&lt;/code&gt; that must match the  server&#39;s version of the comment or the update will fail. To determine the current version of  the comment, the comment should be fetched from the server prior to the update. Look for the  &#39;version&#39; attribute in the returned JSON structure.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;REPO_READ&lt;/strong&gt; permission for the repository that this pull request  targets to call this resource.
-* @param ctx context.Context for authentication, logging, tracing, etc.
+
 @param commentId the id of the comment to retrieve
 @return */
-func (a *DefaultApiService) UpdateComment_46(commentId int64) (*APIResponse, error) {
+func (a *DefaultApiService) UpdateComment_46(projectKey, repositorySlug string, pullRequestID, commentId int64) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Put")
 		localVarPostBody   interface{}
@@ -11753,6 +12417,9 @@ func (a *DefaultApiService) UpdateComment_46(commentId int64) (*APIResponse, err
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/repos/{repositorySlug}/pull-requests/{pullRequestId}/comments/{commentId}"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"pullRequestId"+"}", fmt.Sprintf("%v", pullRequestID), -1)
 	localVarPath = strings.Replace(localVarPath, "{"+"commentId"+"}", fmt.Sprintf("%v", commentId), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -11760,7 +12427,7 @@ func (a *DefaultApiService) UpdateComment_46(commentId int64) (*APIResponse, err
 	localVarFormParams := url.Values{}
 
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -11783,12 +12450,12 @@ func (a *DefaultApiService) UpdateComment_46(commentId int64) (*APIResponse, err
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -11796,9 +12463,9 @@ func (a *DefaultApiService) UpdateComment_46(commentId int64) (*APIResponse, err
 
 /* DefaultApiService
 Update the project matching the &lt;strong&gt;projectKey&lt;/strong&gt; supplied in the resource path.  &lt;p&gt;  To include a custom avatar for the updated project, the project definition should contain an additional attribute  with the key &lt;code&gt;avatar&lt;/code&gt; and the value a data URI containing Base64-encoded image data. The URI should be  in the following format:  &lt;code&gt;      data:(content type, e.g. image/png);base64,(data)  &lt;/code&gt;  If the data is not Base64-encoded, or if a character set is defined in the URI, or the URI is otherwise invalid,  &lt;em&gt;project creation will fail&lt;/em&gt;.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;PROJECT_ADMIN&lt;/strong&gt; permission for the specified project to call this  resource.
-* @param ctx context.Context for authentication, logging, tracing, etc.
+
 @return */
-func (a *DefaultApiService) UpdateProject(ctx context.Context) (*APIResponse, error) {
+func (a *DefaultApiService) UpdateProject(projectKey string) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Put")
 		localVarPostBody   interface{}
@@ -11808,13 +12475,14 @@ func (a *DefaultApiService) UpdateProject(ctx context.Context) (*APIResponse, er
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -11837,22 +12505,22 @@ func (a *DefaultApiService) UpdateProject(ctx context.Context) (*APIResponse, er
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
 }
 
 /* DefaultApiService
-Update the pull request settings for the context repository.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;REPO_ADMIN&lt;/strong&gt; permission for the context repository to call this  resource.  &lt;p&gt;  This resource will call all RestFragments that are registered with the key  &lt;strong&gt;bitbucket.repository.settings.pullRequests&lt;/strong&gt;. If any fragment fails validations by returning a  non-empty Map of errors, then no fragments will execute.  &lt;p&gt;  Only the settings that should be updated need to be included in the request.  &lt;p&gt;  The property keys for the settings that are bundled with the application are  &lt;ul&gt;      &lt;li&gt;mergeConfig - the merge strategy configuration for pull requests&lt;/li&gt;      &lt;li&gt;requiredApprovers - (Deprecated, please use com.atlassian.bitbucket.server.bundled-hooks.requiredApproversMergeHook instead) the number of approvals required on a pull request for it to be mergeable, or 0 to disable the merge check&lt;/li&gt;      &lt;li&gt;com.atlassian.bitbucket.server.bundled-hooks.requiredApproversMergeHook - a json map containing the keys &#39;enabled&#39; (a boolean to enable or disable this merge check) and &#39;count&#39; (an integer to set the number of required approvals)&lt;/li&gt;      &lt;li&gt;requiredAllApprovers - whether or not all approvers must approve a pull request for it to be mergeable&lt;/li&gt;      &lt;li&gt;requiredAllTasksComplete - whether or not all tasks on a pull request need to be completed for it to be mergeable&lt;/li&gt;      &lt;li&gt;requiredSuccessfulBuilds - (Deprecated, please use com.atlassian.bitbucket.server.bitbucket-build.requiredBuildsMergeCheck instead) the number of successful builds on a pull request for it to be mergeable, or 0 to disable the merge check&lt;/li&gt;      &lt;li&gt;com.atlassian.bitbucket.server.bitbucket-build.requiredBuildsMergeCheck - a json map containing the keys &#39;enabled&#39; (a boolean to enable or disable this merge check) and &#39;count&#39; (an integer to set the number of required builds)&lt;/li&gt;  &lt;/ul&gt;  &lt;strong&gt;Merge strategy configuration deletion:&lt;/strong&gt;  &lt;p&gt;  An explicitly set pull request merge strategy configuration can be deleted by POSTing a document with an empty  \&quot;mergeConfig\&quot; attribute. i.e:  &lt;pre&gt;  {      \&quot;mergeConfig\&quot;: {      }  }  &lt;/pre&gt;  Upon completion of this request, the effective configuration will be:  &lt;ul&gt;      &lt;li&gt;The configuration set for this repository&#39;s SCM type as set at the project level, if present, otherwise&lt;/li&gt;      &lt;li&gt;the configuration set for this repository&#39;s SCM type as set at the instance level, if present, otherwise&lt;/li&gt;      &lt;li&gt;the default configuration for this repository&#39;s SCM type&lt;/li&gt;  &lt;ul&gt;
-* @param ctx context.Context for authentication, logging, tracing, etc.
+Update the pull request settings for the context repository.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;REPO_ADMIN&lt;/strong&gt; permission for the context repository to call this  resource.  &lt;p&gt;  This resource will call all RestFragments that are registered with the key  &lt;strong&gt;bitbucket.repository.settings.pullRequests&lt;/strong&gt;. If any fragment fails validations by returning a  non-empty Map of errors, then no fragments will execute.  &lt;p&gt;  Only the settings that should be updated need to be included in the request.  &lt;p&gt;  The property keys for the settings that are bundled with the application are  &lt;ul&gt;      &lt;li&gt;mergeConfig - the merge strategy configuration for pull requests&lt;/li&gt;      &lt;li&gt;requiredApprovers - (Deprecated, please use com.atlassian.bitbucket.server.bundled-hooks.requiredApproversMergeHook instead) the number of approvals required on a pull request for it to be mergeable, or 0 to disable the merge check&lt;/li&gt;      &lt;li&gt;com.atlassian.bitbucket.server.bundled-hooks.requiredApproversMergeHook - a json map containing the keys &#39;enabled&#39; (a boolean to enable or disable this merge check) and &#39;count&#39; (an integer to set the number of required approvals)&lt;/li&gt;      &lt;li&gt;requiredAllApprovers - whether or not all approvers must approve a pull request for it to be mergeable&lt;/li&gt;      &lt;li&gt;requiredAllTasksComplete - whether or not all tasks on a pull request need to be completed for it to be mergeable&lt;/li&gt;      &lt;li&gt;requiredSuccessfulBuilds - (Deprecated, please use com.atlassian.bitbucket.server.bitbucket-build.requiredBuildsMergeCheck instead) the number of successful s on a pull request for it to be mergeable, or 0 to disable the merge check&lt;/li&gt;      &lt;li&gt;com.atlassian.bitbucket.server.bitbucket-build.requiredBuildsMergeCheck - a json map containing the keys &#39;enabled&#39; (a boolean to enable or disable this merge check) and &#39;count&#39; (an integer to set the number of required builds)&lt;/li&gt;  &lt;/ul&gt;  &lt;strong&gt;Merge strategy configuration deletion:&lt;/strong&gt;  &lt;p&gt;  An explicitly set pull request merge strategy configuration can be deleted by POSTing a document with an empty  \&quot;mergeConfig\&quot; attribute. i.e:  &lt;pre&gt;  {      \&quot;mergeConfig\&quot;: {      }  }  &lt;/pre&gt;  Upon completion of this request, the effective configuration will be:  &lt;ul&gt;      &lt;li&gt;The configuration set for this repository&#39;s SCM type as set at the project level, if present, otherwise&lt;/li&gt;      &lt;li&gt;the configuration set for this repository&#39;s SCM type as set at the instance level, if present, otherwise&lt;/li&gt;      &lt;li&gt;the default configuration for this repository&#39;s SCM type&lt;/li&gt;  &lt;ul&gt;
+
 @return */
-func (a *DefaultApiService) UpdatePullRequestSettings(ctx context.Context) (*APIResponse, error) {
+func (a *DefaultApiService) UpdatePullRequestSettings(projectKey, repositorySlug string) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Post")
 		localVarPostBody   interface{}
@@ -11862,13 +12530,15 @@ func (a *DefaultApiService) UpdatePullRequestSettings(ctx context.Context) (*API
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/repos/{repositorySlug}/settings/pull-requests"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -11891,12 +12561,12 @@ func (a *DefaultApiService) UpdatePullRequestSettings(ctx context.Context) (*API
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -11904,10 +12574,10 @@ func (a *DefaultApiService) UpdatePullRequestSettings(ctx context.Context) (*API
 
 /* DefaultApiService
 Update the pull request merge strategy configuration for this project and SCM.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;PROJECT_ADMIN&lt;/strong&gt; permission for the context repository to call this  resource.  &lt;p&gt;  Only the strategies provided will be enabled, the default must be set and included in the set of strategies.  &lt;p&gt;  An explicitly set pull request merge strategy configuration can be deleted by POSTing a document with  an empty \&quot;mergeConfig\&quot; attribute. i.e:  &lt;pre&gt;  {      \&quot;mergeConfig\&quot;: {      }  }  &lt;/pre&gt;  Upon completion of this request, the effective configuration will be the configuration explicitly set for  the SCM, or if no such explicit configuration is set then the default configuration will be used.
-* @param ctx context.Context for authentication, logging, tracing, etc.
+
 @param scmId the SCM to get strategies for
 @return */
-func (a *DefaultApiService) UpdatePullRequestSettings_47(scmId string) (*APIResponse, error) {
+func (a *DefaultApiService) UpdatePullRequestSettings_47(projectKey, repositorySlug string, scmId string) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Post")
 		localVarPostBody   interface{}
@@ -11917,6 +12587,8 @@ func (a *DefaultApiService) UpdatePullRequestSettings_47(scmId string) (*APIResp
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/settings/pull-requests/{scmId}"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
 	localVarPath = strings.Replace(localVarPath, "{"+"scmId"+"}", fmt.Sprintf("%v", scmId), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -11924,7 +12596,7 @@ func (a *DefaultApiService) UpdatePullRequestSettings_47(scmId string) (*APIResp
 	localVarFormParams := url.Values{}
 
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -11947,12 +12619,12 @@ func (a *DefaultApiService) UpdatePullRequestSettings_47(scmId string) (*APIResp
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -11960,7 +12632,7 @@ func (a *DefaultApiService) UpdatePullRequestSettings_47(scmId string) (*APIResp
 
 /* DefaultApiService
 Update the repository matching the &lt;strong&gt;repositorySlug&lt;/strong&gt; supplied in the resource path.  &lt;p&gt;  The repository&#39;s slug is derived from its name. If the name changes the slug may also change.  &lt;p&gt;  This API can be used to move the repository to a different project by setting the new project in the request,  example: {@code {\&quot;project\&quot;:{\&quot;key\&quot;:\&quot;NEW_KEY\&quot;}}} .  &lt;p&gt;  The authenticated user must have &lt;strong&gt;REPO_ADMIN&lt;/strong&gt; permission for the specified repository to call this  resource.
-* @param ctx context.Context for authentication, logging, tracing, etc.
+
 @param projectKey the parent project key
 @param projectKey2 the parent project key
 @param repositorySlug the repository slug
@@ -12006,12 +12678,12 @@ func (a *DefaultApiService) UpdateRepositoryWithOptions(projectKey, repositorySl
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -12019,9 +12691,9 @@ func (a *DefaultApiService) UpdateRepositoryWithOptions(projectKey, repositorySl
 
 /* DefaultApiService
 Update the entries of a map of user setting key/values for a specific user identified by the user slug.  &lt;p&gt;
-* @param ctx context.Context for authentication, logging, tracing, etc.
+
 @return */
-func (a *DefaultApiService) UpdateSettings(ctx context.Context) (*APIResponse, error) {
+func (a *DefaultApiService) UpdateSettings(userSlug string) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Post")
 		localVarPostBody   interface{}
@@ -12031,13 +12703,14 @@ func (a *DefaultApiService) UpdateSettings(ctx context.Context) (*APIResponse, e
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/users/{userSlug}/settings"
+	localVarPath = strings.Replace(localVarPath, "{"+"userSlug"+"}", fmt.Sprintf("%v", userSlug), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -12060,12 +12733,12 @@ func (a *DefaultApiService) UpdateSettings(ctx context.Context) (*APIResponse, e
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -12073,12 +12746,12 @@ func (a *DefaultApiService) UpdateSettings(ctx context.Context) (*APIResponse, e
 
 /* DefaultApiService
 Change the current user&#39;s status for a pull request. Implicitly adds the user as a participant if they are not  already. If the current user is the author, this method will fail.  &lt;p&gt;  The possible values for {@code status} are &lt;strong&gt;UNAPPROVED&lt;/strong&gt;, &lt;strong&gt;NEEDS_WORK&lt;/strong&gt;, or  &lt;strong&gt;APPROVED&lt;/strong&gt;.  &lt;p&gt;  If the new {@code status} is &lt;strong&gt;NEEDS_WORK&lt;/strong&gt; or &lt;strong&gt;APPROVED&lt;/strong&gt; then the  {@code lastReviewedCommit} for the participant will be updated to the latest commit of the source branch of the  pull request.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;REPO_READ&lt;/strong&gt; permission for the repository that this pull request  targets to call this resource.
-* @param ctx context.Context for authentication, logging, tracing, etc.
+
 @param pullRequestId the id of the pull request within the repository
 @param userSlug the slug for the user changing their status
 @param pullRequestId2 the id of the pull request within the repository
 @return */
-func (a *DefaultApiService) UpdateStatus(pullRequestID int64, userSlug string, pullRequestId2 int64) (*APIResponse, error) {
+func (a *DefaultApiService) UpdateStatus(projectKey, repositorySlug string, pullRequestID int64, userSlug string, participant UserWithMetadata) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Put")
 		localVarPostBody   interface{}
@@ -12086,18 +12759,24 @@ func (a *DefaultApiService) UpdateStatus(pullRequestID int64, userSlug string, p
 		localVarFileBytes  []byte
 	)
 
+	localVarPostBody, err := json.Marshal(participant)
+	if err != nil {
+		return nil, err
+	}
+
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/repos/{repositorySlug}/pull-requests/{pullRequestId}/participants/{userSlug}"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
 	localVarPath = strings.Replace(localVarPath, "{"+"pullRequestId"+"}", fmt.Sprintf("%v", pullRequestID), -1)
 	localVarPath = strings.Replace(localVarPath, "{"+"userSlug"+"}", fmt.Sprintf("%v", userSlug), -1)
-	localVarPath = strings.Replace(localVarPath, "{"+"pullRequestId"+"}", fmt.Sprintf("%v", pullRequestId2), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -12120,12 +12799,12 @@ func (a *DefaultApiService) UpdateStatus(pullRequestID int64, userSlug string, p
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -12133,7 +12812,7 @@ func (a *DefaultApiService) UpdateStatus(pullRequestID int64, userSlug string, p
 
 /* DefaultApiService
 Update a existing task.  &lt;p&gt;  As of Stash 3.3, only the state and text of a task can be updated.  &lt;p&gt;  Updating the state of a task is allowed for any user having &lt;em&gt;READ&lt;/em&gt; access to the repository.  However only the task&#39;s creator, the context&#39;s author or an admin of the context&#39;s repository can update the  task&#39;s text. (For a pull request task, those are the task&#39;s creator, the pull request&#39;s author or an admin on the  repository containing the pull request). Additionally the task&#39;s text cannot be updated if it has been resolved.
-* @param ctx context.Context for authentication, logging, tracing, etc.
+
 @param taskId the id identifying the task to delete
 @return */
 func (a *DefaultApiService) UpdateTask(taskId int64) (*APIResponse, error) {
@@ -12153,7 +12832,7 @@ func (a *DefaultApiService) UpdateTask(taskId int64) (*APIResponse, error) {
 	localVarFormParams := url.Values{}
 
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -12176,12 +12855,12 @@ func (a *DefaultApiService) UpdateTask(taskId int64) (*APIResponse, error) {
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -12189,9 +12868,9 @@ func (a *DefaultApiService) UpdateTask(taskId int64) (*APIResponse, error) {
 
 /* DefaultApiService
 Update a user&#39;s details.  &lt;p&gt;  The authenticated user must have the &lt;strong&gt;ADMIN&lt;/strong&gt; permission to call this resource.
-* @param ctx context.Context for authentication, logging, tracing, etc.
+
 @return */
-func (a *DefaultApiService) UpdateUserDetails(ctx context.Context) (*APIResponse, error) {
+func (a *DefaultApiService) UpdateUserDetails() (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Put")
 		localVarPostBody   interface{}
@@ -12207,7 +12886,7 @@ func (a *DefaultApiService) UpdateUserDetails(ctx context.Context) (*APIResponse
 	localVarFormParams := url.Values{}
 
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -12230,12 +12909,12 @@ func (a *DefaultApiService) UpdateUserDetails(ctx context.Context) (*APIResponse
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -12243,9 +12922,9 @@ func (a *DefaultApiService) UpdateUserDetails(ctx context.Context) (*APIResponse
 
 /* DefaultApiService
 Update the currently authenticated user&#39;s details. The update will always be applied to the currently  authenticated user.
-* @param ctx context.Context for authentication, logging, tracing, etc.
+
 @return */
-func (a *DefaultApiService) UpdateUserDetails_48(ctx context.Context) (*APIResponse, error) {
+func (a *DefaultApiService) UpdateUserDetails_48() (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Put")
 		localVarPostBody   interface{}
@@ -12261,7 +12940,7 @@ func (a *DefaultApiService) UpdateUserDetails_48(ctx context.Context) (*APIRespo
 	localVarFormParams := url.Values{}
 
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -12284,12 +12963,12 @@ func (a *DefaultApiService) UpdateUserDetails_48(ctx context.Context) (*APIRespo
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -12297,9 +12976,9 @@ func (a *DefaultApiService) UpdateUserDetails_48(ctx context.Context) (*APIRespo
 
 /* DefaultApiService
 Update a user&#39;s password.  &lt;p&gt;  The authenticated user must have the &lt;strong&gt;ADMIN&lt;/strong&gt; permission to call this resource, and may not update  the password of a user with greater permissions than themselves.
-* @param ctx context.Context for authentication, logging, tracing, etc.
+
 @return */
-func (a *DefaultApiService) UpdateUserPassword(ctx context.Context) (*APIResponse, error) {
+func (a *DefaultApiService) UpdateUserPassword() (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Put")
 		localVarPostBody   interface{}
@@ -12315,7 +12994,7 @@ func (a *DefaultApiService) UpdateUserPassword(ctx context.Context) (*APIRespons
 	localVarFormParams := url.Values{}
 
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -12338,12 +13017,12 @@ func (a *DefaultApiService) UpdateUserPassword(ctx context.Context) (*APIRespons
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -12351,9 +13030,9 @@ func (a *DefaultApiService) UpdateUserPassword(ctx context.Context) (*APIRespons
 
 /* DefaultApiService
 Update the currently authenticated user&#39;s password.
-* @param ctx context.Context for authentication, logging, tracing, etc.
+
 @return */
-func (a *DefaultApiService) UpdateUserPassword_49(ctx context.Context) (*APIResponse, error) {
+func (a *DefaultApiService) UpdateUserPassword_49() (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Put")
 		localVarPostBody   interface{}
@@ -12369,7 +13048,7 @@ func (a *DefaultApiService) UpdateUserPassword_49(ctx context.Context) (*APIResp
 	localVarFormParams := url.Values{}
 
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -12392,12 +13071,12 @@ func (a *DefaultApiService) UpdateUserPassword_49(ctx context.Context) (*APIResp
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -12405,7 +13084,7 @@ func (a *DefaultApiService) UpdateUserPassword_49(ctx context.Context) (*APIResp
 
 /* DefaultApiService
 Update an existing webhook.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;REPO_ADMIN&lt;/strong&gt; permission for the specified repository to call this  resource.
-* @param ctx context.Context for authentication, logging, tracing, etc.
+
 @param webhookId the existing webhook id
 @return */
 func (a *DefaultApiService) UpdateWebhook(projectKey, repositorySlug string, webhookId int32, localVarPostBody interface{}, localVarHTTPContentTypes []string) (*APIResponse, error) {
@@ -12446,12 +13125,12 @@ func (a *DefaultApiService) UpdateWebhook(projectKey, repositorySlug string, web
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -12459,10 +13138,10 @@ func (a *DefaultApiService) UpdateWebhook(projectKey, repositorySlug string, web
 
 /* DefaultApiService
 Update the title, description, reviewers or destination branch of an existing pull request.  &lt;p&gt;  &lt;strong&gt;Note:&lt;/strong&gt; the &lt;em&gt;reviewers&lt;/em&gt; list may be updated using this resource. However the  &lt;em&gt;author&lt;/em&gt; and &lt;em&gt;participants&lt;/em&gt; list may not.  &lt;p&gt;  The authenticated user must either:  &lt;ul&gt;      &lt;li&gt;be the author of the pull request and have the &lt;strong&gt;REPO_READ&lt;/strong&gt; permission for the repository      that this pull request targets; or&lt;/li&gt;      &lt;li&gt;have the &lt;strong&gt;REPO_WRITE&lt;/strong&gt; permission for the repository that this pull request targets&lt;/li&gt;  &lt;/ul&gt;  to call this resource.
-* @param ctx context.Context for authentication, logging, tracing, etc.
+
 @param pullRequestId the ID of the pull request within the repository
 @return */
-func (a *DefaultApiService) Update_50(pullRequestID int64) (*APIResponse, error) {
+func (a *DefaultApiService) Update_50(projectKey, repositorySlug string, pullRequestID int64) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Put")
 		localVarPostBody   interface{}
@@ -12472,6 +13151,8 @@ func (a *DefaultApiService) Update_50(pullRequestID int64) (*APIResponse, error)
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/repos/{repositorySlug}/pull-requests/{pullRequestId}"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
 	localVarPath = strings.Replace(localVarPath, "{"+"pullRequestId"+"}", fmt.Sprintf("%v", pullRequestID), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -12479,7 +13160,7 @@ func (a *DefaultApiService) Update_50(pullRequestID int64) (*APIResponse, error)
 	localVarFormParams := url.Values{}
 
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -12502,12 +13183,12 @@ func (a *DefaultApiService) Update_50(pullRequestID int64) (*APIResponse, error)
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -12515,9 +13196,9 @@ func (a *DefaultApiService) Update_50(pullRequestID int64) (*APIResponse, error)
 
 /* DefaultApiService
 Update the avatar for the project matching the supplied &lt;strong&gt;projectKey&lt;/strong&gt;.  &lt;p&gt;  This resource accepts POST multipart form data, containing a single image in a form-field named &#39;avatar&#39;.  &lt;p&gt;  There are configurable server limits on both the dimensions (1024x1024 pixels by default) and uploaded file size  (1MB by default). Several different image formats are supported, but &lt;strong&gt;PNG&lt;/strong&gt; and  &lt;strong&gt;JPEG&lt;/strong&gt; are preferred due to the file size limit.  &lt;p&gt;  This resource has Cross-Site Request Forgery (XSRF) protection. To allow the request to  pass the XSRF check the caller needs to send an &lt;code&gt;X-Atlassian-Token&lt;/code&gt; HTTP header with the  value &lt;code&gt;no-check&lt;/code&gt;.  &lt;p&gt;  An example &lt;a href&#x3D;\&quot;http://curl.haxx.se/\&quot;&gt;curl&lt;/a&gt; request to upload an image name &#39;avatar.png&#39; would be:  &lt;pre&gt;  curl -X POST -u username:password -H \&quot;X-Atlassian-Token: no-check\&quot; http://example.com/rest/api/1.0/projects/STASH/avatar.png -F avatar&#x3D;@avatar.png  &lt;/pre&gt;  &lt;p&gt;  The authenticated user must have &lt;strong&gt;PROJECT_ADMIN&lt;/strong&gt; permission for the specified project to call this  resource.
-* @param ctx context.Context for authentication, logging, tracing, etc.
+
 @return */
-func (a *DefaultApiService) UploadAvatar(ctx context.Context) (*APIResponse, error) {
+func (a *DefaultApiService) UploadAvatar(projectKey string) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Post")
 		localVarPostBody   interface{}
@@ -12527,13 +13208,14 @@ func (a *DefaultApiService) UploadAvatar(ctx context.Context) (*APIResponse, err
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/avatar.png"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -12556,12 +13238,12 @@ func (a *DefaultApiService) UploadAvatar(ctx context.Context) (*APIResponse, err
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -12569,9 +13251,9 @@ func (a *DefaultApiService) UploadAvatar(ctx context.Context) (*APIResponse, err
 
 /* DefaultApiService
 Update the avatar for the user with the supplied &lt;strong&gt;slug&lt;/strong&gt;.  &lt;p&gt;  This resource accepts POST multipart form data, containing a single image in a form-field named &#39;avatar&#39;.  &lt;p&gt;  There are configurable server limits on both the dimensions (1024x1024 pixels by default) and uploaded  file size (1MB by default). Several different image formats are supported, but &lt;strong&gt;PNG&lt;/strong&gt; and  &lt;strong&gt;JPEG&lt;/strong&gt; are preferred due to the file size limit.  &lt;p&gt;  This resource has Cross-Site Request Forgery (XSRF) protection. To allow the request to  pass the XSRF check the caller needs to send an &lt;code&gt;X-Atlassian-Token&lt;/code&gt; HTTP header with the  value &lt;code&gt;no-check&lt;/code&gt;.  &lt;p&gt;  An example &lt;a href&#x3D;\&quot;http://curl.haxx.se/\&quot;&gt;curl&lt;/a&gt; request to upload an image name &#39;avatar.png&#39; would be:  &lt;pre&gt;  curl -X POST -u username:password -H \&quot;X-Atlassian-Token: no-check\&quot; http://example.com/rest/api/latest/users/jdoe/avatar.png -F avatar&#x3D;@avatar.png  &lt;/pre&gt;  &lt;p&gt;  Users are always allowed to update their own avatar. To update someone else&#39;s avatar the authenticated user must  have global &lt;strong&gt;ADMIN&lt;/strong&gt; permission, or global &lt;strong&gt;SYS_ADMIN&lt;/strong&gt; permission to update a  &lt;strong&gt;SYS_ADMIN&lt;/strong&gt; user&#39;s avatar.
-* @param ctx context.Context for authentication, logging, tracing, etc.
+
 @return */
-func (a *DefaultApiService) UploadAvatar_51(ctx context.Context) (*APIResponse, error) {
+func (a *DefaultApiService) UploadAvatar_51(userSlug string) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Post")
 		localVarPostBody   interface{}
@@ -12581,13 +13263,14 @@ func (a *DefaultApiService) UploadAvatar_51(ctx context.Context) (*APIResponse, 
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/users/{userSlug}/avatar.png"
+	localVarPath = strings.Replace(localVarPath, "{"+"userSlug"+"}", fmt.Sprintf("%v", userSlug), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -12610,12 +13293,12 @@ func (a *DefaultApiService) UploadAvatar_51(ctx context.Context) (*APIResponse, 
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -12623,10 +13306,10 @@ func (a *DefaultApiService) UploadAvatar_51(ctx context.Context) (*APIResponse, 
 
 /* DefaultApiService
 Adds the authenticated user as a watcher for the specified commit.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;REPO_READ&lt;/strong&gt; permission for the repository containing the commit  to call this resource.
-* @param ctx context.Context for authentication, logging, tracing, etc.
+
 @param commitId the &lt;i&gt;full {@link Commit#getId() ID}&lt;/i&gt; of the commit within the repository
 @return */
-func (a *DefaultApiService) Watch(commitId string) (*APIResponse, error) {
+func (a *DefaultApiService) Watch(projectKey, repositorySlug string, commitId string) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Post")
 		localVarPostBody   interface{}
@@ -12636,6 +13319,8 @@ func (a *DefaultApiService) Watch(commitId string) (*APIResponse, error) {
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/repos/{repositorySlug}/commits/{commitId}/watch"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
 	localVarPath = strings.Replace(localVarPath, "{"+"commitId"+"}", fmt.Sprintf("%v", commitId), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -12643,7 +13328,7 @@ func (a *DefaultApiService) Watch(commitId string) (*APIResponse, error) {
 	localVarFormParams := url.Values{}
 
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -12666,12 +13351,12 @@ func (a *DefaultApiService) Watch(commitId string) (*APIResponse, error) {
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -12679,10 +13364,10 @@ func (a *DefaultApiService) Watch(commitId string) (*APIResponse, error) {
 
 /* DefaultApiService
 Make the authenticated user watch the specified pull request.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;REPO_READ&lt;/strong&gt; permission for the repository that this pull request  targets to call this resource.
-* @param ctx context.Context for authentication, logging, tracing, etc.
+
 @param pullRequestId the id of the pull request within the repository
 @return */
-func (a *DefaultApiService) Watch_52(pullRequestID int64) (*APIResponse, error) {
+func (a *DefaultApiService) Watch_52(projectKey, repositorySlug string, pullRequestID int64) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Post")
 		localVarPostBody   interface{}
@@ -12692,6 +13377,8 @@ func (a *DefaultApiService) Watch_52(pullRequestID int64) (*APIResponse, error) 
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/repos/{repositorySlug}/pull-requests/{pullRequestId}/watch"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
 	localVarPath = strings.Replace(localVarPath, "{"+"pullRequestId"+"}", fmt.Sprintf("%v", pullRequestID), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -12699,7 +13386,7 @@ func (a *DefaultApiService) Watch_52(pullRequestID int64) (*APIResponse, error) 
 	localVarFormParams := url.Values{}
 
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -12722,12 +13409,12 @@ func (a *DefaultApiService) Watch_52(pullRequestID int64) (*APIResponse, error) 
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
@@ -12735,10 +13422,10 @@ func (a *DefaultApiService) Watch_52(pullRequestID int64) (*APIResponse, error) 
 
 /* DefaultApiService
 Remove approval from a pull request as the current user. This does not remove the user as a participant.  &lt;p&gt;  The authenticated user must have &lt;strong&gt;REPO_READ&lt;/strong&gt; permission for the repository that this pull request  targets to call this resource.  &lt;p&gt;  &lt;strong&gt;Deprecated since 4.2&lt;/strong&gt;. Use  /rest/api/1.0/projects/{projectKey}/repos/{repositorySlug}/pull-requests/{pullRequestId}/participants/{userSlug} instead
-* @param ctx context.Context for authentication, logging, tracing, etc.
+
 @param pullRequestId the id of the pull request within the repository
 @return */
-func (a *DefaultApiService) WithdrawApproval(pullRequestID int64) (*APIResponse, error) {
+func (a *DefaultApiService) WithdrawApproval(projectKey, repositorySlug string, pullRequestID int64) (*APIResponse, error) {
 	var (
 		localVarHTTPMethod = strings.ToUpper("Delete")
 		localVarPostBody   interface{}
@@ -12748,6 +13435,8 @@ func (a *DefaultApiService) WithdrawApproval(pullRequestID int64) (*APIResponse,
 
 	// create path and map variables
 	localVarPath := a.client.cfg.BasePath + "/api/1.0/projects/{projectKey}/repos/{repositorySlug}/pull-requests/{pullRequestId}/approve"
+	localVarPath = strings.Replace(localVarPath, "{"+"projectKey"+"}", fmt.Sprintf("%v", projectKey), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"repositorySlug"+"}", fmt.Sprintf("%v", repositorySlug), -1)
 	localVarPath = strings.Replace(localVarPath, "{"+"pullRequestId"+"}", fmt.Sprintf("%v", pullRequestID), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -12755,7 +13444,7 @@ func (a *DefaultApiService) WithdrawApproval(pullRequestID int64) (*APIResponse,
 	localVarFormParams := url.Values{}
 
 	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
+	localVarHTTPContentTypes := []string{"application/json"}
 
 	// set Content-Type header
 	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
@@ -12778,12 +13467,311 @@ func (a *DefaultApiService) WithdrawApproval(pullRequestID int64) (*APIResponse,
 
 	localVarHTTPResponse, err := a.client.callAPI(r)
 	if err != nil || localVarHTTPResponse == nil {
-		return NewAPIResponseWithError(localVarHTTPResponse, err)
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
 	}
 	defer localVarHTTPResponse.Body.Close()
 	if localVarHTTPResponse.StatusCode >= 300 {
 		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
-		return NewAPIResponseWithError(localVarHTTPResponse, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+	}
+
+	return NewBitbucketAPIResponse(localVarHTTPResponse)
+}
+
+/*
+DefaultApiService
+Gets statistics regarding the builds associated with a commit.
+ * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+ * @param commitId the commit Id
+
+
+*/
+func (a *DefaultApiService) GetCommitStats(commitId string) (*APIResponse, error) {
+	var (
+		localVarHttpMethod = strings.ToUpper("Get")
+		localVarPostBody   interface{}
+		localVarFileName   string
+		localVarFileBytes  []byte
+	)
+
+	// create path and map variables
+	localVarPath := a.client.cfg.BasePath + "/build-status/1.0/commits/stats/{commitId}"
+	localVarPath = strings.Replace(localVarPath, "{"+"commitId"+"}", fmt.Sprintf("%v", commitId), -1)
+
+	localVarHeaderParams := make(map[string]string)
+	localVarQueryParams := url.Values{}
+	localVarFormParams := url.Values{}
+
+	// to determine the Content-Type header
+	localVarHttpContentTypes := []string{}
+
+	// set Content-Type header
+	localVarHttpContentType := selectHeaderContentType(localVarHttpContentTypes)
+	if localVarHttpContentType != "" {
+		localVarHeaderParams["Content-Type"] = localVarHttpContentType
+	}
+
+	// to determine the Accept header
+	localVarHttpHeaderAccepts := []string{}
+
+	// set Accept header
+	localVarHttpHeaderAccept := selectHeaderAccept(localVarHttpHeaderAccepts)
+	if localVarHttpHeaderAccept != "" {
+		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
+	}
+	r, err := a.client.prepareRequest(a.client.ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	if err != nil {
+		return nil, err
+	}
+
+	localVarHTTPResponse, err := a.client.callAPI(r)
+	if err != nil || localVarHTTPResponse == nil {
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
+	}
+	defer localVarHTTPResponse.Body.Close()
+	if localVarHTTPResponse.StatusCode >= 300 {
+		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+	}
+
+	return NewBitbucketAPIResponse(localVarHTTPResponse)
+}
+
+/*
+DefaultApiService
+Gets the build statuses associated with a commit.
+ * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+ * @param commitId the commit Id
+
+
+*/
+func (a *DefaultApiService) GetCommitStatus(commitId string) (*APIResponse, error) {
+	var (
+		localVarHttpMethod = strings.ToUpper("Get")
+		localVarPostBody   interface{}
+		localVarFileName   string
+		localVarFileBytes  []byte
+	)
+
+	// create path and map variables
+	localVarPath := a.client.cfg.BasePath + "/rest/build-status/1.0/commits/{commitId}"
+	localVarPath = strings.Replace(localVarPath, "{"+"commitId"+"}", fmt.Sprintf("%v", commitId), -1)
+
+	localVarHeaderParams := make(map[string]string)
+	localVarQueryParams := url.Values{}
+	localVarFormParams := url.Values{}
+
+	// to determine the Content-Type header
+	localVarHttpContentTypes := []string{}
+
+	// set Content-Type header
+	localVarHttpContentType := selectHeaderContentType(localVarHttpContentTypes)
+	if localVarHttpContentType != "" {
+		localVarHeaderParams["Content-Type"] = localVarHttpContentType
+	}
+
+	// to determine the Accept header
+	localVarHttpHeaderAccepts := []string{}
+
+	// set Accept header
+	localVarHttpHeaderAccept := selectHeaderAccept(localVarHttpHeaderAccepts)
+	if localVarHttpHeaderAccept != "" {
+		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
+	}
+	r, err := a.client.prepareRequest(a.client.ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	if err != nil {
+		return nil, err
+	}
+
+	localVarHTTPResponse, err := a.client.callAPI(r)
+	if err != nil || localVarHTTPResponse == nil {
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
+	}
+	defer localVarHTTPResponse.Body.Close()
+	if localVarHTTPResponse.StatusCode >= 300 {
+		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+	}
+
+	return NewBitbucketAPIResponse(localVarHTTPResponse)
+}
+
+/*
+DefaultApiService
+Produces a list of the build statistics for multiple commits. Commits without any builds associated with them will not be returned.  For example if the commit e00cf62997a027bbf785614a93e2e55bb331d268 does not have any build statuses associated with it, it will not be present in the response.
+ * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+ * @param commits Array of commits.
+
+
+*/
+func (a *DefaultApiService) GetCommitsStats(commits []string) (*APIResponse, error) {
+	var (
+		localVarHttpMethod = strings.ToUpper("Post")
+		localVarPostBody   interface{}
+		localVarFileName   string
+		localVarFileBytes  []byte
+	)
+
+	// create path and map variables
+	localVarPath := a.client.cfg.BasePath + "/build-status/1.0/commits/stats"
+
+	localVarHeaderParams := make(map[string]string)
+	localVarQueryParams := url.Values{}
+	localVarFormParams := url.Values{}
+
+	// to determine the Content-Type header
+	localVarHttpContentTypes := []string{}
+
+	// set Content-Type header
+	localVarHttpContentType := selectHeaderContentType(localVarHttpContentTypes)
+	if localVarHttpContentType != "" {
+		localVarHeaderParams["Content-Type"] = localVarHttpContentType
+	}
+
+	// to determine the Accept header
+	localVarHttpHeaderAccepts := []string{}
+
+	// set Accept header
+	localVarHttpHeaderAccept := selectHeaderAccept(localVarHttpHeaderAccepts)
+	if localVarHttpHeaderAccept != "" {
+		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
+	}
+	// body params
+	localVarPostBody = &commits
+	r, err := a.client.prepareRequest(a.client.ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	if err != nil {
+		return nil, err
+	}
+
+	localVarHTTPResponse, err := a.client.callAPI(r)
+	if err != nil || localVarHTTPResponse == nil {
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
+	}
+	defer localVarHTTPResponse.Body.Close()
+	if localVarHTTPResponse.StatusCode >= 300 {
+		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+	}
+
+	return NewBitbucketAPIResponse(localVarHTTPResponse)
+}
+
+/*
+DefaultApiService
+Associates a build status with a commit. The state, the key and the url are mandatory. The name and description fields are optional. All fields (mandatory or optional) are limited to 255 characters, except for the url, which is limited to 450 characters. Supported values for the state are SUCCESSFUL, FAILED and INPROGRESS. The authenticated user must have LICENSED permission or higher to call this resource.
+ * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+ * @param commitId the commit Id
+ * @param buildStatus Array of commits.
+
+
+*/
+func (a *DefaultApiService) SetCommitStatus(commitId string, buildStatus BuildStatus) (*APIResponse, error) {
+	var (
+		localVarHttpMethod = strings.ToUpper("Post")
+		localVarPostBody   interface{}
+		localVarFileName   string
+		localVarFileBytes  []byte
+	)
+
+	// create path and map variables
+	localVarPath := a.client.cfg.BasePath + "/rest/build-status/1.0/commits/{commitId}"
+	localVarPath = strings.Replace(localVarPath, "{"+"commitId"+"}", fmt.Sprintf("%v", commitId), -1)
+
+	localVarHeaderParams := make(map[string]string)
+	localVarQueryParams := url.Values{}
+	localVarFormParams := url.Values{}
+
+	// to determine the Content-Type header
+	localVarHttpContentTypes := []string{}
+
+	// set Content-Type header
+	localVarHttpContentType := selectHeaderContentType(localVarHttpContentTypes)
+	if localVarHttpContentType != "" {
+		localVarHeaderParams["Content-Type"] = localVarHttpContentType
+	}
+
+	// to determine the Accept header
+	localVarHttpHeaderAccepts := []string{}
+
+	// set Accept header
+	localVarHttpHeaderAccept := selectHeaderAccept(localVarHttpHeaderAccepts)
+	if localVarHttpHeaderAccept != "" {
+		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
+	}
+	// body params
+	localVarPostBody = &buildStatus
+	r, err := a.client.prepareRequest(a.client.ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	if err != nil {
+		return nil, err
+	}
+
+	localVarHTTPResponse, err := a.client.callAPI(r)
+	if err != nil || localVarHTTPResponse == nil {
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
+	}
+	defer localVarHTTPResponse.Body.Close()
+	if localVarHTTPResponse.StatusCode >= 300 {
+		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
+	}
+
+	return NewBitbucketAPIResponse(localVarHTTPResponse)
+}
+
+/*
+SearchCode
+
+ * @param searchString Search string
+
+*/
+func (a *DefaultApiService) SearchCode(query SearchQuery) (*APIResponse, error) {
+	var (
+		localVarHttpMethod = strings.ToUpper("Post")
+		localVarPostBody   interface{}
+		localVarFileName   string
+		localVarFileBytes  []byte
+	)
+
+	// create path and map variables
+	localVarPath := a.client.cfg.BasePath + "/search/latest/search"
+
+	localVarHeaderParams := make(map[string]string)
+	localVarQueryParams := url.Values{}
+	localVarFormParams := url.Values{}
+
+	// to determine the Content-Type header
+	localVarHttpContentTypes := []string{}
+
+	// set Content-Type header
+	localVarHttpContentType := selectHeaderContentType(localVarHttpContentTypes)
+	if localVarHttpContentType != "" {
+		localVarHeaderParams["Content-Type"] = localVarHttpContentType
+	}
+
+	// to determine the Accept header
+	localVarHttpHeaderAccepts := []string{"application/json"}
+
+	// set Accept header
+	localVarHttpHeaderAccept := selectHeaderAccept(localVarHttpHeaderAccepts)
+	if localVarHttpHeaderAccept != "" {
+		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
+	}
+
+	// body params
+	localVarPostBody = &query
+	r, err := a.client.prepareRequest(a.client.ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	if err != nil {
+		return nil, err
+	}
+
+	localVarHTTPResponse, err := a.client.callAPI(r)
+	if err != nil || localVarHTTPResponse == nil {
+		return NewAPIResponseWithError(localVarHTTPResponse, nil, err)
+	}
+	defer localVarHTTPResponse.Body.Close()
+	if localVarHTTPResponse.StatusCode >= 300 {
+		bodyBytes, _ := ioutil.ReadAll(localVarHTTPResponse.Body)
+		return NewAPIResponseWithError(localVarHTTPResponse, bodyBytes, reportError("Status: %v, Body: %s", localVarHTTPResponse.Status, bodyBytes))
 	}
 
 	return NewBitbucketAPIResponse(localVarHTTPResponse)
