@@ -5,18 +5,31 @@
 package bitbucketv1
 
 import (
+	"io"
+	"log"
+	"net/http"
+	"net/http/httptest"
 	"os"
 	"reflect"
 	"testing"
 	"time"
 
 	"golang.org/x/net/context"
+
+	sw "github.com/gfleury/go-bitbucket-v1/test/bb-mock-server/go"
 )
 
 var runIntegrationTests bool
 
 func TestAAAAA(t *testing.T) {
 	runIntegrationTests = os.Getenv("INTEGRATION") == "TRUE"
+
+	if runIntegrationTests {
+		go func() {
+			log.Fatal(sw.RunServer(7990))
+		}()
+		time.Sleep(2 * time.Second)
+	}
 }
 
 func generateContextCanceled() context.Context {
@@ -124,7 +137,7 @@ func TestDefaultApiService_AddUserToGroups(t *testing.T) {
 		client *APIClient
 	}
 	type args struct {
-		name string
+		name   string
 		groups []string
 	}
 	tests := []struct {
@@ -199,7 +212,7 @@ func TestDefaultApiService_Approve(t *testing.T) {
 	type args struct {
 		projectKey     string
 		repositorySlug string
-		pullRequestID  int64
+		pullRequestID  int
 	}
 	tests := []struct {
 		name                     string
@@ -237,7 +250,7 @@ func TestDefaultApiService_AssignParticipantRole(t *testing.T) {
 	type args struct {
 		projectKey     string
 		repositorySlug string
-		pullRequestID  int64
+		pullRequestID  int
 	}
 	tests := []struct {
 		name                     string
@@ -275,7 +288,7 @@ func TestDefaultApiService_CanMerge(t *testing.T) {
 	type args struct {
 		projectKey     string
 		repositorySlug string
-		pullRequestID  int64
+		pullRequestID  int
 	}
 	tests := []struct {
 		name                     string
@@ -384,7 +397,7 @@ func TestDefaultApiService_CountPullRequestTasks(t *testing.T) {
 	type args struct {
 		projectKey     string
 		repositorySlug string
-		pullRequestId  int64
+		pullRequestId  int
 	}
 	tests := []struct {
 		name                     string
@@ -434,10 +447,10 @@ func TestDefaultApiService_Create(t *testing.T) {
 		{"networkErrorContextExceeded", fields{client: generateConfigFake()}, args{}, &APIResponse{Message: "Post https://stash.domain.com/rest/api/1.0/projects//repos//pull-requests: context canceled"}, true, false},
 		{"InvalidRequest", fields{client: generateConfigRealLocalServer()},
 			args{projectKey: "PROJ",
-				repositorySlug:    "repo1",
+				repositorySlug:    "repo1_test1",
 				localVarOptionals: map[string]interface{}{"values": "values"}},
 			&APIResponse{
-				Message: "Status: 400 , Body: {errors:[{context:null,message:title must be supplied for this request,exceptionName:null}]}",
+				Message: "Status: 400 Bad Request, Body: {errors:[{context:null,exceptionName:null,message:title must be supplied for this request}]}",
 				Values: map[string]interface{}{
 					"errors": []interface{}{
 						map[string]interface{}{
@@ -451,7 +464,7 @@ func TestDefaultApiService_Create(t *testing.T) {
 			true, true},
 		{"ValidRequestNoBranch", fields{client: generateConfigRealLocalServer()},
 			args{projectKey: "PROJ",
-				repositorySlug: "repo1",
+				repositorySlug: "repo1_test2",
 				localVarOptionals: map[string]interface{}{
 					"title":       "test PR",
 					"description": "test Desc",
@@ -480,7 +493,7 @@ func TestDefaultApiService_Create(t *testing.T) {
 				},
 			},
 			&APIResponse{
-				Message: `Status: 404 , Body: {errors:[{context:null,message:Repository \repo1\ of project with key \PROJ\ has no branch \refs/heads/feature\,exceptionName:com.atlassian.bitbucket.commit.NoSuchCommitException}]}`,
+				Message: `Status: 404 Not Found, Body: {errors:[{context:null,exceptionName:com.atlassian.bitbucket.commit.NoSuchCommitException,message:Repository \repo1\ of project with key \PROJ\ has no branch \refs/heads/feature\}]}`,
 				Values: map[string]interface{}{
 					"errors": []interface{}{
 						map[string]interface{}{
@@ -535,11 +548,11 @@ func TestDefaultApiService_CreatePullRequest(t *testing.T) {
 		{"networkErrorContextExceeded", fields{client: generateConfigFake()}, args{}, &APIResponse{Message: "Post https://stash.domain.com/rest/api/1.0/projects//repos//pull-requests: context canceled"}, true, false},
 		{"InvalidRequest", fields{client: generateConfigRealLocalServer()},
 			args{projectKey: "PROJ",
-				repositorySlug:    "repo1",
+				repositorySlug:    "repo1_test1",
 				localVarOptionals: PullRequest{},
 			},
 			&APIResponse{
-				Message: "Status: 400 , Body: {errors:[{context:null,message:title must be supplied for this request,exceptionName:null}]}",
+				Message: "Status: 400 Bad Request, Body: {errors:[{context:null,exceptionName:null,message:title must be supplied for this request}]}",
 				Values: map[string]interface{}{
 					"errors": []interface{}{
 						map[string]interface{}{
@@ -553,7 +566,7 @@ func TestDefaultApiService_CreatePullRequest(t *testing.T) {
 			true, true},
 		{"ValidRequestNoBranch", fields{client: generateConfigRealLocalServer()},
 			args{projectKey: "PROJ",
-				repositorySlug: "repo1",
+				repositorySlug: "repo1_test2",
 				localVarOptionals: PullRequest{
 					Title:       "test PR",
 					Description: "test Desc",
@@ -581,7 +594,7 @@ func TestDefaultApiService_CreatePullRequest(t *testing.T) {
 					Locked: false,
 				},
 			},
-			&APIResponse{Message: `Status: 404 , Body: {errors:[{context:null,message:Repository \repo1\ of project with key \PROJ\ has no branch \refs/heads/feature\,exceptionName:com.atlassian.bitbucket.commit.NoSuchCommitException}]}`,
+			&APIResponse{Message: `Status: 404 Not Found, Body: {errors:[{context:null,exceptionName:com.atlassian.bitbucket.commit.NoSuchCommitException,message:Repository \repo1\ of project with key \PROJ\ has no branch \refs/heads/feature\}]}`,
 				Values: map[string]interface{}{
 					"errors": []interface{}{
 						map[string]interface{}{
@@ -616,6 +629,49 @@ func TestDefaultApiService_CreatePullRequest(t *testing.T) {
 		})
 	}
 }
+
+func TestDefaultApiService_UpdatePullRequest(t *testing.T) {
+	type fields struct {
+		client *APIClient
+	}
+	tests := []struct {
+		name                     string
+		projectKey               string
+		repositorySlug           string
+		want                     *APIResponse
+		updatePullRequestOptions *EditPullRequestOptions
+		wantErr                  bool
+		fields                   fields
+	}{
+		{
+			projectKey:               "test",
+			repositorySlug:           "repoTest",
+			want:                     &APIResponse{Message: "Put https://stash.domain.com/rest/api/1.0/projects/test/repos/repoTest/pull-requests/0: context canceled"},
+			updatePullRequestOptions: &EditPullRequestOptions{},
+			wantErr:                  true,
+			fields:                   fields{client: generateConfigFake()},
+		},
+	}
+	for _, tt := range tests {
+		client := &DefaultApiService{
+			client: tt.fields.client,
+		}
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := client.UpdatePullRequest(tt.projectKey, tt.repositorySlug, tt.updatePullRequestOptions)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("DefaultApiService.Create() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if got != nil {
+				got.Response = nil
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("DefaultApiService.Create() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
 func TestDefaultApiService_CreateBranch(t *testing.T) {
 	type fields struct {
 		client *APIClient
@@ -717,7 +773,7 @@ func TestDefaultApiService_CreateCommentWithComment(t *testing.T) {
 				commitId:       "657f55ce41710f9bfde15c374837136728fae9d9e0eca0b97cb7bfea5095af30",
 				comment:        Comment{Text: "Simple comment"},
 			},
-			&APIResponse{Message: `Status: 404 , Body: {errors:[{context:null,message:Commit '657f55ce41710f9bfde15c374837136728fae9d9e0eca0b97cb7bfea5095af30' does not exist in repository 'repo1'.,exceptionName:com.atlassian.bitbucket.commit.NoSuchCommitException}]}`,
+			&APIResponse{Message: `Status: 404 Not Found, Body: {errors:[{context:null,exceptionName:com.atlassian.bitbucket.commit.NoSuchCommitException,message:Commit '657f55ce41710f9bfde15c374837136728fae9d9e0eca0b97cb7bfea5095af30' does not exist in repository 'repo1'.}]}`,
 				Values: map[string]interface{}{
 					"errors": []interface{}{
 						map[string]interface{}{
@@ -780,7 +836,7 @@ func TestDefaultApiService_CreatePullRequestComment(t *testing.T) {
 				comment:                  Comment{Text: "Simple comment"},
 				localVarHTTPContentTypes: []string{"application/json"},
 			},
-			&APIResponse{Message: `Status: 404 , Body: {errors:[{context:null,message:Pull request 1 does not exist in PROJ/repo1.,exceptionName:com.atlassian.bitbucket.pull.NoSuchPullRequestException}]}`,
+			&APIResponse{Message: `Status: 404 Not Found, Body: {errors:[{context:null,exceptionName:com.atlassian.bitbucket.pull.NoSuchPullRequestException,message:Pull request 1 does not exist in PROJ/repo1.}]}`,
 				Values: map[string]interface{}{
 					"errors": []interface{}{
 						map[string]interface{}{
@@ -1157,7 +1213,7 @@ func TestDefaultApiService_Decline(t *testing.T) {
 	type args struct {
 		projectKey        string
 		repositorySlug    string
-		pullRequestID     int64
+		pullRequestID     int
 		localVarOptionals map[string]interface{}
 	}
 	tests := []struct {
@@ -1196,7 +1252,7 @@ func TestDefaultApiService_Delete(t *testing.T) {
 	type args struct {
 		projectKey     string
 		repositorySlug string
-		pullRequestID  int64
+		pullRequestID  int
 	}
 	tests := []struct {
 		name                     string
@@ -1214,7 +1270,7 @@ func TestDefaultApiService_Delete(t *testing.T) {
 				pullRequestID:  -1,
 			},
 			&APIResponse{
-				Message: "Status: 404 , Body: {errors:[{context:null,message:No pull request exists with ID -1 for this repository 1,exceptionName:com.atlassian.bitbucket.pull.NoSuchPullRequestException}]}",
+				Message: "Status: 404 Not Found, Body: {errors:[{context:null,exceptionName:com.atlassian.bitbucket.pull.NoSuchPullRequestException,message:No pull request exists with ID -1 for this repository 1}]}",
 				Values: map[string]interface{}{
 					"errors": []interface{}{
 						map[string]interface{}{
@@ -1294,7 +1350,7 @@ func TestDefaultApiService_DeleteComment(t *testing.T) {
 		projectKey        string
 		repositorySlug    string
 		commitId          string
-		commentId         int64
+		commentId         int
 		localVarOptionals map[string]interface{}
 	}
 	tests := []struct {
@@ -1333,8 +1389,8 @@ func TestDefaultApiService_DeleteComment_2(t *testing.T) {
 	type args struct {
 		projectKey        string
 		repositorySlug    string
-		pullRequestId     int64
-		commentId         int64
+		pullRequestId     int
+		commentId         int
 		localVarOptionals map[string]interface{}
 	}
 	tests := []struct {
@@ -1553,7 +1609,7 @@ func TestDefaultApiService_DeleteTask(t *testing.T) {
 		client *APIClient
 	}
 	type args struct {
-		taskId int64
+		taskId int
 	}
 	tests := []struct {
 		name                     string
@@ -1849,6 +1905,45 @@ func TestDefaultApiService_EnableHook_4(t *testing.T) {
 	}
 }
 
+func TestDefaultApiService_EnableHook_4_WithOptions(t *testing.T) {
+	type fields struct {
+		client *APIClient
+	}
+	type args struct {
+		projectKey        string
+		hookKey           string
+		localVarOptionals map[string]interface{}
+		localVarPostBody  map[string]interface{}
+	}
+	tests := []struct {
+		name                     string
+		fields                   fields
+		args                     args
+		want                     *APIResponse
+		wantErr, integrationTest bool
+	}{
+		{"networkErrorContextExceeded", fields{client: generateConfigFake()}, args{}, &APIResponse{Message: "Put https://stash.domain.com/rest/api/1.0/projects//settings/hooks//enabled: context canceled"}, true, false},
+	}
+	for _, tt := range tests {
+		if tt.integrationTest != runIntegrationTests {
+			continue
+		}
+		t.Run(tt.name, func(t *testing.T) {
+			a := &DefaultApiService{
+				client: tt.fields.client,
+			}
+			got, err := a.EnableHook_4_WithOptions(tt.args.projectKey, tt.args.hookKey, tt.args.localVarOptionals, tt.args.localVarPostBody)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("DefaultApiService.EnableHook_4_WithOptions() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("DefaultApiService.EnableHook_4_WithOptions() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
 func TestDefaultApiService_FindGroupsForUser(t *testing.T) {
 	type fields struct {
 		client *APIClient
@@ -2112,7 +2207,7 @@ func TestDefaultApiService_GetActivities(t *testing.T) {
 	type args struct {
 		projectKey        string
 		repositorySlug    string
-		pullRequestID     int64
+		pullRequestID     int
 		localVarOptionals map[string]interface{}
 	}
 	tests := []struct {
@@ -2187,6 +2282,7 @@ func TestDefaultApiService_GetArchive(t *testing.T) {
 		project           string
 		repository        string
 		localVarOptionals map[string]interface{}
+		writer            io.Writer
 	}
 	tests := []struct {
 		name                     string
@@ -2205,7 +2301,7 @@ func TestDefaultApiService_GetArchive(t *testing.T) {
 			a := &DefaultApiService{
 				client: tt.fields.client,
 			}
-			got, err := a.GetArchive(tt.args.project, tt.args.repository, tt.args.localVarOptionals)
+			got, err := a.GetArchive(tt.args.project, tt.args.repository, tt.args.localVarOptionals, tt.args.writer)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("DefaultApiService.GetArchive() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -2287,6 +2383,216 @@ func TestDefaultApiService_GetBranches(t *testing.T) {
 			}
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("DefaultApiService.GetBranches() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestDefaultApiService_GetBranchesWithBoostMatches(t *testing.T) {
+	getBranch := func(res *APIResponse) (branch string) {
+		if res.Values == nil {
+			return ""
+		}
+		values, ok := res.Values["values"]
+		if !ok {
+			return ""
+		}
+		valuesArray, ok := values.([]interface{})
+		if !ok || len(valuesArray) == 0 {
+			return ""
+		}
+		value, ok := valuesArray[0].(map[string]interface{})
+		if !ok {
+			return ""
+		}
+
+		return value["displayId"].(string)
+	}
+
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		switch r.RequestURI {
+		case "/api/1.0/projects/PROJECT/repos/REPO/branches?boostMatches=true&filterText=foo&orderBy=ALPHABETICAL":
+			_, err := io.WriteString(w, `{
+				"size": 1,
+				"limit": 100,
+				"isLastPage": true,
+				"values": [
+					{
+						"id": "refs/heads/foo",
+						"displayId": "foo",
+						"type": "BRANCH",
+						"latestCommit": "8d51122def5632836d1cb1026e879069e10a1e13",
+						"latestChangeset": "8d51122def5632836d1cb1026e879069e10a1e13",
+						"isDefault": true
+					}
+				],
+				"start": 0
+			}`)
+			if err != nil {
+				t.Errorf("DefaultApiService.GetBranches() error = i/o error %v", err)
+			}
+		case "/api/1.0/projects/PROJECT/repos/REPO/branches?filterText=foo&orderBy=ALPHABETICAL":
+			_, err := io.WriteString(w, `{
+				"size": 1,
+				"limit": 100,
+				"isLastPage": true,
+				"values": [
+					{
+						"id": "refs/heads/_foo_bar",
+						"displayId": "_foo_bar",
+						"type": "BRANCH",
+						"latestCommit": "8d51122def5632836d1cb1026e879069e10a1e13",
+						"latestChangeset": "8d51122def5632836d1cb1026e879069e10a1e13",
+						"isDefault": true
+					}
+				],
+				"start": 0
+			}`)
+			if err != nil {
+				t.Errorf("DefaultApiService.GetBranches() error = i/o error %v", err)
+			}
+		default:
+			t.Errorf("DefaultApiService.GetBranches() error = unhandled request %s", r.RequestURI)
+		}
+	}))
+	defer ts.Close()
+
+	client := NewAPIClient(
+		context.TODO(),
+		NewConfiguration(ts.URL),
+	)
+	type fields struct {
+		client *APIClient
+	}
+	type args struct {
+		project           string
+		repository        string
+		localVarOptionals map[string]interface{}
+	}
+	tests := []struct {
+		name                     string
+		fields                   fields
+		args                     args
+		wantBranch               string
+		wantErr, integrationTest bool
+	}{
+		{"withBoostMatches", fields{client: client}, args{
+			project: "PROJECT", repository: "REPO",
+			localVarOptionals: map[string]interface{}{
+				"boostMatches": true,
+				"filterText":   "foo",
+				"orderBy":      "ALPHABETICAL",
+			}}, "foo", false, false},
+		{"withoutBoostMatches", fields{client: client}, args{
+			project: "PROJECT", repository: "REPO",
+			localVarOptionals: map[string]interface{}{
+				"filterText": "foo",
+				"orderBy":    "ALPHABETICAL",
+			}}, "_foo_bar", false, false},
+	}
+	for _, tt := range tests {
+		if tt.integrationTest != runIntegrationTests {
+			continue
+		}
+		t.Run(tt.name, func(t *testing.T) {
+			a := &DefaultApiService{
+				client: tt.fields.client,
+			}
+			got, err := a.GetBranches(tt.args.project, tt.args.repository, tt.args.localVarOptionals)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("DefaultApiService.GetBranches() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if got != nil {
+				got.Response = nil
+			}
+			gotBranch := getBranch(got)
+			if !reflect.DeepEqual(gotBranch, tt.wantBranch) {
+				t.Errorf("DefaultApiService.GetBranches() = branch: %v, want branch: %v", gotBranch, tt.wantBranch)
+			}
+		})
+	}
+}
+
+func TestDefaultApiService_GetBranchesPagination(t *testing.T) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		switch r.RequestURI {
+		case "/api/1.0/projects/PROJECT/repos/REPO/branches?limit=100&start=0":
+			_, err := io.WriteString(w, `{
+				"size": 1,
+				"limit": 100,
+				"isLastPage": true,
+				"values": [
+					{
+						"id": "refs/heads/main",
+						"displayId": "main",
+						"type": "BRANCH",
+						"latestCommit": "8d51122def5632836d1cb1026e879069e10a1e13",
+						"latestChangeset": "8d51122def5632836d1cb1026e879069e10a1e13",
+						"isDefault": true
+					}
+				],
+				"start": 0
+			}`)
+			if err != nil {
+				t.Errorf("DefaultApiService.GetBranches() error = i/o error %v", err)
+			}
+		default:
+			t.Errorf("DefaultApiService.GetBranches() error = unhandled request %s", r.RequestURI)
+		}
+	}))
+	defer ts.Close()
+
+	client := NewAPIClient(
+		context.TODO(),
+		NewConfiguration(ts.URL),
+	)
+	type fields struct {
+		client *APIClient
+	}
+	type args struct {
+		project           string
+		repository        string
+		localVarOptionals map[string]interface{}
+	}
+	tests := []struct {
+		name                     string
+		fields                   fields
+		args                     args
+		want                     *APIResponse
+		wantErr, integrationTest bool
+	}{
+		{"limitAndStartSet", fields{client: client}, args{
+			project: "PROJECT", repository: "REPO",
+			localVarOptionals: map[string]interface{}{
+				"limit": 100,
+				"start": 0,
+			}}, nil, false, false},
+		{"incorrectLimit", fields{client: client}, args{
+			project: "PROJECT", repository: "REPO",
+			localVarOptionals: map[string]interface{}{
+				"limit": "wrong",
+			}}, nil, true, false},
+		{"incorrectStart", fields{client: client}, args{
+			project: "PROJECT", repository: "REPO",
+			localVarOptionals: map[string]interface{}{
+				"start": "wrong",
+			}}, nil, true, false},
+	}
+	for _, tt := range tests {
+		if tt.integrationTest != runIntegrationTests {
+			continue
+		}
+		t.Run(tt.name, func(t *testing.T) {
+			a := &DefaultApiService{
+				client: tt.fields.client,
+			}
+			_, err := a.GetBranches(tt.args.project, tt.args.repository, tt.args.localVarOptionals)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("DefaultApiService.GetBranches() error = %v, wantErr %v", err, tt.wantErr)
+				return
 			}
 		})
 	}
@@ -2378,7 +2684,7 @@ func TestDefaultApiService_GetComment(t *testing.T) {
 		projectKey     string
 		repositorySlug string
 		commitId       string
-		commentId      int64
+		commentId      int
 	}
 	tests := []struct {
 		name                     string
@@ -2416,8 +2722,8 @@ func TestDefaultApiService_GetComment_6(t *testing.T) {
 	type args struct {
 		projectKey     string
 		repositorySlug string
-		pullRequestId  int64
-		commentId      int64
+		pullRequestId  int
+		commentId      int
 	}
 	tests := []struct {
 		name                     string
@@ -2495,7 +2801,7 @@ func TestDefaultApiService_GetComments_7(t *testing.T) {
 	type args struct {
 		projectKey        string
 		repositorySlug    string
-		pullRequestId     int64
+		pullRequestId     int
 		localVarOptionals map[string]interface{}
 	}
 	tests := []struct {
@@ -2611,7 +2917,7 @@ func TestDefaultApiService_GetCommits_8(t *testing.T) {
 	type args struct {
 		projectKey        string
 		repositorySlug    string
-		pullRequestID     int64
+		pullRequestID     int
 		localVarOptionals map[string]interface{}
 	}
 	tests := []struct {
@@ -2785,13 +3091,13 @@ func TestDefaultApiService_GetContent_11(t *testing.T) {
 			a := &DefaultApiService{
 				client: tt.fields.client,
 			}
-			got, err := a.GetContent_11(tt.args.projectKey, tt.args.repositorySlug, tt.args.path, tt.args.localVarOptionals)
+			got, err := a.GetRawContent(tt.args.projectKey, tt.args.repositorySlug, tt.args.path, tt.args.localVarOptionals)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("DefaultApiService.GetContent_11() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("DefaultApiService.GetRawContent() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("DefaultApiService.GetContent_11() = %v, want %v", got, tt.want)
+				t.Errorf("DefaultApiService.GetRawContent() = %v, want %v", got, tt.want)
 			}
 		})
 	}
@@ -3649,7 +3955,7 @@ func TestDefaultApiService_GetPullRequestTasks(t *testing.T) {
 	type args struct {
 		projectKey     string
 		repositorySlug string
-		pullRequestID  int64
+		pullRequestID  int
 	}
 	tests := []struct {
 		name                     string
@@ -4691,7 +4997,7 @@ func TestDefaultApiService_GetTask(t *testing.T) {
 		client *APIClient
 	}
 	type args struct {
-		taskId int64
+		taskId int
 	}
 	tests := []struct {
 		name                     string
@@ -4739,11 +5045,17 @@ func TestDefaultApiService_GetSSHKeys(t *testing.T) {
 		{"networkErrorContextExceeded", fields{client: generateConfigFake()}, args{}, &APIResponse{Message: "Get https://stash.domain.com/rest/ssh/1.0/keys: context canceled"}, true, false},
 		{"realLocalServer", fields{client: generateConfigRealLocalServer()}, args{},
 			&APIResponse{Values: map[string]interface{}{
-				"size":       float64(0),
+				"size":       float64(1),
 				"limit":      float64(25),
 				"isLastPage": true,
-				"values":     []interface{}{},
-				"start":      float64(0),
+				"values": []interface{}{
+					map[string]interface{}{
+						"id":    float64(1),
+						"text":  "ssh-rsa AAAAB3... me@127.0.0.1",
+						"label": "me@127.0.0.1",
+					},
+				},
+				"start": float64(0),
 			}},
 			false, true},
 	}
@@ -5237,7 +5549,7 @@ func TestDefaultApiService_Get_27(t *testing.T) {
 	type args struct {
 		projectKey     string
 		repositorySlug string
-		pullRequestID  int64
+		pullRequestID  int
 	}
 	tests := []struct {
 		name                     string
@@ -5313,7 +5625,7 @@ func TestDefaultApiService_ListParticipants(t *testing.T) {
 		projectKey     string
 		repositorySlug string
 
-		pullRequestID int64
+		pullRequestID int
 	}
 	tests := []struct {
 		name                     string
@@ -5573,7 +5885,7 @@ func TestDefaultApiService_Reopen(t *testing.T) {
 	type args struct {
 		projectKey        string
 		repositorySlug    string
-		pullRequestID     int64
+		pullRequestID     int
 		localVarOptionals map[string]interface{}
 	}
 	tests := []struct {
@@ -5909,6 +6221,7 @@ func TestDefaultApiService_SetDefaultBranch(t *testing.T) {
 	type args struct {
 		projectKey     string
 		repositorySlug string
+		branchRef      string
 	}
 	tests := []struct {
 		name                     string
@@ -5918,6 +6231,7 @@ func TestDefaultApiService_SetDefaultBranch(t *testing.T) {
 		wantErr, integrationTest bool
 	}{
 		{"networkErrorContextExceeded", fields{client: generateConfigFake()}, args{}, &APIResponse{Message: "Put https://stash.domain.com/rest/api/1.0/projects//repos//branches/default: context canceled"}, true, false},
+		{"goodRequest", fields{client: generateConfigRealLocalServer()}, args{"PRJ", "repo1", "ref/branch/master"}, &APIResponse{Values: map[string]interface{}{}}, false, true},
 	}
 	for _, tt := range tests {
 		if tt.integrationTest != runIntegrationTests {
@@ -5927,11 +6241,12 @@ func TestDefaultApiService_SetDefaultBranch(t *testing.T) {
 			a := &DefaultApiService{
 				client: tt.fields.client,
 			}
-			got, err := a.SetDefaultBranch(tt.args.projectKey, tt.args.repositorySlug)
+			got, err := a.SetDefaultBranch(tt.args.projectKey, tt.args.repositorySlug, tt.args.branchRef)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("DefaultApiService.SetDefaultBranch() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
+			got.Response = nil
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("DefaultApiService.SetDefaultBranch() = %v, want %v", got, tt.want)
 			}
@@ -6499,7 +6814,7 @@ func TestDefaultApiService_StreamChanges_35(t *testing.T) {
 	type args struct {
 		projectKey        string
 		repositorySlug    string
-		pullRequestID     int64
+		pullRequestID     int
 		localVarOptionals map[string]interface{}
 	}
 	tests := []struct {
@@ -6814,7 +7129,7 @@ func TestDefaultApiService_StreamDiff_41(t *testing.T) {
 	type args struct {
 		projectKey        string
 		repositorySlug    string
-		pullRequestID     int64
+		pullRequestID     int
 		path              string
 		localVarOptionals map[string]interface{}
 	}
@@ -7008,7 +7323,7 @@ func TestDefaultApiService_UnassignParticipantRole(t *testing.T) {
 	type args struct {
 		projectKey        string
 		repositorySlug    string
-		pullRequestID     int64
+		pullRequestID     int
 		localVarOptionals map[string]interface{}
 	}
 	tests := []struct {
@@ -7047,7 +7362,7 @@ func TestDefaultApiService_UnassignParticipantRole_44(t *testing.T) {
 	type args struct {
 		projectKey     string
 		repositorySlug string
-		pullRequestID  int64
+		pullRequestID  int
 		userSlug       string
 	}
 	tests := []struct {
@@ -7124,7 +7439,7 @@ func TestDefaultApiService_Unwatch_45(t *testing.T) {
 	type args struct {
 		projectKey     string
 		repositorySlug string
-		pullRequestID  int64
+		pullRequestID  int
 	}
 	tests := []struct {
 		name                     string
@@ -7198,7 +7513,7 @@ func TestDefaultApiService_UpdateComment(t *testing.T) {
 		projectKey     string
 		repositorySlug string
 		commitId       string
-		commentId      int64
+		commentId      int
 	}
 	tests := []struct {
 		name                     string
@@ -7236,8 +7551,8 @@ func TestDefaultApiService_UpdateComment_46(t *testing.T) {
 	type args struct {
 		projectKey     string
 		repositorySlug string
-		pullRequestID  int64
-		commentId      int64
+		pullRequestID  int
+		commentId      int
 	}
 	tests := []struct {
 		name                     string
@@ -7263,6 +7578,45 @@ func TestDefaultApiService_UpdateComment_46(t *testing.T) {
 			}
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("DefaultApiService.UpdateComment_46() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+func TestDefaultApiService_UpdatePullRequestComment(t *testing.T) {
+	type fields struct {
+		client *APIClient
+	}
+	type args struct {
+		projectKey     string
+		repositorySlug string
+		pullRequestID  int
+		commentId      int
+		comment        UpdatePullRequestCommentRequest
+	}
+	tests := []struct {
+		name                     string
+		fields                   fields
+		args                     args
+		want                     *APIResponse
+		wantErr, integrationTest bool
+	}{
+		{"networkErrorContextExceeded", fields{client: generateConfigFake()}, args{}, &APIResponse{Message: "Put https://stash.domain.com/rest/api/1.0/projects//repos//pull-requests/0/comments/0: context canceled"}, true, false},
+	}
+	for _, tt := range tests {
+		if tt.integrationTest != runIntegrationTests {
+			continue
+		}
+		t.Run(tt.name, func(t *testing.T) {
+			a := &DefaultApiService{
+				client: tt.fields.client,
+			}
+			got, err := a.UpdatePullRequestComment(tt.args.projectKey, tt.args.repositorySlug, tt.args.pullRequestID, tt.args.commentId, tt.args.comment)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("DefaultApiService.UpdatePullRequestComment() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("DefaultApiService.UpdatePullRequestComment() = %v, want %v", got, tt.want)
 			}
 		})
 	}
@@ -7498,7 +7852,7 @@ func TestDefaultApiService_UpdateStatus(t *testing.T) {
 	type args struct {
 		projectKey     string
 		repositorySlug string
-		pullRequestID  int64
+		pullRequestID  int
 		userSlug       string
 		participant    UserWithMetadata
 	}
@@ -7536,7 +7890,7 @@ func TestDefaultApiService_UpdateTask(t *testing.T) {
 		client *APIClient
 	}
 	type args struct {
-		taskId int64
+		taskId int
 	}
 	tests := []struct {
 		name                     string
@@ -7754,7 +8108,7 @@ func TestDefaultApiService_Update_50(t *testing.T) {
 	type args struct {
 		projectKey     string
 		repositorySlug string
-		pullRequestID  int64
+		pullRequestID  int
 	}
 	tests := []struct {
 		name                     string
@@ -7902,7 +8256,7 @@ func TestDefaultApiService_Watch_52(t *testing.T) {
 	type args struct {
 		projectKey     string
 		repositorySlug string
-		pullRequestID  int64
+		pullRequestID  int
 	}
 	tests := []struct {
 		name                     string
@@ -7940,7 +8294,7 @@ func TestDefaultApiService_WithdrawApproval(t *testing.T) {
 	type args struct {
 		projectKey     string
 		repositorySlug string
-		pullRequestID  int64
+		pullRequestID  int
 	}
 	tests := []struct {
 		name                     string
@@ -8021,7 +8375,7 @@ func TestDefaultApiService_GetCommitStatus(t *testing.T) {
 		want                     *APIResponse
 		wantErr, integrationTest bool
 	}{
-		{"networkErrorContextExceeded", fields{client: generateConfigFake()}, args{}, &APIResponse{Message: "Get https://stash.domain.com/rest/rest/build-status/1.0/commits/: context canceled"}, true, false},
+		{"networkErrorContextExceeded", fields{client: generateConfigFake()}, args{}, &APIResponse{Message: "Get https://stash.domain.com/rest/build-status/1.0/commits/: context canceled"}, true, false},
 	}
 	for _, tt := range tests {
 		if tt.integrationTest != runIntegrationTests {
@@ -8094,7 +8448,7 @@ func TestDefaultApiService_SetCommitStatus(t *testing.T) {
 		want                     *APIResponse
 		wantErr, integrationTest bool
 	}{
-		{"networkErrorContextExceeded", fields{client: generateConfigFake()}, args{}, &APIResponse{Message: "Post https://stash.domain.com/rest/rest/build-status/1.0/commits/: context canceled"}, true, false},
+		{"networkErrorContextExceeded", fields{client: generateConfigFake()}, args{}, &APIResponse{Message: "Post https://stash.domain.com/rest/build-status/1.0/commits/: context canceled"}, true, false},
 	}
 	for _, tt := range tests {
 		if tt.integrationTest != runIntegrationTests {

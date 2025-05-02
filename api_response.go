@@ -7,7 +7,7 @@ package bitbucketv1
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"strings"
 
@@ -61,6 +61,7 @@ type Repository struct {
 	Slug          string   `json:"slug,omitempty"`
 	ID            int      `json:"id,omitempty"`
 	Name          string   `json:"name,omitempty"`
+	Description   string   `json:"description,omitempty"`
 	ScmID         string   `json:"scmId,omitempty"`
 	State         string   `json:"state,omitempty"`
 	StatusMessage string   `json:"statusMessage,omitempty"`
@@ -219,6 +220,16 @@ type PullRequest struct {
 		OpenTaskCount     int         `json:"openTaskCount"`
 	} `json:"properties"`
 	Links Links `json:"links"`
+}
+
+// EditPullRequestOptions editable values of a pull request.
+type EditPullRequestOptions struct {
+	Version         string         `json:"version"`
+	ID              int64          `json:"id,omitempty"`
+	State           string         `json:"state,omitempty"`
+	Title           string         `json:"title,omitempty"`
+	Description     string         `json:"description,omitempty"`
+	TargetBranchRef PullRequestRef `json:"targetBranchRef"`
 }
 
 // SSHKey contains data from a SSHKey in the BitBucket Server
@@ -527,10 +538,33 @@ func (p PermissionRepository) String() string {
 	return string(p)
 }
 
+type AccessTokenResponse struct {
+	ID                string   `json:"id"`
+	CreatedDate       int64    `json:"createdDate"`
+	LastAuthenticated int64    `json:"lastAuthenticated"`
+	Name              string   `json:"name"`
+	Permissions       []string `json:"permissions"`
+	User              User     `json:"user"`
+	Token             string   `json:"token"`
+}
+
+// GetAccessTokenResponse cast AccessTokenResponse into structure
+func GetAccessTokenResponse(r *APIResponse) (AccessTokenResponse, error) {
+	var m AccessTokenResponse
+	err := mapstructure.Decode(r.Values, &m)
+	return m, err
+}
+
 func (k *SSHKey) String() string {
 	parts := make([]string, 1, 2)
 	parts[0] = strings.TrimSpace(k.Text)
 	return strings.Join(parts, " ")
+}
+
+func GetProjectsResponse(r *APIResponse) ([]Project, error) {
+	var m []Project
+	err := mapstructure.Decode(r.Values["values"], &m)
+	return m, err
 }
 
 // GetCommitsResponse cast Commits into structure
@@ -554,10 +588,24 @@ func GetBranchesResponse(r *APIResponse) ([]Branch, error) {
 	return m, err
 }
 
+// GetBrancheResponse cast Branch into structure
+func GetBranchResponse(r *APIResponse) (Branch, error) {
+	var m Branch
+	err := mapstructure.Decode(r.Values, &m)
+	return m, err
+}
+
 // GetRepositoriesResponse cast Repositories into structure
 func GetRepositoriesResponse(r *APIResponse) ([]Repository, error) {
 	var m []Repository
 	err := mapstructure.Decode(r.Values["values"], &m)
+	return m, err
+}
+
+// GetRepositoryResponse cast project into structure
+func GetRrojectResponse(r *APIResponse) (Project, error) {
+	var m Project
+	err := mapstructure.Decode(r.Values, &m)
 	return m, err
 }
 
@@ -661,7 +709,6 @@ func GetActivitiesResponse(r *APIResponse) (Activities, error) {
 
 // NewAPIResponse create new APIResponse from http.Response
 func NewAPIResponse(r *http.Response) *APIResponse {
-
 	response := &APIResponse{Response: r}
 	return response
 }
@@ -681,17 +728,25 @@ func NewAPIResponseWithError(r *http.Response, bodyBytes []byte, err error) (*AP
 // NewBitbucketAPIResponse create new API response from http.response
 func NewBitbucketAPIResponse(r *http.Response) (*APIResponse, error) {
 	response := &APIResponse{Response: r}
-	err := json.NewDecoder(r.Body).Decode(&response.Values)
+
+	decoder := json.NewDecoder(r.Body)
+	err := decoder.Decode(&response.Values)
 	if err != nil {
 		return nil, err
 	}
+
+	if decoder.More() {
+		// there's more data in the stream, so discard whatever is left
+		_, _ = io.Copy(io.Discard, r.Body)
+	}
+
 	return response, err
 }
 
 // NewRawAPIResponse create new API response from http.response with raw data
 func NewRawAPIResponse(r *http.Response) (*APIResponse, error) {
 	response := &APIResponse{Response: r}
-	raw, err := ioutil.ReadAll(r.Body)
+	raw, err := io.ReadAll(r.Body)
 	if err != nil {
 		return nil, err
 	}
